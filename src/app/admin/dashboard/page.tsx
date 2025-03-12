@@ -7,7 +7,7 @@ import { FaPalette, FaClipboardList, FaCog } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const { accentColor, colorMode } = useTheme();
