@@ -227,7 +227,7 @@ export default function LoginPage() {
 
         <div className="text-center mt-4">
           <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            This login is for the artist only. If you're looking to commission artwork, please visit the <a href="/commissions" className="font-medium transition-colors" style={{ color: `var(--${accentColor}-400)` }}>commissions page</a>.
+            This login is for the artist only. If you&apos;re looking to commission artwork, please visit the <a href="/commissions" className="font-medium transition-colors" style={{ color: `var(--${accentColor}-400)` }}>commissions page</a>.
           </p>
         </div>
 

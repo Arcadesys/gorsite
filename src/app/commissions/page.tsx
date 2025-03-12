@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FaCheck } from 'react-icons/fa';
 
 const CommissionsPage = () => {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
