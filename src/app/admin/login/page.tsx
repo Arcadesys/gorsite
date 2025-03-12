@@ -76,6 +76,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <style jsx>{`
+        input:focus {
+          --tw-ring-color: var(--${accentColor}-500);
+        }
+      `}</style>
       <div className={`max-w-md w-full space-y-8 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} p-10 rounded-xl shadow-lg`}>
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold" style={{ color: `var(--${accentColor}-400)` }}>
@@ -117,9 +122,8 @@ export default function LoginPage() {
                     colorMode === 'dark' 
                       ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
                       : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-                  } border focus:outline-none focus:ring-2 focus:z-10`}
+                  } border focus:outline-none focus:ring-2 focus:z-10 focus:ring-opacity-50`}
                   style={{ 
-                    focusRing: `var(--${accentColor}-500)`,
                     borderColor: colorMode === 'dark' ? `var(--${accentColor}-800)` : `var(--${accentColor}-200)`
                   }}
                   placeholder="Email address"
@@ -146,9 +150,8 @@ export default function LoginPage() {
                     colorMode === 'dark' 
                       ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
                       : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-                  } border focus:outline-none focus:ring-2 focus:z-10`}
+                  } border focus:outline-none focus:ring-2 focus:z-10 focus:ring-opacity-50`}
                   style={{ 
-                    focusRing: `var(--${accentColor}-500)`,
                     borderColor: colorMode === 'dark' ? `var(--${accentColor}-800)` : `var(--${accentColor}-200)`
                   }}
                   placeholder="Password"
