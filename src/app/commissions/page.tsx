@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTheme } from '@/context/ThemeContext';
 
 const CommissionsPage = () => {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const { accentColor, colorMode } = useTheme();
   
   const commissionTiers = [
     {

@@ -12,6 +12,12 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  output: 'standalone',
+  experimental: {
+    // This will disable static generation for client components
+    // which is causing issues with ThemeContext
+    appDir: true,
+  },
 };
 
 module.exports = nextConfig; 
