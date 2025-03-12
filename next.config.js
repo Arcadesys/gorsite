@@ -18,6 +18,11 @@ const nextConfig = {
     // which is causing issues with ThemeContext
     appDir: true,
   },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    // Add domains if you need to load images from external sources
+    // domains: ['your-image-source.com'],
+  },
 };
 
 module.exports = nextConfig; 
