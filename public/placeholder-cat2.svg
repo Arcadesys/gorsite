@@ -1,0 +1,70 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#111" />
+  
+  <!-- Tech circles -->
+  <circle cx="200" cy="200" r="180" fill="none" stroke="#ec4899" stroke-width="2" stroke-dasharray="10 5" />
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#ec4899" stroke-width="1" />
+  
+  <!-- Cat body -->
+  <ellipse cx="200" cy="230" rx="100" ry="80" fill="white" />
+  
+  <!-- Cat head -->
+  <circle cx="200" cy="150" r="70" fill="white" />
+  
+  <!-- Ears -->
+  <polygon points="150,100 130,50 180,90" fill="white" />
+  <polygon points="250,100 270,50 220,90" fill="white" />
+  
+  <!-- Tech ear implant -->
+  <rect x="130" y="60" width="20" height="30" fill="#ec4899" />
+  <circle cx="140" y="55" r="5" fill="#ec4899" />
+  <line x1="140" y1="60" x2="140" y2="90" stroke="#ec4899" stroke-width="2" />
+  
+  <!-- Antenna -->
+  <line x1="200" y1="80" x2="200" y2="40" stroke="#ec4899" stroke-width="2" />
+  <circle cx="200" cy="35" r="5" fill="#ec4899" />
+  
+  <!-- Eyes -->
+  <circle cx="170" cy="140" r="15" fill="#222" />
+  <circle cx="230" cy="140" r="15" fill="#222" />
+  
+  <!-- Tech eye -->
+  <circle cx="170" cy="140" r="15" fill="none" stroke="#ec4899" stroke-width="2" />
+  <circle cx="170" cy="140" r="5" fill="#ec4899" />
+  <line x1="155" y1="140" x2="185" y2="140" stroke="#ec4899" stroke-width="1" />
+  <line x1="170" y1="125" x2="170" y2="155" stroke="#ec4899" stroke-width="1" />
+  
+  <!-- Nose -->
+  <polygon points="200,170 190,180 210,180" fill="#222" />
+  
+  <!-- Mouth -->
+  <path d="M180,190 Q200,210 220,190" stroke="#222" stroke-width="3" fill="none" />
+  
+  <!-- Whiskers -->
+  <line x1="180" y1="180" x2="120" y2="170" stroke="#222" stroke-width="2" />
+  <line x1="180" y1="185" x2="120" y2="185" stroke="#222" stroke-width="2" />
+  <line x1="180" y1="190" x2="120" y2="200" stroke="#222" stroke-width="2" />
+  
+  <line x1="220" y1="180" x2="280" y2="170" stroke="#222" stroke-width="2" />
+  <line x1="220" y1="185" x2="280" y2="185" stroke="#222" stroke-width="2" />
+  <line x1="220" y1="190" x2="280" y2="200" stroke="#222" stroke-width="2" />
+  
+  <!-- Tech implants -->
+  <rect x="160" y="240" width="80" height="30" rx="5" fill="#ec4899" />
+  <circle cx="180" cy="255" r="8" fill="#111" />
+  <circle cx="220" cy="255" r="8" fill="#111" />
+  
+  <!-- Paws -->
+  <circle cx="150" cy="310" r="20" fill="white" />
+  <circle cx="250" cy="310" r="20" fill="white" />
+  
+  <!-- Tech paw -->
+  <circle cx="250" cy="310" r="20" fill="none" stroke="#ec4899" stroke-width="2" />
+  <line x1="240" y1="300" x2="260" y2="320" stroke="#ec4899" stroke-width="2" />
+  <line x1="260" y1="300" x2="240" y2="320" stroke="#ec4899" stroke-width="2" />
+  
+  <!-- Text -->
+  <text x="200" y="370" font-family="Arial" font-size="16" fill="#ec4899" text-anchor="middle">INSPECTOR GADGET CAT</text>
+  <text x="200" y="390" font-family="Arial" font-size="12" fill="white" text-anchor="middle">ARTWORK LOADING...</text>
+</svg> 

@@ -1,0 +1,74 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#333" />
+  
+  <!-- Easel -->
+  <line x1="150" y1="100" x2="100" y2="350" stroke="#8B4513" stroke-width="8" />
+  <line x1="250" y1="100" x2="300" y2="350" stroke="#8B4513" stroke-width="8" />
+  <line x1="200" y1="100" x2="200" y2="350" stroke="#8B4513" stroke-width="8" />
+  <rect x="120" y="100" width="160" height="180" fill="white" />
+  
+  <!-- Canvas art (a simple fish) -->
+  <ellipse cx="200" cy="170" rx="40" ry="20" fill="#ec4899" />
+  <polygon points="240,170 260,160 260,180" fill="#ec4899" />
+  <circle cx="180" cy="165" r="5" fill="black" />
+  
+  <!-- Cat body -->
+  <ellipse cx="200" cy="300" rx="60" ry="50" fill="#f9a8d4" />
+  
+  <!-- Cat head -->
+  <circle cx="200" cy="240" r="40" fill="#f9a8d4" />
+  
+  <!-- Ears -->
+  <polygon points="175,210 160,180 190,205" fill="#f9a8d4" />
+  <polygon points="225,210 240,180 210,205" fill="#f9a8d4" />
+  
+  <!-- Inner ears -->
+  <polygon points="175,210 165,190 185,205" fill="#ec4899" />
+  <polygon points="225,210 235,190 215,205" fill="#ec4899" />
+  
+  <!-- Eyes -->
+  <ellipse cx="185" cy="235" rx="8" ry="12" fill="white" />
+  <ellipse cx="215" cy="235" rx="8" ry="12" fill="white" />
+  
+  <!-- Pupils -->
+  <ellipse cx="185" cy="235" rx="4" ry="6" fill="black" />
+  <ellipse cx="215" cy="235" rx="4" ry="6" fill="black" />
+  
+  <!-- Nose -->
+  <polygon points="200,250 195,255 205,255" fill="#ec4899" />
+  
+  <!-- Mouth -->
+  <path d="M190,260 Q200,270 210,260" stroke="black" stroke-width="2" fill="none" />
+  
+  <!-- Whiskers -->
+  <line x1="190" y1="255" x2="160" y2="250" stroke="black" stroke-width="1" />
+  <line x1="190" y1="258" x2="160" y2="258" stroke="black" stroke-width="1" />
+  <line x1="190" y1="261" x2="160" y2="266" stroke="black" stroke-width="1" />
+  
+  <line x1="210" y1="255" x2="240" y2="250" stroke="black" stroke-width="1" />
+  <line x1="210" y1="258" x2="240" y2="258" stroke="black" stroke-width="1" />
+  <line x1="210" y1="261" x2="240" y2="266" stroke="black" stroke-width="1" />
+  
+  <!-- Paws -->
+  <circle cx="170" cy="350" r="15" fill="#f9a8d4" />
+  <circle cx="230" cy="350" r="15" fill="#f9a8d4" />
+  
+  <!-- Palette -->
+  <ellipse cx="300" cy="280" rx="30" ry="20" fill="#8B4513" />
+  <circle cx="285" cy="275" r="8" fill="red" />
+  <circle cx="300" cy="270" r="8" fill="blue" />
+  <circle cx="315" cy="275" r="8" fill="green" />
+  <circle cx="290" cy="290" r="8" fill="yellow" />
+  <circle cx="310" cy="290" r="8" fill="purple" />
+  
+  <!-- Paintbrush -->
+  <line x1="240" y1="280" x2="280" y2="260" stroke="#8B4513" stroke-width="4" />
+  <rect x="280" y="255" width="20" height="10" fill="#ec4899" />
+  
+  <!-- Beret -->
+  <path d="M170,210 Q200,190 230,210" fill="#ec4899" />
+  
+  <!-- Text -->
+  <text x="200" y="380" font-family="Arial" font-size="16" fill="white" text-anchor="middle">ARTIST CAT AT WORK</text>
+</svg> 
