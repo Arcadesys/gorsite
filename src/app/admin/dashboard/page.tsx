@@ -6,23 +6,21 @@ import { useRouter } from 'next/navigation';
 import { FaPalette, FaClipboardList, FaCog } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 
-export default function AdminDashboard() {
-  const { data: session, status } = useSession();
+export default function DashboardPage() {
+  const { status } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const { accentColor, colorMode } = useTheme();
 
   useEffect(() => {
-    if (status === 'loading') {
-      return;
-    }
-
     if (status === 'unauthenticated') {
       router.push('/admin/login');
       return;
     }
 
-    setIsLoading(false);
+    if (status !== 'loading') {
+      setIsLoading(false);
+    }
   }, [status, router]);
 
   if (isLoading) {

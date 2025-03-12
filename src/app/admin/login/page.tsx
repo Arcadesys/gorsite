@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -32,43 +33,54 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle email/password login
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-
+    
     try {
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
-
+      
       if (result?.error) {
-        setError('Invalid email or password');
-        setIsLoading(false);
-        return;
+        setError(result.error);
+      } else {
+        router.push('/admin/dashboard');
       }
-
-      router.push('/admin/dashboard');
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
-
+  
+  // Handle social login
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true);
+    
     try {
-      await signIn(provider, { callbackUrl: '/admin/dashboard' });
-    } catch (error) {
-      setError('An error occurred with social login. Please try again.');
+      await signIn(provider, {
+        callbackUrl: '/admin/dashboard',
+      });
+    } catch (err) {
+      setError(`Failed to sign in with ${provider}`);
+      console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <style jsx>{`
+        input:focus {
+          --tw-ring-color: var(--${accentColor}-500);
+        }
+      `}</style>
       <div className={`max-w-md w-full space-y-8 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} p-10 rounded-xl shadow-lg`}>
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold" style={{ color: `var(--${accentColor}-400)` }}>
@@ -88,7 +100,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleEmailLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -110,9 +122,8 @@ export default function LoginPage() {
                     colorMode === 'dark' 
                       ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
                       : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-                  } border focus:outline-none focus:ring-2 focus:z-10`}
+                  } border focus:outline-none focus:ring-2 focus:z-10 focus:ring-opacity-50`}
                   style={{ 
-                    focusRing: `var(--${accentColor}-500)`,
                     borderColor: colorMode === 'dark' ? `var(--${accentColor}-800)` : `var(--${accentColor}-200)`
                   }}
                   placeholder="Email address"
@@ -139,9 +150,8 @@ export default function LoginPage() {
                     colorMode === 'dark' 
                       ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
                       : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-                  } border focus:outline-none focus:ring-2 focus:z-10`}
+                  } border focus:outline-none focus:ring-2 focus:z-10 focus:ring-opacity-50`}
                   style={{ 
-                    focusRing: `var(--${accentColor}-500)`,
                     borderColor: colorMode === 'dark' ? `var(--${accentColor}-800)` : `var(--${accentColor}-200)`
                   }}
                   placeholder="Password"
@@ -220,7 +230,20 @@ export default function LoginPage() {
 
         <div className="text-center mt-4">
           <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            This login is for the artist only. If you're looking to commission artwork, please visit the <a href="/commissions" className="font-medium transition-colors" style={{ color: `var(--${accentColor}-400)` }}>commissions page</a>.
+            This login is for the artist only. If you&apos;re looking to commission artwork, please visit the <a href="/commissions" className="font-medium transition-colors" style={{ color: `var(--${accentColor}-400)` }}>commissions page</a>.
+          </p>
+        </div>
+
+        <div className="text-center mt-4">
+          <p className={`mt-2 text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/admin/login"
+              className="font-medium hover:underline"
+              style={{ color: `var(--${accentColor}-500)` }}
+            >
+              Contact the admin
+            </Link>
           </p>
         </div>
       </div>

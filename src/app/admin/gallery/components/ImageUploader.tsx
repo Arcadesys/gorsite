@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { FaUpload, FaInfoCircle, FaTimes, FaPlus } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import Image from 'next/image';
 
 interface ImageUploaderProps {
   onImageUpload: (imageData: {
@@ -175,10 +176,13 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
           
           {previewUrl ? (
             <div className="relative">
-              <img 
+              <Image 
                 src={previewUrl} 
                 alt="Preview" 
                 className="max-h-64 mx-auto rounded-lg"
+                width={256}
+                height={256}
+                style={{ objectFit: 'contain', maxHeight: '16rem' }}
               />
               <button
                 type="button"
@@ -332,8 +336,8 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
         <div>
           <button
             type="submit"
-            className="w-full px-4 py-2 rounded-md text-white transition-colors"
-            style={{ backgroundColor: `var(--${accentColor}-500)`, hover: `var(--${accentColor}-600)` }}
+            className={`w-full px-4 py-2 rounded-md text-white transition-colors hover:opacity-90`}
+            style={{ backgroundColor: `var(--${accentColor}-500)` }}
           >
             Upload Artwork
           </button>

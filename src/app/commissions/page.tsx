@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FaCheck } from 'react-icons/fa';
+import { useTheme } from '@/context/ThemeContext';
 
 const CommissionsPage = () => {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const { accentColor, colorMode } = useTheme();
   
   const commissionTiers = [
     {
@@ -111,14 +112,13 @@ const CommissionsPage = () => {
                     </div>
                   </div>
                   
-                  <div className="mb-8">
-                    <h4 className="text-white font-semibold mb-3">What's included:</h4>
-                    <ul className="space-y-2">
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-2" style={{ color: `var(--${accentColor}-500)` }}>
+                      What&apos;s included:
+                    </h3>
+                    <ul className="list-disc pl-5 space-y-2">
                       {tier.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <FaCheck className="text-purple-400 flex-shrink-0" />
-                          <span className="text-gray-300">{feature}</span>
-                        </li>
+                        <li key={index}>{feature}</li>
                       ))}
                     </ul>
                   </div>
