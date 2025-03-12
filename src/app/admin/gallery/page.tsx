@@ -261,10 +261,9 @@ export default function GalleryPage() {
                         {item.tags.map((tag) => (
                           <span 
                             key={tag}
-                            className="px-2 py-1 rounded-full text-xs"
+                            className="px-2 py-1 rounded-full text-xs text-white"
                             style={{ 
-                              backgroundColor: `var(--${accentColor}-500)`,
-                              color: 'white'
+                              backgroundColor: `var(--${accentColor}-500)`
                             }}
                           >
                             #{tag}
