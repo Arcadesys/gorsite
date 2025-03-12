@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FaEdit, FaTrash, FaSearch, FaFilter, FaSpinner } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import ImageUploader from './components/ImageUploader';
+import Image from 'next/image';
 
 // Mock data for gallery images
 const MOCK_GALLERY = [
@@ -236,10 +237,12 @@ export default function GalleryPage() {
                   >
                     {/* Image Thumbnail */}
                     <div className="w-full md:w-32 h-32 flex-shrink-0">
-                      <img 
+                      <Image 
                         src={item.imageUrl} 
                         alt={item.altText}
                         className="w-full h-full object-cover rounded-lg"
+                        width={128}
+                        height={128}
                       />
                     </div>
                     

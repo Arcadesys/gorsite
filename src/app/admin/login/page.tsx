@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -32,37 +33,43 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle email/password login
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-
+    
     try {
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
-
+      
       if (result?.error) {
-        setError('Invalid email or password');
-        setIsLoading(false);
-        return;
+        setError(result.error);
+      } else {
+        router.push('/admin/dashboard');
       }
-
-      router.push('/admin/dashboard');
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
-
+  
+  // Handle social login
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true);
+    
     try {
-      await signIn(provider, { callbackUrl: '/admin/dashboard' });
-    } catch (error) {
-      setError('An error occurred with social login. Please try again.');
+      await signIn(provider, {
+        callbackUrl: '/admin/dashboard',
+      });
+    } catch (err) {
+      setError(`Failed to sign in with ${provider}`);
+      console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -88,7 +95,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleEmailLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -221,6 +228,19 @@ export default function LoginPage() {
         <div className="text-center mt-4">
           <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             This login is for the artist only. If you're looking to commission artwork, please visit the <a href="/commissions" className="font-medium transition-colors" style={{ color: `var(--${accentColor}-400)` }}>commissions page</a>.
+          </p>
+        </div>
+
+        <div className="text-center mt-4">
+          <p className={`mt-2 text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/admin/login"
+              className="font-medium hover:underline"
+              style={{ color: `var(--${accentColor}-500)` }}
+            >
+              Contact the admin
+            </Link>
           </p>
         </div>
       </div>

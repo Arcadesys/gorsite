@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { FaEnvelope, FaCheck, FaMapMarkerAlt, FaTwitter, FaInstagram, FaArtstation } from 'react-icons/fa';
+import { FaEnvelope, FaPhone } from 'react-icons/fa';
+import { useTheme } from '@/context/ThemeContext';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
