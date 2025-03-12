@@ -5,6 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import bcrypt from "bcrypt";
+import { User } from "@prisma/client";
+import { Account } from "next-auth";
 
 const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -80,7 +82,7 @@ const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: { user: User & { email: string }; account: Account | null }) {
       // For OAuth providers, check if the user is an admin
       if (account?.provider !== 'credentials') {
         const dbUser = await prisma.user.findUnique({
@@ -95,13 +97,13 @@ const authOptions = {
       
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (session?.user) {
         session.user.id = token.sub;
         session.user.role = token.role;
