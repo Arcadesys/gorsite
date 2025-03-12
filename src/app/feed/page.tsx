@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaTwitter, FaInstagram, FaDeviantart, FaTumblr, FaExternalLinkAlt, FaArtstation } from 'react-icons/fa';
+import Image from 'next/image';
 
 // Mock data for social posts
 const MOCK_POSTS = [
@@ -231,12 +232,19 @@ const SocialFeedPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.map((post) => (
+              {filteredPosts.map((post, index) => (
                 <div key={post.id} className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-purple-500/10 transition">
                   {post.imageUrl && (
                     <div className="relative h-64">
                       <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10"></div>
-                      <div className="absolute inset-0 bg-[url('/placeholder-art.jpg')] bg-cover bg-center"></div>
+                      <Image 
+                        src="/placeholder-art.jpg"
+                        alt={post.title || "Social media post"}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
+                        priority={index < 3} // Prioritize loading for the first few images
+                      />
                     </div>
                   )}
                   <div className="p-6">

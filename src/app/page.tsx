@@ -1,5 +1,6 @@
 import Link from "next/link";
 import PlaceholderArt from "@/components/PlaceholderArt";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -7,7 +8,14 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/30 z-10"></div>
-        <div className="absolute inset-0 bg-[url('/hero-bg.jpg')] bg-cover bg-center"></div>
+        <Image
+          src="/hero-bg.jpg"
+          alt="Hero background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
         <div className="container mx-auto px-4 z-20 text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
             <span className="text-pink-400">GORATH</span>
