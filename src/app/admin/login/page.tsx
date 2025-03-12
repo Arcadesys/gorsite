@@ -5,7 +5,6 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -73,10 +72,10 @@ export default function LoginPage() {
       <div className={`max-w-md w-full space-y-8 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} p-10 rounded-xl shadow-lg`}>
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold" style={{ color: `var(--${accentColor}-400)` }}>
-            Admin Login
+            Artist Admin Login
           </h2>
           <p className={`mt-2 text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            Sign in to access your admin dashboard
+            Sign in to manage your portfolio and commissions
           </p>
         </div>
 
@@ -221,14 +220,7 @@ export default function LoginPage() {
 
         <div className="text-center mt-4">
           <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            Don't have an account?{' '}
-            <Link 
-              href="/admin/register" 
-              className="font-medium transition-colors"
-              style={{ color: `var(--${accentColor}-400)` }}
-            >
-              Sign up
-            </Link>
+            This login is for the artist only. If you're looking to commission artwork, please visit the <a href="/commissions" className="font-medium transition-colors" style={{ color: `var(--${accentColor}-400)` }}>commissions page</a>.
           </p>
         </div>
       </div>

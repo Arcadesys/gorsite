@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { FaUsers, FaPalette, FaClipboardList, FaCog } from 'react-icons/fa';
+import { FaPalette, FaClipboardList, FaCog } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function AdminDashboard() {
@@ -51,14 +51,6 @@ export default function AdminDashboard() {
       color: 'bg-green-500',
     },
     {
-      title: 'Users',
-      icon: <FaUsers size={24} />,
-      count: '156',
-      description: 'Registered users',
-      link: '/admin/users',
-      color: 'bg-purple-500',
-    },
-    {
       title: 'Settings',
       icon: <FaCog size={24} />,
       count: '',
@@ -76,7 +68,7 @@ export default function AdminDashboard() {
 
       {/* Dashboard Content */}
       <div className={`${colorMode === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {dashboardItems.map((item, index) => (
             <div
               key={index}
@@ -117,7 +109,7 @@ export default function AdminDashboard() {
                     Event
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    User
+                    Client
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                     Date

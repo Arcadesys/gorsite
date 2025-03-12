@@ -1,4 +1,4 @@
-// This script creates an admin user in the database
+// This script creates or updates the admin user in the database
 // Usage: node scripts/create-admin.js <email> <password>
 
 const { PrismaClient } = require('@prisma/client');
@@ -16,46 +16,81 @@ async function main() {
 
   const [email, password] = args;
 
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    console.error('Invalid email format');
+    process.exit(1);
+  }
+
+  // Validate password strength
+  if (password.length < 8) {
+    console.error('Password must be at least 8 characters long');
+    process.exit(1);
+  }
+
   try {
-    // Check if user already exists
+    // Check if any admin user already exists
+    const adminCount = await prisma.user.count({
+      where: { role: 'ADMIN' },
+    });
+
+    // If an admin already exists, confirm before proceeding
+    if (adminCount > 0) {
+      console.log('Warning: An admin user already exists.');
+      console.log('This script will update the existing admin or create a new one.');
+      console.log('Press Ctrl+C to cancel or wait 5 seconds to continue...');
+      
+      // Wait for 5 seconds to allow cancellation
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+
+    // Check if user with this email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (existingUser) {
-      console.log(`User with email ${email} already exists.`);
-      
-      // Update the user to be an admin if they're not already
-      if (existingUser.role !== 'ADMIN') {
-        await prisma.user.update({
-          where: { id: existingUser.id },
-          data: { role: 'ADMIN' },
-        });
-        console.log(`User ${email} has been updated to an admin.`);
-      } else {
-        console.log(`User ${email} is already an admin.`);
-      }
-      
-      process.exit(0);
-    }
-
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the admin user
-    const user = await prisma.user.create({
-      data: {
-        name: 'Admin',
-        email,
-        password: hashedPassword,
-        role: 'ADMIN',
+    if (existingUser) {
+      // Update the existing user
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { 
+          password: hashedPassword,
+          role: 'ADMIN',
+          name: 'Artist Admin'
+        },
+      });
+      console.log(`User ${email} has been updated with new credentials and admin role.`);
+    } else {
+      // Create a new admin user
+      await prisma.user.create({
+        data: {
+          name: 'Artist Admin',
+          email,
+          password: hashedPassword,
+          role: 'ADMIN',
+        },
+      });
+      console.log(`Admin user created successfully with email: ${email}`);
+    }
+
+    // Delete any non-admin users for security in single-tenant app
+    const deletedCount = await prisma.user.deleteMany({
+      where: {
+        role: 'USER',
       },
     });
 
-    console.log(`Admin user created successfully with email: ${email}`);
+    if (deletedCount.count > 0) {
+      console.log(`Removed ${deletedCount.count} non-admin users for security.`);
+    }
+
     process.exit(0);
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    console.error('Error managing admin user:', error);
     process.exit(1);
   }
 }

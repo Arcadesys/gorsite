@@ -3,19 +3,19 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { FaHome, FaClipboardList, FaPalette, FaUsers, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import { signOut } from 'next-auth/react';
 import { useTheme } from '@/context/ThemeContext';
 
 // Pages that don't use the admin layout
-const excludedPaths = ['/admin/login', '/admin/register'];
+const excludedPaths = ['/admin/login'];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const { accentColor, colorMode } = useTheme();
 
-  // Don't show the admin layout for login and register pages
+  // Don't show the admin layout for login page
   if (excludedPaths.includes(pathname || '')) {
     return <>{children}</>;
   }
@@ -29,7 +29,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Dashboard', href: '/admin/dashboard', icon: <FaHome size={20} /> },
     { name: 'Commissions', href: '/admin/commissions', icon: <FaClipboardList size={20} /> },
     { name: 'Gallery', href: '/admin/gallery', icon: <FaPalette size={20} /> },
-    { name: 'Users', href: '/admin/users', icon: <FaUsers size={20} /> },
     { name: 'Settings', href: '/admin/config', icon: <FaCog size={20} /> },
   ];
 
@@ -77,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="mt-10 pt-6 border-t border-gray-800">
             <div className={`px-4 py-2 ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               <div className="text-sm">Signed in as:</div>
-              <div className="font-medium">{session?.user?.name || 'Admin'}</div>
+              <div className="font-medium">{session?.user?.name || 'Artist'}</div>
               <div className="text-sm">{session?.user?.email}</div>
             </div>
             <button
@@ -125,7 +124,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Mobile Navigation */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-10">
           <div className={`${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} border-t ${colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}>
-            <div className="grid grid-cols-5">
+            <div className="grid grid-cols-4">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
