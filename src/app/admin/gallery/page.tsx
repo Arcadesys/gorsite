@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaFilter, FaSpinner } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import ImageUploader from './components/ImageUploader';
 
@@ -41,6 +41,8 @@ export default function GalleryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
   const { accentColor, colorMode } = useTheme();
 
   // Handle image upload
@@ -68,22 +70,47 @@ export default function GalleryPage() {
       setGallery([newImage, ...gallery]);
       setIsUploading(false);
       
-      // Show success message or notification
-      alert('Image uploaded successfully!');
+      // Show success notification
+      setNotification({
+        type: 'success',
+        message: 'Image uploaded successfully!'
+      });
+      
+      // Clear notification after 5 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
     } catch (error) {
       console.error('Error uploading image:', error);
       setIsUploading(false);
       
-      // Show error message
-      alert('Failed to upload image. Please try again.');
+      // Show error notification
+      setNotification({
+        type: 'error',
+        message: 'Failed to upload image. Please try again.'
+      });
+      
+      // Clear notification after 5 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
     }
   };
 
   // Handle image deletion
   const handleDeleteImage = (id: string) => {
-    if (confirm('Are you sure you want to delete this image?')) {
-      setGallery(gallery.filter(img => img.id !== id));
-    }
+    setGallery(gallery.filter(img => img.id !== id));
+    setDeleteConfirmId(null);
+  };
+
+  // Request delete confirmation
+  const requestDeleteConfirmation = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
   };
 
   // Filter gallery by search term and active tag
@@ -116,6 +143,29 @@ export default function GalleryPage() {
       <h1 className="text-2xl font-bold mb-6" style={{ color: `var(--${accentColor}-400)` }}>
         Gallery Management
       </h1>
+      
+      {/* Notification */}
+      {notification && (
+        <div 
+          className={`mb-6 p-4 rounded-lg ${
+            notification.type === 'success' 
+              ? 'bg-green-100 border-green-500 text-green-700' 
+              : 'bg-red-100 border-red-500 text-red-700'
+          } border-l-4`}
+        >
+          {notification.message}
+        </div>
+      )}
+      
+      {/* Loading Overlay */}
+      {isUploading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`${colorMode === 'dark' ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg flex flex-col items-center`}>
+            <FaSpinner className="animate-spin text-4xl mb-4" style={{ color: `var(--${accentColor}-500)` }} />
+            <p className={`${colorMode === 'dark' ? 'text-white' : 'text-gray-800'}`}>Uploading image...</p>
+          </div>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Image Uploader */}
@@ -182,7 +232,7 @@ export default function GalleryPage() {
                 {filteredGallery.map((item) => (
                   <div 
                     key={item.id}
-                    className={`${colorMode === 'dark' ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg p-4 flex flex-col md:flex-row gap-4`}
+                    className={`${colorMode === 'dark' ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg p-4 flex flex-col md:flex-row gap-4 ${deleteConfirmId === item.id ? 'border-2 border-red-500' : ''}`}
                   >
                     {/* Image Thumbnail */}
                     <div className="w-full md:w-32 h-32 flex-shrink-0">
@@ -222,20 +272,39 @@ export default function GalleryPage() {
                         <span className={`text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                           Added: {formatDate(item.createdAt)}
                         </span>
-                        <div className="flex gap-2">
-                          <button
-                            className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
-                            style={{ color: `var(--${accentColor}-400)` }}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteImage(item.id)}
-                            className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'} text-red-500`}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
+                        
+                        {deleteConfirmId === item.id ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-red-500 text-sm">Are you sure?</span>
+                            <button
+                              onClick={() => handleDeleteImage(item.id)}
+                              className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                            >
+                              Yes, Delete
+                            </button>
+                            <button
+                              onClick={cancelDelete}
+                              className="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <button
+                              className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
+                              style={{ color: `var(--${accentColor}-400)` }}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              onClick={() => requestDeleteConfirmation(item.id)}
+                              className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'} text-red-500`}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
