@@ -336,8 +336,8 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
         <div>
           <button
             type="submit"
-            className="w-full px-4 py-2 rounded-md text-white transition-colors"
-            style={{ backgroundColor: `var(--${accentColor}-500)`, hover: `var(--${accentColor}-600)` }}
+            className={`w-full px-4 py-2 rounded-md text-white transition-colors hover:opacity-90`}
+            style={{ backgroundColor: `var(--${accentColor}-500)` }}
           >
             Upload Artwork
           </button>
