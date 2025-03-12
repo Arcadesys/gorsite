@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaDashboard, FaShoppingCart, FaCalendar } from 'react-icons/fa';
 import { signOut } from 'next-auth/react';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -28,6 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: <FaHome size={20} /> },
     { name: 'Commissions', href: '/admin/commissions', icon: <FaClipboardList size={20} /> },
+    { name: 'Calendar', href: '/admin/calendar', icon: <FaCalendar size={20} /> },
     { name: 'Gallery', href: '/admin/gallery', icon: <FaPalette size={20} /> },
     { name: 'Settings', href: '/admin/config', icon: <FaCog size={20} /> },
   ];
