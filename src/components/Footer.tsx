@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { FaTwitter, FaInstagram, FaArtstation, FaEnvelope } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import { BRAND } from '@/config/brand';
 
 export default function Footer() {
   const { accentColor, colorMode } = useTheme();
@@ -47,7 +48,7 @@ export default function Footer() {
               className="font-bold text-xl"
               style={{ color: getTextColor() }}
             >
-              GORATH
+              {BRAND.studioName}
             </Link>
             <p className={`${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
               Digital Artist & Illustrator
@@ -90,7 +91,7 @@ export default function Footer() {
         </div>
         
         <div className={`border-t ${colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200'} mt-8 pt-8 text-center ${colorMode === 'dark' ? 'text-gray-500' : 'text-gray-400'} text-sm`}>
-          <p>&copy; {new Date().getFullYear()} Gorath. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {BRAND.studioName}. All rights reserved.</p>
           <div className="mt-2 flex justify-center space-x-4">
             <Link 
               href="/terms" 

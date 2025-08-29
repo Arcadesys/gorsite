@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import { BRAND } from '@/config/brand';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,7 +56,7 @@ export default function Header() {
             onMouseOver={(e) => (e.currentTarget.style.color = getHoverTextColor())}
             onMouseOut={(e) => (e.currentTarget.style.color = getTextColor())}
           >
-            GORATH
+            {BRAND.studioName}
           </Link>
           
           {/* Desktop Navigation */}

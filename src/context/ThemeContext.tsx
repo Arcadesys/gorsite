@@ -16,7 +16,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [accentColor, setAccentColor] = useState<AccentColor>('pink');
+  // Default accent keyed to the neon green/cyan hero
+  const [accentColor, setAccentColor] = useState<AccentColor>('green');
   const [colorMode, setColorMode] = useState<ColorMode>('dark');
 
   // Load saved theme from localStorage on client side

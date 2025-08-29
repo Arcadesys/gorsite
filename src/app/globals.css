@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Tailwind v4 source scanning: explicit globs and no implicit root */
+@source none;
+@source "../src/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../public/**/*";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

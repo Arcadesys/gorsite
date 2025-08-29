@@ -58,6 +58,12 @@ npm run dev
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
+## Branding
+
+- Default studio name comes from `src/config/brand.ts` and is set to `DayAndNightProductions`.
+- To style the site around a big artist‑drawn hero, place your hero image at `public/branding/dayandnight-hero.png`. A placeholder lives at `public/placeholder-hero.svg`.
+- The default accent color is keyed to the hero art (neon green/cyan). You can switch the accent in the UI or modify the default in `src/context/ThemeContext.tsx`.
+
 ## Deployment
 
 This project can be easily deployed to Vercel:
