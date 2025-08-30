@@ -2,9 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaCalendar } from 'react-icons/fa';
-import { signOut } from 'next-auth/react';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
 
@@ -13,7 +11,7 @@ const excludedPaths = ['/admin/login'];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  // TODO: Add Supabase authentication logic here if needed
   const { accentColor, colorMode } = useTheme();
 
   // Don't show the admin layout for login page
@@ -21,10 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  // If the user is not authenticated, just render the children (middleware will handle redirect)
-  if (status !== 'authenticated') {
-    return <>{children}</>;
-  }
+  // ...existing code...
 
   const navItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: <FaHome size={20} /> },
@@ -34,8 +29,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Settings', href: '/admin/config', icon: <FaCog size={20} /> },
   ];
 
+  // TODO: Implement sign out with Supabase if needed
   const handleSignOut = async () => {
-    await signOut({ redirectTo: '/' });
+    // sign out logic here
   };
 
   return (
@@ -75,22 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             })}
           </div>
           
-          <div className="mt-10 pt-6 border-t border-gray-800">
-            <div className={`px-4 py-2 ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              <div className="text-sm">Signed in as:</div>
-              <div className="font-medium">{session?.user?.name || 'Artist'}</div>
-              <div className="text-sm">{session?.user?.email}</div>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className={`mt-2 flex items-center w-full px-4 py-3 rounded-lg transition ${
-                colorMode === 'dark' ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <FaSignOutAlt className="mr-3" />
-              <span>Sign Out</span>
-            </button>
-          </div>
+          {/* TODO: Add user info and sign out button with Supabase */}
         </nav>
       </div>
       
@@ -104,15 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             {BRAND.studioName} Admin
           </Link>
-          <div className="flex items-center">
-            <button
-              onClick={handleSignOut}
-              className="p-2 rounded-full"
-              style={{ color: `var(--${accentColor}-400)` }}
-            >
-              <FaSignOutAlt size={20} />
-            </button>
-          </div>
+          {/* TODO: Add sign out button for Supabase */}
         </div>
       </div>
       
