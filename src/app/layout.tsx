@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/context/ThemeContext";
 import ThemeSettings from "@/components/ThemeSettings";
-import { AuthProvider } from "@/context/AuthContext";
+// ...existing code...
 import { BRAND } from "@/config/brand";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} dark:bg-black dark:text-white light:bg-gray-50 light:text-gray-900 min-h-screen flex flex-col transition-colors duration-200`}>
-        <AuthProvider>
+  {/* ...existing code... */}
           <ThemeProvider>
             <div className="flex flex-col min-h-screen">
               <Header />
@@ -32,7 +32,7 @@ export default function RootLayout({
               <ThemeSettings />
             </div>
           </ThemeProvider>
-        </AuthProvider>
+  {/* ...existing code... */}
       </body>
     </html>
   );

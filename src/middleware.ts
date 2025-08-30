@@ -1,5 +1,7 @@
+
 import { NextResponse, NextRequest } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase';
+
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,6 +13,7 @@ export async function middleware(request: NextRequest) {
   
   // Check if the path starts with /admin and is not the login page
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+
     // Prepare a response so Supabase can set/refresh auth cookies if needed
     const res = NextResponse.next();
     const supabase = getSupabaseServer(request, res);
@@ -19,6 +22,7 @@ export async function middleware(request: NextRequest) {
 
     // If the user is not authenticated, redirect to the login page
     if (!session) {
+
       const url = new URL('/admin/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(request.url));
       return NextResponse.redirect(url);

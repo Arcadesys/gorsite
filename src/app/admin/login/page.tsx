@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+// ...existing code...
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
