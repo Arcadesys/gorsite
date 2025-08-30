@@ -16,7 +16,7 @@ A modern, responsive website for digital artist Gorath, featuring a portfolio ga
 
 - **Frontend**: Next.js, React, TypeScript, TailwindCSS
 - **Backend**: Next.js API Routes
-- **Database**: Prisma ORM with SQLite (can be upgraded to PostgreSQL)
+- **Database**: Prisma ORM on PostgreSQL (Supabase)
 - **Authentication**: NextAuth.js
 - **Payment Processing**: Stripe
 - **Email Marketing**: Mailchimp
@@ -46,9 +46,30 @@ npm install
 cp .env.example .env
 ```
 
-4. Initialize the database
+4. Configure Supabase (Postgres)
+
+Create a Supabase project, then:
+
+- Copy the Project URL and anon key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- Copy your database Connection Pooling URL into `DATABASE_URL` and your Direct connection URL into `DIRECT_URL`.
+
+Example `.env` entries (replace placeholders):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<PROJECT>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<ANON_KEY>
+DATABASE_URL="postgresql://postgres:<PASSWORD>@db.<PROJECT>.supabase.co:5432/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgresql://postgres:<PASSWORD>@db.<PROJECT>.supabase.co:5432/postgres"
+```
+
+5. Initialize the database schema on Supabase
 ```bash
-npx prisma migrate dev
+npx prisma migrate deploy
+```
+
+6. Create an admin user (optional)
+```bash
+node scripts/create-admin.js
 ```
 
 5. Run the development server
@@ -56,7 +77,12 @@ npx prisma migrate dev
 npm run dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+7. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### Notes on Prisma + Supabase
+
+- Prisma connects via `DATABASE_URL` (pooled). Migrations use `DIRECT_URL`.
+- Existing models are compatible with Postgres. If you were previously on SQLite, data will not auto-migrate; seed or import as needed.
 
 ## Branding
 

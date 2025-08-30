@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaCalendar } from 'react-icons/fa';
-import { signOut } from '@/auth';
+import { signOut } from 'next-auth/react';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
 
