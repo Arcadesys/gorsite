@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const path = require('path');
+// Removed manual outputFileTracingRoot to let Next/Vercel handle tracing correctly
 const nextConfig = {
   typescript: {
     // !! WARN !!
@@ -13,8 +13,8 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // 'standalone' is fine locally or in containers; Vercel will ignore it.
   output: 'standalone',
-  outputFileTracingRoot: path.resolve(__dirname, '..', '..'),
   // Next.js 15 uses the App Router by default; remove deprecated flag
   images: {
     formats: ['image/avif', 'image/webp'],

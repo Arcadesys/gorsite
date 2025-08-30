@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
-import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  outputFileTracingRoot: path.resolve(__dirname, "..", ".."),
+  // Removed outputFileTracingRoot; let Next.js determine the correct root on Vercel
 };
 
 export default nextConfig;
