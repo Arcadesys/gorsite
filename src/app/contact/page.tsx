@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 import { FaEnvelope, FaCheck } from 'react-icons/fa';
 
 const ContactPage = () => {
@@ -10,6 +11,11 @@ const ContactPage = () => {
     subject: '',
     message: '',
   });
+  const { accentColor, colorMode } = useTheme();
+  const palette = accentColor === 'green' ? 'emerald' : accentColor;
+  const c400 = `var(--${palette}-400)`;
+  const c600 = `var(--${palette}-600)`;
+  const c700 = `var(--${palette}-700)`;
   
   const [subscribeEmail, setSubscribeEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -56,9 +62,14 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-purple-900 to-black">
+      <section
+        className="relative py-20"
+        style={{ background: `linear-gradient(to bottom, var(--${palette}-900), ${colorMode === 'dark' ? '#000' : '#fff'})` }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Get in <span className="text-purple-400">Touch</span></h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>
+            Get in <span style={{ color: c400 }}>Touch</span>
+          </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Have a question or want to work together? I&apos;d love to hear from you!
           </p>
@@ -66,21 +77,21 @@ const ContactPage = () => {
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f3f4f6' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Contact Info */}
-              <div className="bg-black p-8 rounded-lg">
-                <h3 className="text-2xl font-bold mb-6 text-pink-400">Contact Information</h3>
+              <div className="p-8 rounded-lg" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
+                <h3 className="text-2xl font-bold mb-6" style={{ color: c400 }}>Contact Information</h3>
                 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <FaEnvelope className="text-pink-400 text-xl mt-1 flex-shrink-0" />
+                    <FaEnvelope className="text-xl mt-1 flex-shrink-0" style={{ color: c400 }} />
                     <div>
-                      <h4 className="font-bold text-white mb-1">Email</h4>
+                      <h4 className="font-bold mb-1" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>Email</h4>
                       <p className="text-gray-400">Don&apos;t hesitate to reach out!</p>
-                      <a href="mailto:contact@gorathartist.com" className="text-pink-400 hover:text-pink-300 transition">
+                      <a href="mailto:contact@gorathartist.com" className="transition" style={{ color: c400 }}>
                         contact@gorathartist.com
                       </a>
                     </div>
@@ -104,12 +115,12 @@ const ContactPage = () => {
               </div>
               
               {/* Contact Form */}
-              <div className="bg-black p-8 rounded-lg border border-purple-800">
-                <h2 className="text-2xl font-bold mb-6 text-purple-400">Send a Message</h2>
+              <div className="p-8 rounded-lg" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', border: `1px solid ${c700}` }}>
+                <h2 className="text-2xl font-bold mb-6" style={{ color: c400 }}>Send a Message</h2>
                 
                 {isSubmitted ? (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: c600 }}>
                       <FaCheck className="text-white text-2xl" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Message Sent!</h3>
@@ -118,7 +129,8 @@ const ContactPage = () => {
                     </p>
                     <button
                       onClick={() => setIsSubmitted(false)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full transition"
+                      className="text-white font-bold py-2 px-6 rounded-full transition"
+                      style={{ backgroundColor: c600 }}
                     >
                       Send Another Message
                     </button>
@@ -133,7 +145,7 @@ const ContactPage = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none"
                         placeholder="Your name"
                         required
                       />
@@ -147,7 +159,7 @@ const ContactPage = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none"
                         placeholder="Your email"
                         required
                       />
@@ -160,7 +172,7 @@ const ContactPage = () => {
                         name="subject"
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none"
                         required
                       >
                         <option value="" disabled>Select a subject</option>
@@ -179,7 +191,7 @@ const ContactPage = () => {
                         value={formData.message}
                         onChange={handleInputChange}
                         rows={5}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none"
                         placeholder="Your message"
                         required
                       ></textarea>
@@ -189,7 +201,8 @@ const ContactPage = () => {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full transition flex items-center justify-center mx-auto"
+                        className="text-white font-bold py-3 px-8 rounded-full transition flex items-center justify-center mx-auto"
+                        style={{ backgroundColor: c600 }}
                       >
                         {isLoading ? (
                           <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
@@ -203,12 +216,12 @@ const ContactPage = () => {
               </div>
               
               {/* Stay Updated */}
-              <div className="bg-black p-8 rounded-lg border border-purple-800">
-                <h2 className="text-2xl font-bold mb-6 text-purple-400">Stay Updated</h2>
+              <div className="p-8 rounded-lg" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', border: `1px solid ${c700}` }}>
+                <h2 className="text-2xl font-bold mb-6" style={{ color: c400 }}>Stay Updated</h2>
                 
                 {isSubscribed ? (
                   <div className="text-center py-6">
-                    <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: c600 }}>
                       <FaCheck className="text-white text-xl" />
                     </div>
                     <h3 className="text-lg font-bold text-white mb-2">Subscribed!</h3>
@@ -228,14 +241,15 @@ const ContactPage = () => {
                           type="email"
                           value={subscribeEmail}
                           onChange={(e) => setSubscribeEmail(e.target.value)}
-                          className="flex-grow bg-gray-900 border border-gray-700 rounded-l-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-grow bg-gray-900 border border-gray-700 rounded-l-lg px-4 py-3 text-white focus:outline-none"
                           placeholder="Your email address"
                           required
                         />
                         <button
                           type="submit"
                           disabled={isLoading}
-                          className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 rounded-r-lg transition flex items-center justify-center"
+                          className="text-white font-bold px-4 rounded-r-lg transition flex items-center justify-center"
+                          style={{ backgroundColor: c600 }}
                         >
                           {isLoading ? (
                             <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
@@ -253,8 +267,8 @@ const ContactPage = () => {
               </div>
               
               {/* FAQ */}
-              <div className="bg-black p-8 rounded-lg border border-purple-800">
-                <h2 className="text-2xl font-bold mb-6 text-purple-400">FAQ</h2>
+              <div className="p-8 rounded-lg" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', border: `1px solid ${c700}` }}>
+                <h2 className="text-2xl font-bold mb-6" style={{ color: c400 }}>FAQ</h2>
                 
                 <div className="space-y-4">
                   <div>

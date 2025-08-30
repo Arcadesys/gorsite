@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import PlaceholderArt from '@/components/PlaceholderArt';
 
@@ -84,6 +85,11 @@ const GalleryPage = () => {
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<typeof GALLERY_ITEMS[0] | null>(null);
+  const { accentColor, colorMode } = useTheme();
+  const palette = accentColor === 'green' ? 'emerald' : accentColor;
+  const c400 = `var(--${palette}-400)`;
+  const c500 = `var(--${palette}-500)`;
+  const c600 = `var(--${palette}-600)`;
   
   const filteredItems = GALLERY_ITEMS.filter((item) => {
     const matchesFilter = filter === 'all' || item.category === filter;
@@ -103,9 +109,14 @@ const GalleryPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-pink-900 to-black">
+      <section
+        className="relative py-20"
+        style={{ background: `linear-gradient(to bottom, var(--${palette}-900), ${colorMode === 'dark' ? '#000' : '#fff'})` }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Art <span className="text-pink-400">Gallery</span></h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>
+            Art <span style={{ color: c400 }}>Gallery</span>
+          </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Explore my collection of digital artwork and illustrations
           </p>
@@ -113,37 +124,37 @@ const GalleryPage = () => {
       </section>
       
       {/* Filter and Search */}
-      <section className="py-8 bg-black sticky top-0 z-10 border-b border-gray-800">
+      <section className="py-8 sticky top-0 z-10 border-b border-gray-800" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-full transition ${
-                  filter === 'all'
-                    ? 'bg-pink-600 text-white'
-                    : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
-                }`}
+                className={`px-4 py-2 rounded-full transition`}
+                style={{
+                  backgroundColor: filter === 'all' ? c600 : (colorMode === 'dark' ? '#111827' : '#f3f4f6'),
+                  color: filter === 'all' ? '#fff' : (colorMode === 'dark' ? '#d1d5db' : '#111827'),
+                }}
               >
                 All Works
               </button>
               <button
                 onClick={() => setFilter('character')}
-                className={`px-4 py-2 rounded-full transition ${
-                  filter === 'character'
-                    ? 'bg-pink-600 text-white'
-                    : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
-                }`}
+                className={`px-4 py-2 rounded-full transition`}
+                style={{
+                  backgroundColor: filter === 'character' ? c600 : (colorMode === 'dark' ? '#111827' : '#f3f4f6'),
+                  color: filter === 'character' ? '#fff' : (colorMode === 'dark' ? '#d1d5db' : '#111827'),
+                }}
               >
                 Characters
               </button>
               <button
                 onClick={() => setFilter('environment')}
-                className={`px-4 py-2 rounded-full transition ${
-                  filter === 'environment'
-                    ? 'bg-pink-600 text-white'
-                    : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
-                }`}
+                className={`px-4 py-2 rounded-full transition`}
+                style={{
+                  backgroundColor: filter === 'environment' ? c600 : (colorMode === 'dark' ? '#111827' : '#f3f4f6'),
+                  color: filter === 'environment' ? '#fff' : (colorMode === 'dark' ? '#d1d5db' : '#111827'),
+                }}
               >
                 Environments
               </button>
@@ -155,7 +166,7 @@ const GalleryPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search gallery..."
-                className="w-full bg-gray-900 border border-gray-700 rounded-full px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full bg-gray-900 border border-gray-700 rounded-full px-4 py-2 pl-10 text-white focus:outline-none"
               />
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
@@ -164,7 +175,7 @@ const GalleryPage = () => {
       </section>
       
       {/* Gallery Grid */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f3f4f6' }}>
         <div className="container mx-auto px-4">
           {filteredItems.length === 0 ? (
             <div className="text-center py-20">
@@ -176,7 +187,8 @@ const GalleryPage = () => {
               {filteredItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-pink-500/20 transition cursor-pointer"
+                  className="rounded-lg overflow-hidden transition cursor-pointer"
+                  style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', boxShadow: colorMode === 'dark' ? '0 10px 15px -10px rgba(0,0,0,0.7)' : '0 10px 15px -10px rgba(0,0,0,0.1)' }}
                   onClick={() => handleItemClick(item)}
                 >
                   <div className="relative h-64">
@@ -184,7 +196,7 @@ const GalleryPage = () => {
                   </div>
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-xl font-bold text-pink-400">{item.title}</h3>
+                      <h3 className="text-xl font-bold" style={{ color: c400 }}>{item.title}</h3>
                       <span className="text-gray-500 text-sm">{item.year}</span>
                     </div>
                     <p className="text-gray-400 mb-4 line-clamp-2">{item.description}</p>
@@ -216,7 +228,7 @@ const GalleryPage = () => {
             </div>
             <div className="p-8">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-pink-400">{selectedItem.title}</h2>
+                <h2 className="text-2xl font-bold" style={{ color: c400 }}>{selectedItem.title}</h2>
                 <span className="text-gray-500">{selectedItem.year}</span>
               </div>
               <p className="text-gray-300 mb-6">{selectedItem.description}</p>
@@ -233,7 +245,8 @@ const GalleryPage = () => {
                 <div className="flex gap-4">
                   <a
                     href="/commissions"
-                    className="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full transition"
+                    className="text-white font-bold py-2 px-6 rounded-full transition"
+                    style={{ backgroundColor: c600 }}
                   >
                     Commission Me
                   </a>

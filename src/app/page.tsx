@@ -7,9 +7,10 @@ import { useTheme } from "@/context/ThemeContext";
 
 export default function Home() {
   const { accentColor, colorMode } = useTheme();
-  const c400 = `var(--${accentColor}-400)`;
-  const c600 = `var(--${accentColor}-600)`;
-  const c700 = `var(--${accentColor}-700)`;
+  const palette = accentColor === 'green' ? 'emerald' : accentColor;
+  const c400 = `var(--${palette}-400)`;
+  const c600 = `var(--${palette}-600)`;
+  const c700 = `var(--${palette}-700)`;
 
   return (
     <div className="flex flex-col min-h-screen">

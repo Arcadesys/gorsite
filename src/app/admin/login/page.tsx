@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from '@/auth';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
@@ -45,7 +45,7 @@ export default function LoginPage() {
       });
       
       if (result?.error) {
-        setError(result.error.message || 'Login failed');
+        setError(typeof result.error === 'string' ? result.error : 'Login failed');
       } else {
         router.push('/admin/dashboard');
       }
