@@ -1,5 +1,4 @@
-import { createBrowserClient } from '@supabase/supabase-js'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr'
 import type { NextRequest } from 'next/server'
 import type { NextResponse } from 'next/server'
 

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-// ...existing code...
 import { useRouter } from 'next/navigation';
 import { FaPalette, FaClipboardList, FaCog } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
   const { status } = useSession();
@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const { accentColor, colorMode } = useTheme();
 
   useEffect(() => {
-  // ...existing code...
+    if (status === 'unauthenticated') {
       router.push('/admin/login');
       return;
     }
@@ -255,4 +255,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-} 
+}
