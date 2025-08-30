@@ -13,11 +13,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   output: 'standalone',
-  experimental: {
-    // This will disable static generation for client components
-    // which is causing issues with ThemeContext
-    appDir: true,
-  },
+  // Next.js 15 uses the App Router by default; remove deprecated flag
   images: {
     formats: ['image/avif', 'image/webp'],
     // Add domains if you need to load images from external sources
