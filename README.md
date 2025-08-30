@@ -73,6 +73,13 @@ npm install -g vercel
 vercel
 ```
 
+## Scripts
+
+- `npm run dev`: Starts the Next.js dev server.
+- `npm run build`: Generates Prisma client and builds the Next.js app.
+- `npm run start`: Starts the production server after a build.
+- `npm run lint`: Runs Next.js/ESLint checks.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

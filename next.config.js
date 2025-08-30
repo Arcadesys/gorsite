@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 const nextConfig = {
   typescript: {
     // !! WARN !!
@@ -13,6 +14,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   output: 'standalone',
+  outputFileTracingRoot: path.resolve(__dirname, '..', '..'),
   // Next.js 15 uses the App Router by default; remove deprecated flag
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -21,4 +23,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

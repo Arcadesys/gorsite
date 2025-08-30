@@ -1,8 +1,6 @@
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
-
-const config = {
-  plugins: [tailwindcss, autoprefixer],
+// Use Tailwind CSS v4 meta plugin that bundles necessary PostCSS plugins
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
 };
-
-export default config;
