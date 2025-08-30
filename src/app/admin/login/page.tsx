@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn } from '@/auth';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
@@ -41,12 +41,11 @@ export default function LoginPage() {
     try {
       const result = await signIn('credentials', {
         redirect: false,
-        email,
-        password,
+        body: { email, password },
       });
       
       if (result?.error) {
-        setError(result.error);
+        setError(result.error.message || 'Login failed');
       } else {
         router.push('/admin/dashboard');
       }
@@ -63,9 +62,7 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      await signIn(provider, {
-        callbackUrl: '/admin/dashboard',
-      });
+      await signIn(provider, { redirectTo: '/admin/dashboard' });
     } catch (err) {
       setError(`Failed to sign in with ${provider}`);
       console.error(err);
@@ -249,4 +246,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}

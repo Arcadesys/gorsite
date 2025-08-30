@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaCalendar } from 'react-icons/fa';
-import { signOut } from 'next-auth/react';
+import { signOut } from '@/auth';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
 
@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
+    await signOut({ redirectTo: '/' });
   };
 
   return (
@@ -149,4 +149,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     </div>
   );
-} 
+}

@@ -61,7 +61,7 @@ export default function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {['Home', 'Gallery', 'Commissions', 'Social Feed', 'Contact'].map((item) => (
+            {['Home', 'Gallery', 'Commissions', 'Contact'].map((item) => (
               <Link 
                 key={item}
                 href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
@@ -92,7 +92,7 @@ export default function Header() {
           style={{ borderTop: `1px solid ${getBorderColor()}` }}
         >
           <nav className="container mx-auto px-4 flex flex-col space-y-4">
-            {['Home', 'Gallery', 'Commissions', 'Social Feed', 'Contact'].map((item) => (
+            {['Home', 'Gallery', 'Commissions', 'Contact'].map((item) => (
               <Link 
                 key={item}
                 href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}

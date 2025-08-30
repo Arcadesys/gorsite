@@ -95,40 +95,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Feed Preview */}
-      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f9fafb' }}>
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: c400 }}>Latest Updates</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {[1, 2].map((item) => (
-              <div key={item} className="p-6 rounded-lg flex gap-4" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
-                <div className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-white" style={{ backgroundColor: c600 }}>
-                  {item === 1 ? "🐦" : "📸"}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-bold" style={{ color: c400 }}>
-                      {item === 1 ? "Twitter" : "Instagram"}
-                    </h3>
-                    <span className={colorMode === 'dark' ? 'text-gray-500 text-sm' : 'text-gray-600 text-sm'}>2 days ago</span>
-                  </div>
-                  <p className={colorMode === 'dark' ? 'text-gray-300 mb-2' : 'text-gray-700 mb-2'}>
-                    Just finished this new character design! What do you think? #digitalart #characterdesign
-                  </p>
-                  <a href="#" className="text-sm transition" style={{ color: c400 }}>
-                    View Original Post →
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Link href="/feed" className="font-bold py-3 px-8 rounded-full transition border" style={{ color: c400, borderColor: c600 }}>
-              View All Updates
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Social feed section removed intentionally */}
 
       {/* Contact CTA */}
       <section className="py-16" style={{ background: 'linear-gradient(90deg, #064e3b, #047857)' }}>
