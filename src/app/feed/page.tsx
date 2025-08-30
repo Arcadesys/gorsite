@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 import { FaTwitter, FaInstagram, FaDeviantart, FaTumblr, FaExternalLinkAlt, FaArtstation } from 'react-icons/fa';
 import Image from 'next/image';
 
@@ -76,6 +77,11 @@ const SocialFeedPage = () => {
   const [posts] = useState(MOCK_POSTS);
   const [filter, setFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const { accentColor, colorMode } = useTheme();
+  const palette = accentColor === 'green' ? 'emerald' : accentColor;
+  const c400 = `var(--${palette}-400)`;
+  const c500 = `var(--${palette}-500)`;
+  const c600 = `var(--${palette}-600)`;
 
   useEffect(() => {
     // Simulate loading data
@@ -142,9 +148,14 @@ const SocialFeedPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-purple-900 to-black">
+      <section
+        className="relative py-20"
+        style={{ background: `linear-gradient(to bottom, var(--${palette}-900), ${colorMode === 'dark' ? '#000' : '#fff'})` }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Social <span className="text-purple-400">Feed</span></h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>
+            Social <span style={{ color: c400 }}>Feed</span>
+          </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Stay updated with my latest posts across all platforms
           </p>
@@ -152,16 +163,16 @@ const SocialFeedPage = () => {
       </section>
 
       {/* Filter Section */}
-      <section className="py-8 bg-black border-b border-gray-800">
+      <section className="py-8 border-b border-gray-800" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => setFilter('all')}
-              className={`px-6 py-2 rounded-full transition ${
-                filter === 'all'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
-              }`}
+              className={`px-6 py-2 rounded-full transition`}
+              style={{
+                backgroundColor: filter === 'all' ? c600 : (colorMode === 'dark' ? '#111827' : '#f3f4f6'),
+                color: filter === 'all' ? '#fff' : (colorMode === 'dark' ? '#d1d5db' : '#111827'),
+              }}
             >
               All Platforms
             </button>
@@ -220,11 +231,11 @@ const SocialFeedPage = () => {
       </section>
 
       {/* Posts Section */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f3f4f6' }}>
         <div className="container mx-auto px-4">
           {isLoading ? (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: c500 }}></div>
             </div>
           ) : filteredPosts.length === 0 ? (
             <div className="text-center py-20">
@@ -260,7 +271,8 @@ const SocialFeedPage = () => {
                       href={post.postUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 transition flex items-center gap-1 text-sm"
+                      className="transition flex items-center gap-1 text-sm"
+                      style={{ color: c400 }}
                     >
                       View Original Post <FaExternalLinkAlt size={12} />
                     </a>
@@ -273,9 +285,9 @@ const SocialFeedPage = () => {
       </section>
 
       {/* Follow CTA */}
-      <section className="py-16 bg-black">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-8 text-purple-400">Follow Me</h2>
+          <h2 className="text-3xl font-bold mb-8" style={{ color: c400 }}>Follow Me</h2>
           <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
             Stay connected and never miss an update by following me on these platforms
           </p>

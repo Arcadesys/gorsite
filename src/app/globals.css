@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Tailwind v4 source scanning: explicit globs and no implicit root */
+/* Explicit project root for Tailwind v4 scanner, plus globs */
+@source "../src/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../public/**/*";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -28,7 +33,8 @@ body {
 
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
+/* Disable default root and rely on explicit @source globs */
+@tailwind utilities source(none);
 
 @layer base {
   :root {

@@ -6,12 +6,13 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/context/ThemeContext";
 import ThemeSettings from "@/components/ThemeSettings";
 import { AuthProvider } from "@/context/AuthContext";
+import { BRAND } from "@/config/brand";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Gorath - Digital Artist & Illustrator",
-  description: "Portfolio and commission website for digital artist Gorath",
+  title: `${BRAND.studioName} — Digital Art Studio`,
+  description: `Portfolio and commissions for ${BRAND.studioName}`,
 };
 
 export default function RootLayout({

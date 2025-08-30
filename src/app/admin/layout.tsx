@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaCalendar } from 'react-icons/fa';
 import { signOut } from 'next-auth/react';
 import { useTheme } from '@/context/ThemeContext';
+import { BRAND } from '@/config/brand';
 
 // Pages that don't use the admin layout
 const excludedPaths = ['/admin/login'];
@@ -34,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
+    await signOut({ redirectTo: '/' });
   };
 
   return (
@@ -47,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="text-xl font-bold"
             style={{ color: `var(--${accentColor}-400)` }}
           >
-            Gorath Admin
+            {BRAND.studioName} Admin
           </Link>
         </div>
         <nav className="mt-6 px-4">
@@ -101,7 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="text-xl font-bold"
             style={{ color: `var(--${accentColor}-400)` }}
           >
-            Gorath Admin
+            {BRAND.studioName} Admin
           </Link>
           <div className="flex items-center">
             <button
@@ -148,4 +149,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     </div>
   );
-} 
+}

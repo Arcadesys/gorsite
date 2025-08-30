@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
+import { BRAND } from '@/config/brand';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,12 +56,12 @@ export default function Header() {
             onMouseOver={(e) => (e.currentTarget.style.color = getHoverTextColor())}
             onMouseOut={(e) => (e.currentTarget.style.color = getTextColor())}
           >
-            GORATH
+            {BRAND.studioName}
           </Link>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {['Home', 'Gallery', 'Commissions', 'Social Feed', 'Contact'].map((item) => (
+            {['Home', 'Gallery', 'Commissions', 'Contact'].map((item) => (
               <Link 
                 key={item}
                 href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
@@ -91,7 +92,7 @@ export default function Header() {
           style={{ borderTop: `1px solid ${getBorderColor()}` }}
         >
           <nav className="container mx-auto px-4 flex flex-col space-y-4">
-            {['Home', 'Gallery', 'Commissions', 'Social Feed', 'Contact'].map((item) => (
+            {['Home', 'Gallery', 'Commissions', 'Contact'].map((item) => (
               <Link 
                 key={item}
                 href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}

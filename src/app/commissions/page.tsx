@@ -7,6 +7,11 @@ import { useTheme } from '@/context/ThemeContext';
 const CommissionsPage = () => {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const { accentColor, colorMode } = useTheme();
+  const palette = accentColor === 'green' ? 'emerald' : accentColor;
+  const c400 = `var(--${palette}-400)`;
+  const c500 = `var(--${palette}-500)`;
+  const c600 = `var(--${palette}-600)`;
+  const c700 = `var(--${palette}-700)`;
   
   const commissionTiers = [
     {
@@ -64,9 +69,14 @@ const CommissionsPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-purple-900 to-black">
+      <section
+        className="relative py-20"
+        style={{ background: `linear-gradient(to bottom, var(--${palette}-900), ${colorMode === 'dark' ? '#000' : '#fff'})` }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Commission <span className="text-purple-400">Information</span></h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>
+            Commission <span style={{ color: c400 }}>Information</span>
+          </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             I offer various types of digital art commissions to bring your ideas to life
           </p>
@@ -74,28 +84,35 @@ const CommissionsPage = () => {
       </section>
 
       {/* Commission Tiers */}
-      <section className="py-16 bg-black">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-purple-400">Commission Tiers</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: c400 }}>Commission Tiers</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {commissionTiers.map((tier) => (
               <div 
                 key={tier.id}
                 className={`bg-gray-900 rounded-lg overflow-hidden transition-all duration-300 ${
-                  tier.popular ? 'border-2 border-purple-500 transform md:scale-105 shadow-lg shadow-purple-500/20' : 'border border-gray-800'
-                } ${selectedTier === tier.id ? 'ring-2 ring-purple-400' : ''}`}
+                  tier.popular ? 'transform md:scale-105' : ''
+                }`}
+                style={{
+                  borderWidth: tier.popular ? 2 : 1,
+                  borderStyle: 'solid',
+                  borderColor: tier.popular ? c500 : (colorMode === 'dark' ? '#1f2937' : '#e5e7eb'),
+                  outline: selectedTier === tier.id ? `2px solid ${c400}` : undefined,
+                  boxShadow: tier.popular ? `0 10px 25px -10px ${colorMode === 'dark' ? 'rgba(16,185,129,0.35)' : 'rgba(0,0,0,0.08)'}` : undefined,
+                }}
               >
                 {tier.popular && (
-                  <div className="bg-purple-600 text-white py-1 px-4 text-sm font-bold text-center">
+                  <div className="text-white py-1 px-4 text-sm font-bold text-center" style={{ backgroundColor: c600 }}>
                     MOST POPULAR
                   </div>
                 )}
                 
                 <div className="p-8">
-                  <h3 className="text-2xl font-bold mb-2 text-purple-400">{tier.name}</h3>
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: c400 }}>{tier.name}</h3>
                   <p className="text-gray-400 mb-4">{tier.description}</p>
-                  <p className="text-3xl font-bold text-white mb-6">{tier.price}</p>
+                  <p className="text-3xl font-bold mb-6" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>{tier.price}</p>
                   
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
@@ -113,7 +130,7 @@ const CommissionsPage = () => {
                   </div>
                   
                   <div className="mt-8">
-                    <h3 className="text-lg font-semibold mb-2" style={{ color: `var(--${accentColor}-500)` }}>
+                    <h3 className="text-lg font-semibold mb-2" style={{ color: c500 }}>
                       What&apos;s included:
                     </h3>
                     <ul className="list-disc pl-5 space-y-2">
@@ -125,11 +142,12 @@ const CommissionsPage = () => {
                   
                   <button
                     onClick={() => handleSelectTier(tier.id)}
-                    className={`w-full py-3 px-6 rounded-full font-bold transition ${
-                      selectedTier === tier.id
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-transparent text-purple-400 border border-purple-600 hover:bg-purple-600 hover:text-white'
-                    }`}
+                    className="w-full py-3 px-6 rounded-full font-bold transition"
+                    style={{
+                      backgroundColor: selectedTier === tier.id ? c600 : 'transparent',
+                      color: selectedTier === tier.id ? '#fff' : c400 as unknown as string,
+                      border: selectedTier === tier.id ? 'none' : `1px solid ${c600}`,
+                    }}
                   >
                     {selectedTier === tier.id ? 'Selected' : 'Select'}
                   </button>
@@ -141,10 +159,10 @@ const CommissionsPage = () => {
       </section>
 
       {/* Commission Form */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f3f4f6' }}>
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-black rounded-lg p-8 border border-purple-800">
-            <h2 className="text-3xl font-bold mb-8 text-center text-purple-400">Request a Commission</h2>
+          <div className="max-w-3xl mx-auto rounded-lg p-8" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', border: `1px solid ${c700}` }}>
+            <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: c400 }}>Request a Commission</h2>
             
             <form className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -214,18 +232,20 @@ const CommissionsPage = () => {
                 <input
                   type="checkbox"
                   id="terms"
-                  className="mr-2 h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
+                  className="mr-2 h-5 w-5 rounded"
+                  style={{ accentColor: c600 as unknown as string, borderColor: colorMode === 'dark' ? '#374151' : '#d1d5db' }}
                   required
                 />
                 <label htmlFor="terms" className="text-gray-300">
-                  I agree to the <Link href="/terms" className="text-purple-400 hover:text-purple-300">terms and conditions</Link>
+                  I agree to the <Link href="/terms" className="transition" style={{ color: c400 }}>terms and conditions</Link>
                 </label>
               </div>
               
               <div className="text-center">
                 <button
                   type="submit"
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full transition"
+                  className="text-white font-bold py-3 px-8 rounded-full transition"
+                  style={{ backgroundColor: c600 }}
                 >
                   Submit Commission Request
                 </button>
@@ -236,9 +256,9 @@ const CommissionsPage = () => {
       </section>
 
       {/* Commission Process */}
-      <section className="py-16 bg-black">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-pink-400">Commission Process</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: c400 }}>Commission Process</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
@@ -263,11 +283,11 @@ const CommissionsPage = () => {
                 description: 'You&apos;ll receive the final artwork in the requested format',
               },
             ].map((item) => (
-              <div key={item.step} className="bg-gray-900 p-6 rounded-lg text-center relative">
-                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+              <div key={item.step} className="p-6 rounded-lg text-center relative" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f9fafb' }}>
+                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: c600 }}>
                   {item.step}
                 </div>
-                <h3 className="text-xl font-bold mt-4 mb-3 text-purple-400">{item.title}</h3>
+                <h3 className="text-xl font-bold mt-4 mb-3" style={{ color: c400 }}>{item.title}</h3>
                 <p className="text-gray-300">{item.description}</p>
               </div>
             ))}
@@ -276,9 +296,9 @@ const CommissionsPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f3f4f6' }}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-purple-400">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: c400 }}>Frequently Asked Questions</h2>
           
           <div className="max-w-3xl mx-auto space-y-6">
             {[
@@ -303,8 +323,8 @@ const CommissionsPage = () => {
                 answer: 'Turnaround times vary by commission type and current workload. Estimated timeframes are listed with each tier, but I&apos;ll provide you with a more specific timeline when your commission is approved.',
               },
             ].map((item, index) => (
-              <div key={index} className="bg-black p-6 rounded-lg border border-gray-800">
-                <h3 className="text-xl font-bold mb-3 text-purple-400">{item.question}</h3>
+              <div key={index} className="p-6 rounded-lg" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', border: `1px solid ${colorMode === 'dark' ? '#1f2937' : '#e5e7eb'}` }}>
+                <h3 className="text-xl font-bold mb-3" style={{ color: c400 }}>{item.question}</h3>
                 <p className="text-gray-300">{item.answer}</p>
               </div>
             ))}
