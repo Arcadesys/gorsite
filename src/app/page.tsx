@@ -14,8 +14,41 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section: image only */}
       <Hero />
+
+      {/* Brand Intro moved below hero */}
+      <section className="py-10 md:py-14"
+        style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff' }}
+      >
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4" style={{ color: c400 }}>
+            DayAndNightProductions
+          </h1>
+          <p
+            className="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
+            style={{ color: colorMode === 'dark' ? '#e5e7eb' : '#374151' }}
+          >
+            Artist-run studio for character art, graffiti lettering, and vibrant commissions.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/commissions"
+              className="text-white font-bold py-3 px-8 rounded-full transition"
+              style={{ backgroundColor: c600 }}
+            >
+              Commission Us
+            </Link>
+            <Link
+              href="/gallery"
+              className="border font-bold py-3 px-8 rounded-full transition"
+              style={{ borderColor: c600, color: c400 }}
+            >
+              View Gallery
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Featured Works */}
       <section className="py-16" style={{ backgroundColor: colorMode === 'dark' ? '#111827' : '#f9fafb' }}>

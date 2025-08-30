@@ -71,17 +71,18 @@ body {
     --blue-100: #dbeafe;
     --blue-200: #bfdbfe;
     
-    /* Green */
-    --emerald-300: #6ee7b7;
-    --emerald-400: #34d399;
-    --emerald-500: #10b981;
-    --emerald-600: #059669;
-    --emerald-700: #047857;
-    --emerald-800: #065f46;
-    --emerald-900: #064e3b;
-    --emerald-100: #d1fae5;
-    --emerald-200: #a7f3d0;
-    
+    /* Brand: Neon Green/Cyan (used for both emerald-* classes and green-* CSS vars) */
+    /* Tuned to match the attached logo glow. Primary ~#00FFAD, Secondary tilt ~#00F0C8 */
+    --emerald-100: #e9fff7; /* very pale mint for light borders */
+    --emerald-200: #c8ffe9;
+    --emerald-300: #7effd1;
+    --emerald-400: #36ffc0; /* secondary-ish (brighter/cyan tilt) */
+    --emerald-500: #00ffad; /* core neon */
+    --emerald-600: #00e39b; /* primary button */
+    --emerald-700: #00c488; /* hover/darker */
+    --emerald-800: #009d70; /* borders on dark */
+    --emerald-900: #063f32; /* deep mint-teal for gradients */
+
     /* Orange */
     --orange-300: #fdba74;
     --orange-400: #fb923c;
@@ -92,6 +93,17 @@ body {
     --orange-900: #7c2d12;
     --orange-100: #ffedd5;
     --orange-200: #fed7aa;
+
+    /* Aliases so inline styles like var(--green-600) work */
+    --green-100: var(--emerald-100);
+    --green-200: var(--emerald-200);
+    --green-300: var(--emerald-300);
+    --green-400: var(--emerald-400);
+    --green-500: var(--emerald-500);
+    --green-600: var(--emerald-600);
+    --green-700: var(--emerald-700);
+    --green-800: var(--emerald-800);
+    --green-900: var(--emerald-900);
   }
 }
 
