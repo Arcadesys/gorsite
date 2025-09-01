@@ -4,7 +4,7 @@ import { getSupabaseServer } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
-  const res = NextResponse.next();
+  const res = new NextResponse();
   const supabase = getSupabaseServer(req, res);
   const form = await req.formData();
   const file = form.get('file');
@@ -30,6 +30,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   const { data: pub } = supabase.storage.from(bucket).getPublicUrl(data.path);
-  return NextResponse.json({ path: data.path, publicUrl: pub.publicUrl }, { headers: res.headers });
+  return NextResponse.json({ path: data.path, publicUrl: pub.publicUrl });
 }
 

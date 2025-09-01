@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
 }
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
-  const res = NextResponse.next()
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -35,7 +35,12 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
   })
   // If imageUrl present, attach to commissions gallery
   if (imageUrl) {
-    const commissionsGallery = await prisma.gallery.findUnique({ where: { userId_slug: { userId: portfolio.userId, slug: 'commissions' } } })
+    const commissionsGallery = await prisma.gallery.findFirst({ 
+      where: { 
+        userId: portfolio.userId, 
+        slug: 'commissions' 
+      } 
+    })
     if (commissionsGallery) {
       const item = await prisma.galleryItem.create({
         data: {
@@ -49,5 +54,5 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       await prisma.commissionPrice.update({ where: { id: created.id }, data: { galleryItemId: item.id } })
     }
   }
-  return NextResponse.json({ price: created }, { headers: res.headers })
+  return NextResponse.json({ price: created })
 }

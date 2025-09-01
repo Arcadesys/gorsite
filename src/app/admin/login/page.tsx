@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // ...existing code...
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
@@ -15,6 +15,31 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { accentColor, colorMode } = useTheme();
+
+  // Check for URL parameters with error messages
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+    
+    if (errorParam) {
+      switch (errorParam) {
+        case 'auth_failed':
+          setError('Authentication failed. Please try again.');
+          break;
+        case 'auth_exception':
+          setError('An error occurred during authentication.');
+          break;
+        case 'no_code':
+          setError('Invalid authentication link.');
+          break;
+        case 'not_authenticated':
+          setError('Please log in to continue.');
+          break;
+        default:
+          setError('An authentication error occurred.');
+      }
+    }
+  }, []);
 
   // Get button background color based on mode
   const getButtonBgColor = () => {

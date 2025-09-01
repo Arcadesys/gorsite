@@ -18,7 +18,7 @@ async function ensureOwner(userId: string, slug: string) {
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { slug: string, id: string } }) {
-  const res = NextResponse.next()
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -36,11 +36,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
   if (typeof body.active === 'boolean') data.active = body.active
 
   const updated = await prisma.commissionPrice.update({ where: { id: params.id }, data })
-  return NextResponse.json({ price: updated }, { headers: res.headers })
+  return NextResponse.json({ price: updated })
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { slug: string, id: string } }) {
-  const res = NextResponse.next()
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -49,6 +49,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug: str
   if (!isAdmin(user) && user.id !== portfolio.userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   await prisma.commissionPrice.delete({ where: { id: params.id } })
-  return NextResponse.json({ ok: true }, { headers: res.headers })
+  return NextResponse.json({ ok: true })
 }
 

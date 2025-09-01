@@ -13,7 +13,7 @@ function isAdmin(user: any) {
 }
 
 export async function GET(req: NextRequest) {
-  const res = NextResponse.next();
+  const res = new NextResponse();
   const supabase = getSupabaseServer(req as any, res as any);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,11 +22,11 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: 'desc' },
     select: { id: true, slug: true, displayName: true, accentColor: true, colorMode: true, userId: true },
   });
-  return NextResponse.json({ portfolios }, { headers: res.headers });
+  return NextResponse.json({ portfolios });
 }
 
 export async function POST(req: NextRequest) {
-  const res = NextResponse.next();
+  const res = new NextResponse();
   const supabase = getSupabaseServer(req as any, res as any);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,7 +56,12 @@ export async function POST(req: NextRequest) {
     });
     // Auto-create a hidden commissions gallery for the owner if not exists
     const baseSlug = 'commissions'
-    const existing = await prisma.gallery.findUnique({ where: { userId_slug: { userId: owner.id, slug: baseSlug } } })
+    const existing = await prisma.gallery.findFirst({ 
+      where: { 
+        userId: owner.id, 
+        slug: baseSlug 
+      } 
+    })
     if (!existing) {
       await prisma.gallery.create({
         data: {
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
         },
       })
     }
-    return NextResponse.json({ portfolio: created }, { headers: res.headers });
+    return NextResponse.json({ portfolio: created });
   } catch (e: any) {
     if (e?.code === 'P2002') {
       return NextResponse.json({ error: 'Slug already exists' }, { status: 409 });

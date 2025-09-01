@@ -13,7 +13,7 @@ function isAdmin(user: any) {
 }
 
 export async function GET(req: NextRequest) {
-  const res = NextResponse.next()
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -34,11 +34,11 @@ export async function GET(req: NextRequest) {
     role: u.user_metadata?.role,
     is_admin: Boolean(u.user_metadata?.is_admin),
   }))
-  return NextResponse.json({ users, count: data?.users?.length || 0 }, { headers: res.headers })
+  return NextResponse.json({ users, count: data?.users?.length || 0 })
 }
 
 export async function POST(req: NextRequest) {
-  const res = NextResponse.next()
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const { email, role } = await req.json().catch(() => ({}))
   if (!email || !role) return NextResponse.json({ error: 'Missing email or role' }, { status: 400 })
   const admin = getSupabaseAdmin()
-  const redirectTo = process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/admin/login` : undefined
+  const redirectTo = process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback` : 'http://localhost:3000/auth/callback'
 
   const roles = role.toLowerCase() === 'admin' ? ['admin'] : ['artist']
   const userMeta: any = role.toLowerCase() === 'admin'
@@ -59,11 +59,11 @@ export async function POST(req: NextRequest) {
     redirectTo,
   })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true, userId: data?.user?.id }, { headers: res.headers })
+  return NextResponse.json({ ok: true, userId: data?.user?.id })
 }
 
 export async function PATCH(req: NextRequest) {
-  const res = NextResponse.next()
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -81,6 +81,6 @@ export async function PATCH(req: NextRequest) {
     app_metadata: { roles },
   })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true }, { headers: res.headers })
+  return NextResponse.json({ ok: true })
 }
 

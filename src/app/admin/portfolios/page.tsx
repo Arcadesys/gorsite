@@ -50,11 +50,30 @@ export default function PortfoliosPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to create');
       if (ownerEmail) {
         // Trigger invite email
-        await fetch('/api/portfolios/invite', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: ownerEmail, portfolioSlug: slug }),
-        });
+        try {
+          const inviteRes = await fetch('/api/portfolios/invite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: ownerEmail, portfolioSlug: slug }),
+          });
+          
+          if (!inviteRes.ok) {
+            const errorText = await inviteRes.text();
+            console.error('Invite failed:', errorText);
+            // Don't throw here - portfolio was created successfully
+            setError(`Portfolio created but invite failed: ${errorText}`);
+          } else {
+            try {
+              const inviteData = await inviteRes.json();
+              console.log('Invite sent:', inviteData);
+            } catch (e) {
+              console.error('Invite response not JSON, but status was ok');
+            }
+          }
+        } catch (e) {
+          console.error('Invite request failed:', e);
+          setError(`Portfolio created but invite failed: ${e}`);
+        }
       }
       setSlug('');
       setDisplayName('');
