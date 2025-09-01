@@ -12,8 +12,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
   const nav = [
     { href: '/studio', label: 'Overview' },
+    { href: '/studio/onboarding', label: 'Onboarding' },
     { href: '/studio/portfolio', label: 'Portfolio' },
-    { href: '/studio/galleries', label: 'Galleries' },
     { href: '/studio/prices', label: 'Prices' },
   ];
 
@@ -40,4 +40,3 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     </div>
   );
 }
-

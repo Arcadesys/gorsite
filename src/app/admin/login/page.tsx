@@ -13,11 +13,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const { accentColor, colorMode } = useTheme();
 
+  // Handle client-side hydration
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Check for URL parameters with error messages
   useEffect(() => {
+    if (!isClient) return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const errorParam = urlParams.get('error');
     
@@ -39,7 +47,7 @@ export default function LoginPage() {
           setError('An authentication error occurred.');
       }
     }
-  }, []);
+  }, [isClient]);
 
   // Get button background color based on mode
   const getButtonBgColor = () => {
@@ -81,7 +89,8 @@ export default function LoginPage() {
               // Try sign-in again
               const retry = await supabase.auth.signInWithPassword({ email, password });
               if (!retry.error) {
-                router.push('/admin/dashboard');
+                // Route to /admin and let middleware send superadmins to /admin/system
+                router.push('/admin');
                 return;
               }
             }
@@ -89,7 +98,19 @@ export default function LoginPage() {
         }
         setError(error.message || 'Login failed');
       } else {
-        router.push('/admin/dashboard');
+        // Determine role and route
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          const isAdmin = Boolean(
+            (user as any)?.app_metadata?.roles?.includes?.('admin') ||
+            (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
+            (user as any)?.user_metadata?.is_admin === true
+          );
+          // Send to /admin; middleware will route superadmins to /admin/system
+          router.push(isAdmin ? '/admin' : '/studio');
+        } catch {
+          router.push('/studio');
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -101,6 +122,8 @@ export default function LoginPage() {
   
   // Handle social login
   const handleSocialLogin = async (provider: string) => {
+    if (!isClient) return;
+    
     setIsLoading(true);
     
     try {
@@ -108,7 +131,8 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as any,
         options: {
-          redirectTo: `${window.location.origin}/admin/dashboard`,
+          // Route through auth callback which will redirect by role
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       if (error) setError(error.message);
@@ -127,7 +151,18 @@ export default function LoginPage() {
           --tw-ring-color: var(--${accentColor}-500);
         }
       `}</style>
-      <div className={`max-w-md w-full space-y-8 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} p-10 rounded-xl shadow-lg`}>
+      
+      {!isClient ? (
+        <div className="max-w-md w-full space-y-8 p-10 rounded-xl shadow-lg">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 rounded w-3/4 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className={`max-w-md w-full space-y-8 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} p-10 rounded-xl shadow-lg`}>
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold" style={{ color: `var(--${accentColor}-400)` }}>
             Artist Admin Login
@@ -293,6 +328,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      )}
     </div>
   );
 }

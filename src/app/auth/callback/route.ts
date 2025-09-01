@@ -24,8 +24,16 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL('/auth/set-password', requestUrl.origin))
       }
 
-      // For other auth types, redirect to admin dashboard
-      return NextResponse.redirect(new URL('/admin/dashboard', requestUrl.origin))
+      // For other auth types, redirect based on role
+      const { data: { user } } = await supabase.auth.getUser()
+      const isAdmin = Boolean(
+        (user as any)?.app_metadata?.roles?.includes?.('admin') ||
+        (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
+        (user as any)?.user_metadata?.is_admin === true
+      )
+      const metaDone = Boolean((user as any)?.user_metadata?.onboarding?.done)
+      const dest = isAdmin ? '/admin/dashboard' : (metaDone ? '/studio' : '/studio/onboarding')
+      return NextResponse.redirect(new URL(dest, requestUrl.origin))
     } catch (error) {
       console.error('Auth callback exception:', error)
       return NextResponse.redirect(new URL('/admin/login?error=auth_exception', requestUrl.origin))

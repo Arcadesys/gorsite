@@ -28,8 +28,15 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Optional: Check if the user is an admin using Supabase metadata conventions
+    // Check if password change is required
     const user = session.user as any;
+    const requiresPasswordChange = Boolean(user?.user_metadata?.force_password_change);
+    
+    if (requiresPasswordChange && pathname !== '/auth/change-password') {
+      return NextResponse.redirect(new URL('/auth/change-password', request.url));
+    }
+
+    // Optional: Check if the user is an admin using Supabase metadata conventions
     const isAdmin = Boolean(
       user?.app_metadata?.roles?.includes?.('admin') ||
       (typeof user?.user_metadata?.role === 'string' && user.user_metadata.role.toLowerCase() === 'admin') ||
@@ -39,6 +46,16 @@ export async function middleware(request: NextRequest) {
     if (!isAdmin) {
       // If not an admin, redirect to the home page
       return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // If user is a superadmin and is visiting the base /admin path,
+    // redirect them to the system management page. Otherwise send admins to dashboard.
+    const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase();
+    const isSuperAdmin = isAdmin && (String(user?.email || '').toLowerCase() === superEmail);
+
+    if (pathname === '/admin' || pathname === '/admin/') {
+      const target = isSuperAdmin ? '/admin/system' : '/admin/dashboard';
+      return NextResponse.redirect(new URL(target, request.url));
     }
 
     // Continue with the response that captured any cookie updates
@@ -55,7 +72,28 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set('callbackUrl', encodeURI(request.url));
       return NextResponse.redirect(url);
     }
+    
+    // Check if password change is required
+    const user = session.user as any;
+    const requiresPasswordChange = Boolean(user?.user_metadata?.force_password_change);
+    
+    if (requiresPasswordChange && pathname !== '/auth/change-password') {
+      return NextResponse.redirect(new URL('/auth/change-password', request.url));
+    }
+    
     // No role gate beyond being logged in; artists and admins both allowed
+    return res;
+  }
+
+  // Allow access to change password page for authenticated users
+  if (pathname === '/auth/change-password') {
+    const res = NextResponse.next();
+    const supabase = getSupabaseServer(request, res);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      const url = new URL('/admin/login', request.url);
+      return NextResponse.redirect(url);
+    }
     return res;
   }
 
@@ -63,5 +101,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/studio/:path*'],
+  matcher: ['/admin/:path*', '/studio/:path*', '/auth/change-password'],
 };

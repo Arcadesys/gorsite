@@ -29,6 +29,45 @@ export async function requireUser(req: NextRequest): Promise<
   return { user: data.user as SupabaseUser, res }
 }
 
+// Check if user is an admin
+export function isAdmin(user: SupabaseUser): boolean {
+  return Boolean(
+    user?.app_metadata?.roles?.includes?.('admin') ||
+    (typeof user?.user_metadata?.role === 'string' && user.user_metadata.role.toLowerCase() === 'admin') ||
+    user?.user_metadata?.is_admin === true
+  )
+}
+
+// Check if user is a superadmin (has special privileges like user management)
+export function isSuperAdmin(user: SupabaseUser): boolean {
+  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase()
+  const userEmail = (user?.email || '').toLowerCase()
+  
+  return isAdmin(user) && userEmail === superEmail
+}
+
+// Require superadmin privileges; returns { user, res } or a NextResponse with 403
+export async function requireSuperAdmin(req: NextRequest): Promise<
+  | { user: SupabaseUser; res: NextResponse }
+  | NextResponse
+> {
+  const result = await requireUser(req)
+  if (result instanceof NextResponse) {
+    return result
+  }
+  
+  if (!isSuperAdmin(result.user)) {
+    return NextResponse.json({ error: 'Superadmin privileges required' }, { status: 403 })
+  }
+  
+  return result
+}
+
+// Check if user needs to change their password
+export function requiresPasswordChange(user: SupabaseUser): boolean {
+  return Boolean(user?.user_metadata?.force_password_change === true)
+}
+
 // Ensure a matching local User row exists for the Supabase auth user.
 // This keeps existing Prisma relations working without NextAuth.
 export async function ensureLocalUser(user: SupabaseUser) {

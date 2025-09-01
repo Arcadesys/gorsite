@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServer } from '@/lib/supabase'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { requireSuperAdmin, isAdmin, isSuperAdmin } from '@/lib/auth-helpers'
 
 export const dynamic = 'force-dynamic'
-
-function isAdmin(user: any) {
-  return Boolean(
-    user?.app_metadata?.roles?.includes?.('admin') ||
-    (typeof user?.user_metadata?.role === 'string' && user.user_metadata.role.toLowerCase() === 'admin') ||
-    user?.user_metadata?.is_admin === true
-  )
-}
 
 export async function GET(req: NextRequest) {
   const res = new NextResponse()
@@ -25,23 +18,30 @@ export async function GET(req: NextRequest) {
   const { data, error } = await (admin as any).auth.admin.listUsers({ page, perPage })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  const currentUserIsSuperAdmin = isSuperAdmin(user)
+
   const users = (data?.users || []).map((u: any) => ({
     id: u.id,
     email: u.email,
     created_at: u.created_at,
     last_sign_in_at: u.last_sign_in_at,
+    email_confirmed_at: u.email_confirmed_at,
     roles: u.app_metadata?.roles || [],
     role: u.user_metadata?.role,
     is_admin: Boolean(u.user_metadata?.is_admin),
+    is_superadmin: currentUserIsSuperAdmin && isSuperAdmin(u),
+    is_deactivated: Boolean(u.user_metadata?.deactivated),
+    banned_until: u.banned_until,
+    can_manage: currentUserIsSuperAdmin && u.email !== user.email, // Can't manage yourself
   }))
   return NextResponse.json({ users, count: data?.users?.length || 0 })
 }
 
 export async function POST(req: NextRequest) {
-  const res = new NextResponse()
-  const supabase = getSupabaseServer(req as any, res as any)
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const result = await requireSuperAdmin(req)
+  if (result instanceof NextResponse) {
+    return result
+  }
 
   const { email, role } = await req.json().catch(() => ({}))
   if (!email || !role) return NextResponse.json({ error: 'Missing email or role' }, { status: 400 })

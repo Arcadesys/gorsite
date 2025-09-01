@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className={`w-64 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} border-r ${colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200'} flex-shrink-0 hidden md:block`}>
         <div className="h-16 flex items-center px-6 border-b border-gray-800">
           <Link 
-            href="/admin/dashboard" 
+            href="/admin" 
             className="text-xl font-bold"
             style={{ color: `var(--${accentColor}-400)` }}
           >
@@ -93,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="md:hidden fixed top-0 left-0 right-0 z-10">
         <div className={`h-16 ${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} border-b ${colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200'} flex items-center justify-between px-4`}>
           <Link 
-            href="/admin/dashboard" 
+            href="/admin" 
             className="text-xl font-bold"
             style={{ color: `var(--${accentColor}-400)` }}
           >

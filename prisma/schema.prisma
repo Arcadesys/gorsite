@@ -50,6 +50,8 @@ model User {
   password      String?
   image         String?
   role          UserRole     @default(USER)
+  status        UserStatus   @default(ACTIVE)
+  deactivatedAt DateTime?
   accounts      Account[]
   sessions      Session[]
   commissions   Commission[]
@@ -70,6 +72,12 @@ model VerificationToken {
 enum UserRole {
   USER
   ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+  DELETED
 }
 
 // Site Configuration Model
