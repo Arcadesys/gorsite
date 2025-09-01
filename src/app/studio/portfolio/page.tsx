@@ -254,6 +254,24 @@ export default function StudioPortfolioPage() {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium mb-2">Logo</label>
+              <div className="flex items-center gap-2">
+                <input 
+                  className="flex-1 px-3 py-2 rounded border bg-transparent" 
+                  value={form.logoUrl || ''} 
+                  onChange={e => set('logoUrl', e.target.value)}
+                  placeholder="https://…/logo.png"
+                />
+                <UploadButton label="Upload" onUploaded={(url) => set('logoUrl', url)} />
+              </div>
+              {form.logoUrl ? (
+                <div className="mt-2">
+                  <img src={form.logoUrl} alt="Logo preview" className="h-12 rounded border bg-white p-1 object-contain" />
+                  <p className="text-xs text-gray-500 mt-1">Suggested: transparent PNG/SVG</p>
+                </div>
+              ) : null}
+            </div>
+            <div>
               <label className="block text-sm font-medium mb-2">Accent Color</label>
               <select 
                 className="w-full px-3 py-2 rounded border bg-transparent" 

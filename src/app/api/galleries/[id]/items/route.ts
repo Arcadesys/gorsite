@@ -8,12 +8,13 @@ async function ensureOwner(userId: string, galleryId: string) {
   return g;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const g = await ensureOwner(user.id, params.id);
+  const { id } = await context.params;
+  const g = await ensureOwner(user.id, id);
   if (!g) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
 
   const items = await prisma.galleryItem.findMany({
@@ -26,12 +27,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(items, { headers: res.headers });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const g = await ensureOwner(user.id, params.id);
+  const { id } = await context.params;
+  const g = await ensureOwner(user.id, id);
   if (!g) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
 
   const body = await req.json();
@@ -60,4 +62,3 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   });
   return NextResponse.json(created, { status: 201, headers: res.headers });
 }
-
