@@ -19,6 +19,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Default accent keyed to the neon green/cyan hero
   const [accentColor, setAccentColor] = useState<AccentColor>('green');
   const [colorMode, setColorMode] = useState<ColorMode>('dark');
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Load saved theme from localStorage on client side
   useEffect(() => {
@@ -38,10 +39,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } else {
       setColorMode(defaultMode);
     }
+    
+    setIsHydrated(true);
   }, []);
 
   // Save theme changes to localStorage
   useEffect(() => {
+    if (!isHydrated) return;
+    
     localStorage.setItem('accentColor', accentColor);
     localStorage.setItem('colorMode', colorMode);
     
@@ -53,7 +58,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
     }
-  }, [accentColor, colorMode]);
+  }, [accentColor, colorMode, isHydrated]);
 
   const toggleColorMode = () => {
     setColorMode(prev => prev === 'dark' ? 'light' : 'dark');

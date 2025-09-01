@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSupabaseServer } from '@/lib/supabase'
+import type { UserRole } from '@prisma/client'
 
 export type SupabaseUser = {
   id: string
@@ -42,7 +43,7 @@ export function isAdmin(user: SupabaseUser): boolean {
 
 // Check if user is a superadmin (has special privileges like user management)
 export function isSuperAdmin(user: SupabaseUser): boolean {
-  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@artpop.vercel.app').toLowerCase()
+  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase()
   const userEmail = (user?.email || '').toLowerCase()
   
   return isAdmin(user) && userEmail === superEmail
@@ -72,24 +73,39 @@ export function requiresPasswordChange(user: SupabaseUser): boolean {
 
 // Ensure a matching local User row exists for the Supabase auth user.
 // This keeps existing Prisma relations working without NextAuth.
-export async function ensureLocalUser(user: SupabaseUser) {
-  // Minimal fields; keep existing values if present
-  const id = user.id
-  const email = user.email ?? undefined
-  const name =
-    (user.user_metadata?.full_name as string | undefined) ||
-    (user.user_metadata?.name as string | undefined)
+export async function ensureLocalUser(supabaseUser: any) {
+  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase()
+  const isSuper = String(supabaseUser?.email || '').toLowerCase() === superEmail
 
-  await prisma.user.upsert({
-    where: { id },
-    update: {
-      email: email ?? undefined,
-      name: name ?? undefined,
-    },
-    create: {
-      id,
-      email: email ?? undefined,
-      name: name ?? undefined,
-    },
+  // Try to find existing user
+  let localUser = await prisma.user.findUnique({
+    where: { id: supabaseUser.id }
   })
+
+  const userData = {
+    email: supabaseUser.email,
+    name: supabaseUser.user_metadata?.full_name || 
+          supabaseUser.user_metadata?.name || 
+          supabaseUser.email?.split('@')[0] || 
+          'Artist',
+    role: (isSuper ? 'ADMIN' : 'USER') as UserRole
+  }
+
+  if (!localUser) {
+    // Create new local user
+    localUser = await prisma.user.create({
+      data: {
+        id: supabaseUser.id,
+        ...userData
+      }
+    })
+  } else {
+    // Update existing user with current data
+    localUser = await prisma.user.update({
+      where: { id: supabaseUser.id },
+      data: userData
+    })
+  }
+
+  return localUser
 }
