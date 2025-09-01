@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSupabaseServer } from '@/lib/supabase';
+import { isReservedSlug } from '@/lib/slug-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,9 @@ export async function POST(req: NextRequest) {
   const { slug, displayName, ownerUserId, ownerEmail, accentColor, colorMode } = body || {};
   if (!slug || !displayName || (!ownerUserId && !ownerEmail)) {
     return NextResponse.json({ error: 'slug, displayName, and ownerUserId or ownerEmail are required' }, { status: 400 });
+  }
+  if (isReservedSlug(slug)) {
+    return NextResponse.json({ error: 'Slug is reserved' }, { status: 400 });
   }
 
   // Ensure owner exists

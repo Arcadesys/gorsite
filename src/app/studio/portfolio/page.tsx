@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
+import UploadButton from '@/components/UploadButton';
 import { FaCheck, FaExclamationCircle, FaGlobe, FaSpinner } from 'react-icons/fa';
 
 export default function StudioPortfolioPage() {
@@ -308,30 +309,63 @@ export default function StudioPortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Hero Image (Light Mode)</label>
-              <input 
-                className="w-full px-3 py-2 rounded border bg-transparent" 
-                value={form.heroImageLight || ''} 
-                onChange={e => set('heroImageLight', e.target.value)}
-                placeholder="/path/to/light-hero.jpg"
-              />
+              <div className="flex items-center gap-2">
+                <input 
+                  className="flex-1 px-3 py-2 rounded border bg-transparent" 
+                  value={form.heroImageLight || ''} 
+                  onChange={e => set('heroImageLight', e.target.value)}
+                  placeholder="/path/to/light-hero.jpg"
+                />
+                <UploadButton
+                  label="Upload"
+                  onUploaded={(url) => set('heroImageLight', url)}
+                />
+              </div>
+              {form.heroImageLight ? (
+                <div className="mt-2">
+                  <img src={form.heroImageLight} alt="Hero Light preview" className="max-h-32 rounded border" />
+                </div>
+              ) : null}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Hero Image (Dark Mode)</label>
-              <input 
-                className="w-full px-3 py-2 rounded border bg-transparent" 
-                value={form.heroImageDark || ''} 
-                onChange={e => set('heroImageDark', e.target.value)}
-                placeholder="/path/to/dark-hero.jpg"
-              />
+              <div className="flex items-center gap-2">
+                <input 
+                  className="flex-1 px-3 py-2 rounded border bg-transparent" 
+                  value={form.heroImageDark || ''} 
+                  onChange={e => set('heroImageDark', e.target.value)}
+                  placeholder="/path/to/dark-hero.jpg"
+                />
+                <UploadButton
+                  label="Upload"
+                  onUploaded={(url) => set('heroImageDark', url)}
+                />
+              </div>
+              {form.heroImageDark ? (
+                <div className="mt-2">
+                  <img src={form.heroImageDark} alt="Hero Dark preview" className="max-h-32 rounded border" />
+                </div>
+              ) : null}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Hero Image (Mobile)</label>
-              <input 
-                className="w-full px-3 py-2 rounded border bg-transparent" 
-                value={form.heroImageMobile || ''} 
-                onChange={e => set('heroImageMobile', e.target.value)}
-                placeholder="/path/to/mobile-hero.jpg"
-              />
+              <div className="flex items-center gap-2">
+                <input 
+                  className="flex-1 px-3 py-2 rounded border bg-transparent" 
+                  value={form.heroImageMobile || ''} 
+                  onChange={e => set('heroImageMobile', e.target.value)}
+                  placeholder="/path/to/mobile-hero.jpg"
+                />
+                <UploadButton
+                  label="Upload"
+                  onUploaded={(url) => set('heroImageMobile', url)}
+                />
+              </div>
+              {form.heroImageMobile ? (
+                <div className="mt-2">
+                  <img src={form.heroImageMobile} alt="Hero Mobile preview" className="max-h-32 rounded border" />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -365,4 +399,3 @@ export default function StudioPortfolioPage() {
     </div>
   );
 }
-

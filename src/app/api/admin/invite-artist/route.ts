@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireSuperAdmin } from '@/lib/auth-helpers'
+import { requireSuperAdmin, ensureLocalUser } from '@/lib/auth-helpers'
 import { prisma } from '@/lib/prisma'
 import { randomBytes } from 'crypto'
 
@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
   if (result instanceof NextResponse) {
     return result
   }
+  // Ensure inviter exists in local DB for FK integrity
+  await ensureLocalUser(result.user as any)
 
   const { email, inviteMessage } = await req.json().catch(() => ({}))
   if (!email) {

@@ -18,10 +18,10 @@ export async function middleware(request: NextRequest) {
     const res = NextResponse.next();
     const supabase = getSupabaseServer(request, res);
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
     // If the user is not authenticated, redirect to the login page
-    if (!session) {
+    if (!user) {
 
       const url = new URL('/admin/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(request.url));
@@ -29,8 +29,8 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check if password change is required
-    const user = session.user as any;
-    const requiresPasswordChange = Boolean(user?.user_metadata?.force_password_change);
+    const authUser = user as any;
+    const requiresPasswordChange = Boolean(authUser?.user_metadata?.force_password_change);
     
     if (requiresPasswordChange && pathname !== '/auth/change-password') {
       return NextResponse.redirect(new URL('/auth/change-password', request.url));
@@ -38,9 +38,9 @@ export async function middleware(request: NextRequest) {
 
     // Optional: Check if the user is an admin using Supabase metadata conventions
     const isAdmin = Boolean(
-      user?.app_metadata?.roles?.includes?.('admin') ||
-      (typeof user?.user_metadata?.role === 'string' && user.user_metadata.role.toLowerCase() === 'admin') ||
-      user?.user_metadata?.is_admin === true
+      authUser?.app_metadata?.roles?.includes?.('admin') ||
+      (typeof authUser?.user_metadata?.role === 'string' && authUser.user_metadata.role.toLowerCase() === 'admin') ||
+      authUser?.user_metadata?.is_admin === true
     );
 
     if (!isAdmin) {
@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
     // If user is a superadmin and is visiting the base /admin path,
     // redirect them to the system management page. Otherwise send admins to dashboard.
     const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase();
-    const isSuperAdmin = isAdmin && (String(user?.email || '').toLowerCase() === superEmail);
+    const isSuperAdmin = isAdmin && (String(authUser?.email || '').toLowerCase() === superEmail);
 
     if (pathname === '/admin' || pathname === '/admin/') {
       const target = isSuperAdmin ? '/admin/system' : '/admin/dashboard';
@@ -66,16 +66,16 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/studio')) {
     const res = NextResponse.next();
     const supabase = getSupabaseServer(request, res);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       const url = new URL('/admin/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(request.url));
       return NextResponse.redirect(url);
     }
     
     // Check if password change is required
-    const user = session.user as any;
-    const requiresPasswordChange = Boolean(user?.user_metadata?.force_password_change);
+    const authUser = user as any;
+    const requiresPasswordChange = Boolean(authUser?.user_metadata?.force_password_change);
     
     if (requiresPasswordChange && pathname !== '/auth/change-password') {
       return NextResponse.redirect(new URL('/auth/change-password', request.url));
@@ -89,8 +89,8 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/auth/change-password') {
     const res = NextResponse.next();
     const supabase = getSupabaseServer(request, res);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       const url = new URL('/admin/login', request.url);
       return NextResponse.redirect(url);
     }

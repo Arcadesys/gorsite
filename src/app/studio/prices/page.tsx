@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
+import UploadButton from '@/components/UploadButton';
 
 type Price = { id: string; title: string; description?: string | null; price: number; imageUrl?: string | null; position?: number | null; active: boolean };
 
@@ -58,8 +59,16 @@ export default function StudioPricesPage() {
           </div>
         </div>
         <div>
-          <label className="block text-sm mb-1">Image URL (optional)</label>
-          <input className="w-full px-3 py-2 rounded border bg-transparent" value={form.imageUrl} onChange={(e) => setForm((s:any) => ({...s, imageUrl: e.target.value}))} />
+          <label className="block text-sm mb-1">Image (optional)</label>
+          <div className="flex items-center gap-2">
+            <input className="flex-1 px-3 py-2 rounded border bg-transparent" placeholder="https://…" value={form.imageUrl} onChange={(e) => setForm((s:any) => ({...s, imageUrl: e.target.value}))} />
+            <UploadButton label="Upload" onUploaded={(url) => setForm((s:any) => ({...s, imageUrl: url}))} />
+          </div>
+          {form.imageUrl ? (
+            <div className="mt-2">
+              <img src={form.imageUrl} alt="Preview" className="max-h-32 rounded border" />
+            </div>
+          ) : null}
         </div>
         <div>
           <label className="block text-sm mb-1">Description (optional)</label>
@@ -88,4 +97,3 @@ export default function StudioPricesPage() {
     </div>
   );
 }
-
