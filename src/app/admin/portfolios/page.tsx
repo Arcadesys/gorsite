@@ -130,6 +130,9 @@ export default function PortfoliosPage() {
               <div className="font-bold">{p.displayName}</div>
               <div className="text-sm text-gray-400">/{p.slug}</div>
               <div className="text-xs mt-2">Owner: {p.userId}</div>
+              <div className="mt-3">
+                <a href={`/admin/portfolios/${p.slug}`} className="text-emerald-400">Manage</a>
+              </div>
             </div>
           ))}
           {portfolios.length === 0 ? <div className="text-gray-500">No portfolios yet.</div> : null}
