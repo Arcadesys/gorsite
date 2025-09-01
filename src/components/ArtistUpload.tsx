@@ -29,9 +29,10 @@ interface ArtistUploadProps {
     slug: string;
     displayName: string;
   };
+  preSelectedGallery?: string;
 }
 
-export default function ArtistUpload({ galleries, userPortfolio }: ArtistUploadProps) {
+export default function ArtistUpload({ galleries, userPortfolio, preSelectedGallery }: ArtistUploadProps) {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -42,7 +43,7 @@ export default function ArtistUpload({ galleries, userPortfolio }: ArtistUploadP
     description: '',
     altText: '',
     tags: [],
-    galleryId: '',
+    galleryId: preSelectedGallery || '',
     artistName: userPortfolio?.displayName || '',
     artistPortfolioSlug: userPortfolio?.slug || '',
     artistExternalUrl: '',

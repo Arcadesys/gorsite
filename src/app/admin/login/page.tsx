@@ -95,8 +95,8 @@ export default function LoginPage() {
               // Try sign-in again
               const retry = await supabase.auth.signInWithPassword({ email, password });
               if (!retry.error) {
-                // Route to /admin and let middleware send superadmins to /admin/system
-                router.push('/admin');
+                // Route to /dashboard
+                router.push('/dashboard');
                 return;
               }
             }
@@ -112,10 +112,10 @@ export default function LoginPage() {
             (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
             (user as any)?.user_metadata?.is_admin === true
           );
-          // Send to /admin; middleware will route superadmins to /admin/system
-          router.push(isAdmin ? '/admin' : '/studio');
+          // Send to /dashboard; middleware will route superadmins to /admin/system
+          router.push('/dashboard');
         } catch {
-          router.push('/studio');
+          router.push('/dashboard');
         }
       }
     } catch (err) {

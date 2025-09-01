@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 import ArtistUpload from '@/components/ArtistUpload';
 
@@ -18,12 +18,20 @@ interface UserPortfolio {
 
 export default function UploadPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [galleries, setGalleries] = useState<Gallery[]>([]);
   const [userPortfolio, setUserPortfolio] = useState<UserPortfolio | undefined>();
   const [loading, setLoading] = useState(true);
   const [userRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ARTIST'); // TODO: Get from auth
+  const [preSelectedGallery, setPreSelectedGallery] = useState<string>('');
 
   useEffect(() => {
+    // Check for pre-selected gallery from URL params
+    const galleryParam = searchParams.get('gallery');
+    if (galleryParam) {
+      setPreSelectedGallery(galleryParam);
+    }
+    
     const fetchData = async () => {
       try {
         // Fetch user's galleries
@@ -67,6 +75,7 @@ export default function UploadPage() {
       <ArtistUpload 
         galleries={galleries}
         userPortfolio={userPortfolio}
+        preSelectedGallery={preSelectedGallery}
       />
     </DashboardLayout>
   );

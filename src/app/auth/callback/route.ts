@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         (user as any)?.user_metadata?.is_admin === true
       )
       const metaDone = Boolean((user as any)?.user_metadata?.onboarding?.done)
-      const dest = isAdmin ? '/admin/dashboard' : (metaDone ? '/studio' : '/studio/onboarding')
+      const dest = '/dashboard'
       return NextResponse.redirect(new URL(dest, requestUrl.origin))
     } catch (error) {
       console.error('Auth callback exception:', error)

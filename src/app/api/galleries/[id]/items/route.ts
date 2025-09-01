@@ -100,11 +100,10 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         altText,
         position,
         tags,
-        // Note: Artist attribution fields will be added after database migration
-        // artistName,
-        // artistPortfolioSlug,
-        // artistExternalUrl,
-        // isOriginalWork,
+        artistName,
+        artistPortfolioSlug,
+        artistExternalUrl,
+        isOriginalWork,
       },
     });
     return NextResponse.json(created, { status: 201, headers: res.headers });

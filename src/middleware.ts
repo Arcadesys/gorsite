@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
     const isSuperAdmin = isAdmin && (String(authUser?.email || '').toLowerCase() === superEmail);
 
     if (pathname === '/admin' || pathname === '/admin/') {
-      const target = isSuperAdmin ? '/admin/system' : '/admin/dashboard';
+      const target = isSuperAdmin ? '/admin/system' : '/dashboard';
       return NextResponse.redirect(new URL(target, request.url));
     }
 
@@ -67,8 +67,13 @@ export async function middleware(request: NextRequest) {
     return res;
   }
 
-  // Artist Studio area: requires authenticated user; allows admins and artists
+  // Artist Studio area: redirect to dashboard (legacy routes)
   if (pathname.startsWith('/studio')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Dashboard area: requires authenticated user; allows admins and artists
+  if (pathname.startsWith('/dashboard')) {
     const res = NextResponse.next();
     const supabase = getSupabaseServer(request, res);
     const { data: { user } } = await supabase.auth.getUser();
@@ -109,6 +114,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/studio/:path*',
+    '/dashboard/:path*',
     '/auth/change-password'
   ],
 };
