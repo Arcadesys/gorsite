@@ -72,9 +72,20 @@ export default function SetPasswordPage() {
         setError(error.message || 'Failed to set password');
       } else {
         setSuccess(true);
-        // Redirect to dashboard after short delay
-        setTimeout(() => {
-          router.push('/admin/dashboard');
+        // Redirect based on role after short delay
+        setTimeout(async () => {
+          try {
+            const supabase = getSupabaseBrowser();
+            const { data: { user } } = await supabase.auth.getUser();
+            const isAdmin = Boolean(
+              (user as any)?.app_metadata?.roles?.includes?.('admin') ||
+              (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
+              (user as any)?.user_metadata?.is_admin === true
+            );
+            router.push(isAdmin ? '/admin/dashboard' : '/studio/onboarding');
+          } catch {
+            router.push('/studio/onboarding');
+          }
         }, 2000);
       }
     } catch (err: any) {

@@ -89,7 +89,18 @@ export default function LoginPage() {
         }
         setError(error.message || 'Login failed');
       } else {
-        router.push('/admin/dashboard');
+        // Determine role and route
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          const isAdmin = Boolean(
+            (user as any)?.app_metadata?.roles?.includes?.('admin') ||
+            (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
+            (user as any)?.user_metadata?.is_admin === true
+          );
+          router.push(isAdmin ? '/admin/dashboard' : '/studio');
+        } catch {
+          router.push('/studio');
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -108,7 +119,8 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as any,
         options: {
-          redirectTo: `${window.location.origin}/admin/dashboard`,
+          // Route through auth callback which will redirect by role
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       if (error) setError(error.message);
