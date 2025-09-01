@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServer } from '@/lib/supabase'
+import { prisma } from '@/lib/prisma'
+import { ensureLocalUser } from '@/lib/auth-helpers'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -38,6 +40,51 @@ export async function GET(request: NextRequest) {
 
       // For other auth types, redirect based on role
       const { data: { user } } = await supabase.auth.getUser()
+
+      // Ensure local User row and auto-create portfolio if missing
+      if (user) {
+        // Keep Prisma User in sync with Supabase
+        await ensureLocalUser(user as any)
+
+        // Create a portfolio if the user doesn't have one yet
+        const hasPortfolio = await prisma.portfolio.findFirst({ where: { userId: user.id } })
+        if (!hasPortfolio) {
+          // Derive base slug from email local-part, omitting special characters
+          const email = String(user.email || '').toLowerCase()
+          const localPart = email.split('@')[0] || 'artist'
+          let base = localPart
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, '') // omit special characters
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '')
+
+          if (!base || base.length < 3) base = 'artist'
+
+          // Ensure slug uniqueness globally across portfolios
+          let slug = base
+          let i = 1
+          while (await prisma.portfolio.findUnique({ where: { slug } })) {
+            slug = `${base}-${i++}`
+          }
+
+          const displayName =
+            (user.user_metadata as any)?.display_name ||
+            (user.user_metadata as any)?.full_name ||
+            localPart ||
+            'Artist'
+
+          await prisma.portfolio.create({
+            data: {
+              slug,
+              displayName,
+              description: `Welcome to ${displayName}'s art gallery!`,
+              userId: user.id,
+              accentColor: 'green',
+              colorMode: 'dark',
+            },
+          })
+        }
+      }
       const isAdmin = Boolean(
         (user as any)?.app_metadata?.roles?.includes?.('admin') ||
         (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
