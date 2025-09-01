@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaFilter, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import Image from 'next/image';
 
@@ -222,6 +222,28 @@ export default function GalleryPage() {
       setEditItemForm((s) => ({ ...s, imageUrl: out.publicUrl }));
     }
     setUploading(false);
+  }
+
+  // Reorder helpers
+  async function applyReorder(newOrder: string[]) {
+    if (!selectedGalleryId) return;
+    await fetch(`/api/galleries/${selectedGalleryId}/items/reorder`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: newOrder }),
+    });
+  }
+
+  async function moveItem(itemId: string, direction: 'up' | 'down') {
+    const idx = items.findIndex((i) => i.id === itemId);
+    if (idx === -1) return;
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= items.length) return;
+    const updated = items.slice();
+    const [moved] = updated.splice(idx, 1);
+    updated.splice(targetIdx, 0, moved);
+    setItems(updated);
+    await applyReorder(updated.map((i) => i.id));
   }
 
   // Gallery edit & delete
@@ -616,6 +638,20 @@ export default function GalleryPage() {
                                 </div>
                               ) : (
                                 <div className="flex gap-2">
+                                  <button
+                                    onClick={() => moveItem(item.id, 'up')}
+                                    className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
+                                    title="Move up"
+                                  >
+                                    <FaArrowUp />
+                                  </button>
+                                  <button
+                                    onClick={() => moveItem(item.id, 'down')}
+                                    className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
+                                    title="Move down"
+                                  >
+                                    <FaArrowDown />
+                                  </button>
                                   <button onClick={() => beginEditItem(item)} className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`} style={{ color: `var(--${accentColor}-400)` }}>
                                     <FaEdit />
                                   </button>

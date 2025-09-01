@@ -28,7 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Accounts', href: '/admin/system', icon: <FaUsers size={20} /> },
     { name: 'Commissions', href: '/admin/commissions', icon: <FaClipboardList size={20} /> },
     { name: 'Calendar', href: '/admin/calendar', icon: <FaCalendar size={20} /> },
-    { name: 'Gallery', href: '/admin/gallery', icon: <FaPalette size={20} /> },
+    { name: 'Galleries', href: '/admin/gallery', icon: <FaPalette size={20} /> },
     { name: 'Settings', href: '/admin/config', icon: <FaCog size={20} /> },
   ];
 
