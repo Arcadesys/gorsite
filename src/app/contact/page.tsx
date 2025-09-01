@@ -71,7 +71,7 @@ const ContactPage = () => {
             Get in <span style={{ color: c400 }}>Touch</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Have a question or want to work together? I&apos;d love to hear from you!
+            You can reach out at <span className="font-semibold" style={{ color: '#d1fae5' }}>DayAndNightProductions2002@gmail.com</span> for specific custom creations and collaboration.
           </p>
         </div>
       </section>
@@ -91,25 +91,22 @@ const ContactPage = () => {
                     <div>
                       <h4 className="font-bold mb-1" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>Email</h4>
                       <p className="text-gray-400">Don&apos;t hesitate to reach out!</p>
-                      <a href="mailto:contact@gorathartist.com" className="transition" style={{ color: c400 }}>
-                        contact@gorathartist.com
+                      <a href="mailto:DayAndNightProductions2002@gmail.com" className="transition" style={{ color: c400 }}>
+                        DayAndNightProductions2002@gmail.com
                       </a>
                     </div>
                   </div>
                   
                   <div>
                     <h4 className="font-bold text-white mb-1">Commission Status</h4>
-                    <p className="text-green-400">Currently Open</p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      Average response time: 1-2 business days
-                    </p>
+                    <p className="text-green-400">Open and available</p>
+                    <p className="text-gray-400 text-sm mt-1">Queue updated bi-weekly.</p>
                   </div>
                   
                   <div>
                     <h4 className="font-bold text-white mb-1">Business Hours</h4>
-                    <p className="text-gray-400">
-                      Monday - Friday: 10:00 AM - 6:00 PM EST
-                    </p>
+                    <p className="text-gray-400">Most weekdays between 10 and 10.</p>
+                    <p className="text-gray-400">Unavailable on Thursdays and Sundays.</p>
                   </div>
                 </div>
               </div>

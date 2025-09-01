@@ -45,9 +45,23 @@ export async function middleware(request: NextRequest) {
     return res;
   }
 
+  // Artist Studio area: requires authenticated user; allows admins and artists
+  if (pathname.startsWith('/studio')) {
+    const res = NextResponse.next();
+    const supabase = getSupabaseServer(request, res);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      const url = new URL('/admin/login', request.url);
+      url.searchParams.set('callbackUrl', encodeURI(request.url));
+      return NextResponse.redirect(url);
+    }
+    // No role gate beyond being logged in; artists and admins both allowed
+    return res;
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/studio/:path*'],
 };

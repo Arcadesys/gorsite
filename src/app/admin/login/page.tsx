@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // ...existing code...
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import Link from 'next/link';
+import { getSupabaseBrowser } from '@/lib/supabase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,31 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { accentColor, colorMode } = useTheme();
+
+  // Check for URL parameters with error messages
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+    
+    if (errorParam) {
+      switch (errorParam) {
+        case 'auth_failed':
+          setError('Authentication failed. Please try again.');
+          break;
+        case 'auth_exception':
+          setError('An error occurred during authentication.');
+          break;
+        case 'no_code':
+          setError('Invalid authentication link.');
+          break;
+        case 'not_authenticated':
+          setError('Please log in to continue.');
+          break;
+        default:
+          setError('An authentication error occurred.');
+      }
+    }
+  }, []);
 
   // Get button background color based on mode
   const getButtonBgColor = () => {
@@ -39,13 +65,29 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        body: { email, password },
-      });
-      
-      if (result?.error) {
-        setError(typeof result.error === 'string' ? result.error : 'Login failed');
+      const supabase = getSupabaseBrowser();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        // Bootstrap superadmin on first login if matching configured email
+        const superEmail = 'austen@thearcades.me';
+        if (email.trim().toLowerCase() === superEmail) {
+          try {
+            const resp = await fetch('/api/admin/bootstrap-superadmin', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+            if (resp.ok) {
+              // Try sign-in again
+              const retry = await supabase.auth.signInWithPassword({ email, password });
+              if (!retry.error) {
+                router.push('/admin/dashboard');
+                return;
+              }
+            }
+          } catch {}
+        }
+        setError(error.message || 'Login failed');
       } else {
         router.push('/admin/dashboard');
       }
@@ -62,7 +104,14 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      await signIn(provider, { redirectTo: '/admin/dashboard' });
+      const supabase = getSupabaseBrowser();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider as any,
+        options: {
+          redirectTo: `${window.location.origin}/admin/dashboard`,
+        },
+      });
+      if (error) setError(error.message);
     } catch (err) {
       setError(`Failed to sign in with ${provider}`);
       console.error(err);

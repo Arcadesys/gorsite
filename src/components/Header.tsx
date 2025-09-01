@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
+import { useSite } from '@/context/SiteContext';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { accentColor, colorMode } = useTheme();
+  const site = useSite();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -41,6 +43,15 @@ export default function Header() {
     }
   };
 
+  // If artist site, build dynamic nav: Home + per-artist galleries + Commissions
+  const artistNav = site
+    ? [
+        { label: 'Home', href: `/${site.slug}` },
+        ...((site.galleries || []).map((g) => ({ label: g.name, href: `/${site.slug}/${g.slug}` }))),
+        { label: 'Commissions', href: `/${site.slug}/commissions` },
+      ]
+    : undefined;
+
   return (
     <header 
       className={`${colorMode === 'dark' ? 'bg-black' : 'bg-white shadow-sm'} sticky top-0 z-40`} 
@@ -50,28 +61,34 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link 
-            href="/" 
+            href={site ? `/${site.slug}` : "/"} 
             className="font-bold text-xl transition"
             style={{ color: getTextColor() }}
             onMouseOver={(e) => (e.currentTarget.style.color = getHoverTextColor())}
             onMouseOut={(e) => (e.currentTarget.style.color = getTextColor())}
           >
-            {BRAND.studioName}
+            {site?.displayName || BRAND.studioName}
           </Link>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {['Home', 'Gallery', 'Commissions', 'Contact'].map((item) => (
-              <Link 
-                key={item}
-                href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
-                className={`${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600'} transition`}
-                onMouseOver={(e) => (e.currentTarget.style.color = getTextColor())}
-                onMouseOut={(e) => (e.currentTarget.style.color = '')}
-              >
-                {item}
-              </Link>
-            ))}
+            {(artistNav || ['Home', 'Galleries', 'Commissions', 'Contact']).map((item: any) => {
+              const key = typeof item === 'string' ? item : item.label;
+              const href = typeof item === 'string'
+                ? (item === 'Home' ? (site ? `/${site.slug}` : '/') : `/${item.toLowerCase().replace(' ', '-')}`)
+                : item.href;
+              return (
+                <Link
+                  key={key}
+                  href={href}
+                  className={`${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600'} transition`}
+                  onMouseOver={(e) => (e.currentTarget.style.color = getTextColor())}
+                  onMouseOut={(e) => (e.currentTarget.style.color = '')}
+                >
+                  {typeof item === 'string' ? item : item.label}
+                </Link>
+              );
+            })}
           </nav>
           
           {/* Mobile Menu Button */}
@@ -92,18 +109,24 @@ export default function Header() {
           style={{ borderTop: `1px solid ${getBorderColor()}` }}
         >
           <nav className="container mx-auto px-4 flex flex-col space-y-4">
-            {['Home', 'Gallery', 'Commissions', 'Contact'].map((item) => (
-              <Link 
-                key={item}
-                href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
-                className={`${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600'} transition`}
-                onClick={() => setMobileMenuOpen(false)}
-                onMouseOver={(e) => (e.currentTarget.style.color = getTextColor())}
-                onMouseOut={(e) => (e.currentTarget.style.color = '')}
-              >
-                {item}
-              </Link>
-            ))}
+            {(artistNav || ['Home', 'Galleries', 'Commissions', 'Contact']).map((item: any) => {
+              const key = typeof item === 'string' ? item : item.label;
+              const href = typeof item === 'string'
+                ? (item === 'Home' ? (site ? `/${site.slug}` : '/') : `/${item.toLowerCase().replace(' ', '-')}`)
+                : item.href;
+              return (
+                <Link
+                  key={key}
+                  href={href}
+                  className={`${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600'} transition`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  onMouseOver={(e) => (e.currentTarget.style.color = getTextColor())}
+                  onMouseOut={(e) => (e.currentTarget.style.color = '')}
+                >
+                  {typeof item === 'string' ? item : item.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       )}

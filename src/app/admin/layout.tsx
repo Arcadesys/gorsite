@@ -2,9 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaCalendar } from 'react-icons/fa';
+import { FaHome, FaClipboardList, FaPalette, FaCog, FaSignOutAlt, FaCalendar, FaUsers } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
+import { getSupabaseBrowser } from '@/lib/supabase';
 
 // Pages that don't use the admin layout
 const excludedPaths = ['/admin/login'];
@@ -23,15 +24,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: <FaHome size={20} /> },
+    { name: 'Portfolios', href: '/admin/portfolios', icon: <FaPalette size={20} /> },
+    { name: 'Accounts', href: '/admin/system', icon: <FaUsers size={20} /> },
     { name: 'Commissions', href: '/admin/commissions', icon: <FaClipboardList size={20} /> },
     { name: 'Calendar', href: '/admin/calendar', icon: <FaCalendar size={20} /> },
     { name: 'Gallery', href: '/admin/gallery', icon: <FaPalette size={20} /> },
     { name: 'Settings', href: '/admin/config', icon: <FaCog size={20} /> },
   ];
 
-  // TODO: Implement sign out with Supabase if needed
+  // Implement sign out with Supabase
   const handleSignOut = async () => {
-    // sign out logic here
+    const supabase = getSupabaseBrowser();
+    await supabase.auth.signOut();
+    // Redirect to login after sign out
+    window.location.href = '/admin/login';
   };
 
   return (
@@ -70,6 +76,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               );
             })}
           </div>
+          <button
+            onClick={handleSignOut}
+            className={`mt-6 w-full flex items-center justify-center px-4 py-3 rounded-lg transition ${
+              colorMode === 'dark' ? 'bg-gray-800 text-gray-200 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <FaSignOutAlt className="mr-2" /> Sign out
+          </button>
           
           {/* TODO: Add user info and sign out button with Supabase */}
         </nav>
@@ -85,7 +99,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             {BRAND.studioName} Admin
           </Link>
-          {/* TODO: Add sign out button for Supabase */}
+          <button onClick={handleSignOut} className={`${colorMode === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+            <FaSignOutAlt size={20} />
+          </button>
         </div>
       </div>
       

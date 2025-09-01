@@ -11,6 +11,7 @@ A modern, responsive website for digital artist Gorath, featuring a portfolio ga
 - **Newsletter Subscription**: Mailchimp integration for staying in touch with fans
 - **Admin Dashboard**: Manage commissions and subscribers
 - **Database Integration**: Track commission status and subscriber information
+- **Multi-Tenant Portfolios**: Public artist sites under `/{artist}` with per-artist galleries
 
 ## Tech Stack
 
@@ -63,13 +64,27 @@ DIRECT_URL="postgresql://postgres:<PASSWORD>@db.<PROJECT>.supabase.co:5432/postg
 ```
 
 5. Initialize the database schema on Supabase
+
+If this is your first time setting up and you previously developed on SQLite, you'll need to reset the migration history for Postgres:
+
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Reset and create an initial migration for Postgres
+npx prisma migrate reset --force
+# When prompted, choose to apply existing schema as baseline.
+```
+
+For subsequent deploys/environments, use:
+
 ```bash
 npx prisma migrate deploy
 ```
 
 6. Create an admin user (optional)
 ```bash
-node scripts/create-admin.js
+node scripts/create-admin.js <email> <password>
 ```
 
 5. Run the development server
@@ -83,6 +98,23 @@ npm run dev
 
 - Prisma connects via `DATABASE_URL` (pooled). Migrations use `DIRECT_URL`.
 - Existing models are compatible with Postgres. If you were previously on SQLite, data will not auto-migrate; seed or import as needed.
+
+### Supabase storage setup
+
+Create the default storage bucket and set policies:
+
+```bash
+npm run setup:supabase
+# Then open Supabase SQL editor and run scripts/supabase-policies.sql
+
+### Multi-tenant setup
+
+- Migrate the database to include the `Portfolio` model (above steps already cover Prisma migrations).
+- Create portfolios via the Admin UI:
+  - Log in at `/admin/login` (Supabase auth) as an admin.
+  - Open Admin → Portfolios and create a portfolio with a unique slug, display name, and the Prisma `User` ID for the artist.
+- Access the public site at `/{artist-slug}` and `/{artist-slug}/galleries`.
+```
 
 ## Branding
 

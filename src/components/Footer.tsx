@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { FaTwitter, FaInstagram, FaArtstation, FaEnvelope } from 'react-icons/fa';
+import { FaTwitter, FaInstagram, FaEnvelope } from 'react-icons/fa';
+import { SiBluesky } from 'react-icons/si';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
+import { useSite } from '@/context/SiteContext';
 
 export default function Footer() {
   const { accentColor, colorMode } = useTheme();
+  const site = useSite();
 
   // Get border color based on mode
   const getBorderColor = () => {
@@ -48,7 +51,7 @@ export default function Footer() {
               className="font-bold text-xl"
               style={{ color: getTextColor() }}
             >
-              {BRAND.studioName}
+              {site?.displayName || BRAND.studioName}
             </Link>
             <p className={`${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
               Digital Artist & Illustrator
@@ -58,9 +61,9 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
             <div className="flex space-x-4">
               {[
-                { icon: <FaTwitter size={24} />, url: 'https://twitter.com', label: 'Twitter' },
+                { icon: <FaTwitter size={24} />, url: 'https://x.com/KARMAKAIJU1', label: 'X (Twitter)' },
+                { icon: <SiBluesky size={22} />, url: 'https://bsky.app/profile/dayandnightmags.bsky.social', label: 'Bluesky' },
                 { icon: <FaInstagram size={24} />, url: 'https://instagram.com', label: 'Instagram' },
-                { icon: <FaArtstation size={24} />, url: 'https://artstation.com', label: 'ArtStation' }
               ].map((social) => (
                 <a 
                   key={social.label}
@@ -91,7 +94,7 @@ export default function Footer() {
         </div>
         
         <div className={`border-t ${colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200'} mt-8 pt-8 text-center ${colorMode === 'dark' ? 'text-gray-500' : 'text-gray-400'} text-sm`}>
-          <p>&copy; {new Date().getFullYear()} {BRAND.studioName}. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {site?.displayName || BRAND.studioName}. All rights reserved.</p>
           <div className="mt-2 flex justify-center space-x-4">
             <Link 
               href="/terms" 

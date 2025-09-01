@@ -320,7 +320,11 @@ const CommissionsPage = () => {
               },
               {
                 question: 'How long will my commission take?',
-                answer: 'Turnaround times vary by commission type and current workload. Estimated timeframes are listed with each tier, but I&apos;ll provide you with a more specific timeline when your commission is approved.',
+                answer: 'Depending on the complexity of the piece and the size and medium, turnaround is typically 1–3 weeks. Some pieces may take longer if they require more complex work and details. I\'ll work with you on this and offer payment plans as we go for pieces that may take longer.',
+              },
+              {
+                question: 'Do you offer prints or merch?',
+                answer: 'Yes! I offer high-quality prints as well as stickers, t-shirts, posters, playmats, and skateboards. Shipping and handling fees will be listed with each piece along with estimated arrival times. I ship worldwide. A Redbubble store is being set up and will be linked once live.',
               },
             ].map((item, index) => (
               <div key={index} className="p-6 rounded-lg" style={{ backgroundColor: colorMode === 'dark' ? '#000' : '#fff', border: `1px solid ${colorMode === 'dark' ? '#1f2937' : '#e5e7eb'}` }}>
