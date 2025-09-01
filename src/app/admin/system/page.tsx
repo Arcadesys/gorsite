@@ -15,6 +15,7 @@ type UserRow = {
   is_deactivated?: boolean;
   banned_until?: string;
   can_manage?: boolean;
+  email_confirmed_at?: string;
 };
 
 type Portfolio = {
@@ -90,14 +91,15 @@ export default function SystemPage() {
     }
   }
 
-  async function manageUser(id: string, action: 'deactivate' | 'activate' | 'delete') {
+  async function manageUser(id: string, action: 'deactivate' | 'activate' | 'delete' | 'resend_invite') {
     const user = users.find(u => u.id === id);
     if (!user) return;
 
     const confirmMessages = {
       deactivate: `Are you sure you want to deactivate ${user.email}? They will not be able to sign in.`,
       activate: `Are you sure you want to reactivate ${user.email}? They will be able to sign in again.`,
-      delete: `Are you sure you want to permanently delete ${user.email}? This action cannot be undone and will remove all their data.`
+      delete: `Are you sure you want to permanently delete ${user.email}? This action cannot be undone and will remove all their data.`,
+      resend_invite: `Resend invitation email to ${user.email}?`
     };
 
     if (!confirm(confirmMessages[action])) return;
@@ -110,6 +112,13 @@ export default function SystemPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+      } else if (action === 'resend_invite') {
+        const res = await fetch(`/api/admin/users/${id}/resend-invite`, {
+          method: 'POST',
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to resend invitation');
+        alert(data.message || 'Invitation email sent successfully!');
       } else {
         const res = await fetch(`/api/admin/users/${id}`, {
           method: 'PATCH',
@@ -182,6 +191,7 @@ export default function SystemPage() {
                 <th className="text-left p-3">Email</th>
                 <th className="text-left p-3">Role</th>
                 <th className="text-left p-3">Status</th>
+                <th className="text-left p-3">Email Status</th>
                 <th className="text-left p-3">Last Sign-In</th>
                 <th className="text-left p-3">Actions</th>
               </tr>
@@ -201,10 +211,17 @@ export default function SystemPage() {
                       <span className="text-green-400">ACTIVE</span>
                     )}
                   </td>
+                  <td className="p-3">
+                    {u.email_confirmed_at ? (
+                      <span className="text-green-400">CONFIRMED</span>
+                    ) : (
+                      <span className="text-yellow-400">PENDING</span>
+                    )}
+                  </td>
                   <td className="p-3">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : '-'}</td>
-                  <td className="p-3 space-x-2">
+                  <td className="p-3 space-x-1 space-y-1">
                     {u.can_manage ? (
-                      <>
+                      <div className="flex flex-wrap gap-1">
                         {!u.is_deactivated ? (
                           <>
                             <button onClick={() => updateRole(u.id, 'ADMIN')} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: c600, color: '#fff' }}>Make Admin</button>
@@ -214,8 +231,11 @@ export default function SystemPage() {
                         ) : (
                           <button onClick={() => manageUser(u.id, 'activate')} className="px-2 py-1 rounded text-xs bg-green-600 text-white">Reactivate</button>
                         )}
+                        {!u.email_confirmed_at && (
+                          <button onClick={() => manageUser(u.id, 'resend_invite')} className="px-2 py-1 rounded text-xs bg-blue-600 text-white">Resend Invite</button>
+                        )}
                         <button onClick={() => manageUser(u.id, 'delete')} className="px-2 py-1 rounded text-xs bg-red-600 text-white">Delete</button>
-                      </>
+                      </div>
                     ) : (
                       <span className="text-gray-500 text-xs">
                         {u.is_superadmin ? 'You' : 'No permissions'}
@@ -225,7 +245,7 @@ export default function SystemPage() {
                 </tr>
               ))}
               {users.length === 0 ? (
-                <tr><td className="p-3 text-gray-500" colSpan={5}>No users found.</td></tr>
+                <tr><td className="p-3 text-gray-500" colSpan={6}>No users found.</td></tr>
               ) : null}
             </tbody>
           </table>

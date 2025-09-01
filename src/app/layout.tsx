@@ -21,11 +21,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} dark:bg-black dark:text-white light:bg-gray-50 light:text-gray-900 min-h-screen flex flex-col transition-colors duration-200`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body 
+        className={`${inter.className} min-h-screen flex flex-col transition-colors duration-200`}
+        suppressHydrationWarning
+      >
           <AuthProvider>
             <ThemeProvider>
-              <div className="flex flex-col min-h-screen">
+              <div className="flex flex-col min-h-screen dark:bg-black dark:text-white light:bg-gray-50 light:text-gray-900">
                 <Header />
                 <main className="flex-grow">{children}</main>
                 <Footer />

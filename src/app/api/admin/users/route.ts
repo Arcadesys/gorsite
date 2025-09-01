@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
     email: u.email,
     created_at: u.created_at,
     last_sign_in_at: u.last_sign_in_at,
+    email_confirmed_at: u.email_confirmed_at,
     roles: u.app_metadata?.roles || [],
     role: u.user_metadata?.role,
     is_admin: Boolean(u.user_metadata?.is_admin),

@@ -8,14 +8,14 @@ export const dynamic = 'force-dynamic'
 // DELETE /api/admin/users/[id] - Delete a user account (superadmin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const result = await requireSuperAdmin(req)
   if (result instanceof NextResponse) {
     return result
   }
 
-  const { id } = params
+  const { id } = await params
   if (!id) {
     return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
   }
@@ -63,14 +63,14 @@ export async function DELETE(
 // PATCH /api/admin/users/[id] - Update user status (superadmin only)
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const result = await requireSuperAdmin(req)
   if (result instanceof NextResponse) {
     return result
   }
 
-  const { id } = params
+  const { id } = await params
   const { action, role } = await req.json().catch(() => ({}))
 
   if (!id) {

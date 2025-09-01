@@ -41,6 +41,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
+    // If user is a superadmin and is visiting the base /admin path,
+    // redirect them to the system management page. Otherwise send admins to dashboard.
+    const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase();
+    const isSuperAdmin = isAdmin && (String(user?.email || '').toLowerCase() === superEmail);
+
+    if (pathname === '/admin' || pathname === '/admin/') {
+      const target = isSuperAdmin ? '/admin/system' : '/admin/dashboard';
+      return NextResponse.redirect(new URL(target, request.url));
+    }
+
     // Continue with the response that captured any cookie updates
     return res;
   }
