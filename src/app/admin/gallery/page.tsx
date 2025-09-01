@@ -40,6 +40,13 @@ export default function GalleryPage() {
   const [newItem, setNewItem] = useState({ title: '', imageUrl: '', altText: '', description: '', tags: '' });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editItemForm, setEditItemForm] = useState<{ title: string; imageUrl: string; altText: string; description: string; tags: string }>({ title: '', imageUrl: '', altText: '', description: '', tags: '' });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Gallery edit state
+  const [editingGallery, setEditingGallery] = useState<{ name: string; description: string; isPublic: boolean } | null>(null);
+  const [savingGallery, setSavingGallery] = useState(false);
 
   // Load galleries
   useEffect(() => {
@@ -64,6 +71,12 @@ export default function GalleryPage() {
         setItems([]);
       }
     })();
+  }, [selectedGalleryId]);
+
+  // When the selected gallery changes, reset editing state
+  useEffect(() => {
+    setEditingItemId(null);
+    setEditingGallery(null);
   }, [selectedGalleryId]);
 
   const allTags = useMemo(() => {
@@ -150,6 +163,107 @@ export default function GalleryPage() {
     }
   }
 
+  function beginEditItem(item: GalleryItem) {
+    setEditingItemId(item.id);
+    let tagsStr = '';
+    try {
+      const arr = item.tags ? JSON.parse(item.tags) : [];
+      tagsStr = Array.isArray(arr) ? arr.join(', ') : String(item.tags || '');
+    } catch {
+      tagsStr = String(item.tags || '');
+    }
+    setEditItemForm({
+      title: item.title || '',
+      imageUrl: item.imageUrl || '',
+      altText: item.altText || '',
+      description: item.description || '',
+      tags: tagsStr,
+    });
+  }
+
+  async function saveEditItem() {
+    if (!editingItemId) return;
+    setSavingEdit(true);
+    const payload: any = {
+      title: editItemForm.title,
+      imageUrl: editItemForm.imageUrl,
+      altText: editItemForm.altText || null,
+      description: editItemForm.description || null,
+      tags: editItemForm.tags
+        ? editItemForm.tags.split(',').map((s) => s.trim()).filter(Boolean)
+        : [],
+    };
+    const res = await fetch(`/api/gallery-items/${editingItemId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setItems((prev) => prev.map((it) => (it.id === updated.id ? updated : it)));
+      setEditingItemId(null);
+      setNotification({ type: 'success', message: 'Item updated' });
+      setTimeout(() => setNotification(null), 3000);
+    }
+    setSavingEdit(false);
+  }
+
+  async function uploadEditImage(file: File) {
+    setUploading(true);
+    setUploadError(null);
+    const fd = new FormData();
+    fd.append('file', file);
+    const resp = await fetch('/api/uploads', { method: 'POST', body: fd });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: 'Upload failed' }));
+      setUploadError(err.error || 'Upload failed');
+    } else {
+      const out = await resp.json();
+      setEditItemForm((s) => ({ ...s, imageUrl: out.publicUrl }));
+    }
+    setUploading(false);
+  }
+
+  // Gallery edit & delete
+  function beginEditGallery() {
+    const g = galleries.find((x) => x.id === selectedGalleryId);
+    if (!g) return;
+    setEditingGallery({ name: g.name, description: g.description || '', isPublic: g.isPublic });
+  }
+
+  async function saveGalleryEdits() {
+    if (!selectedGalleryId || !editingGallery) return;
+    setSavingGallery(true);
+    const res = await fetch(`/api/galleries/${selectedGalleryId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editingGallery),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setGalleries((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
+      setEditingGallery(null);
+      setNotification({ type: 'success', message: 'Gallery updated' });
+      setTimeout(() => setNotification(null), 3000);
+    }
+    setSavingGallery(false);
+  }
+
+  async function deleteGallery() {
+    if (!selectedGalleryId) return;
+    if (!confirm('Delete this gallery? This cannot be undone.')) return;
+    const res = await fetch(`/api/galleries/${selectedGalleryId}`, { method: 'DELETE' });
+    if (res.ok) {
+      const remaining = galleries.filter((g) => g.id !== selectedGalleryId);
+      setGalleries(remaining);
+      setSelectedGalleryId(remaining[0]?.id || null);
+      setItems([]);
+      setEditingGallery(null);
+      setNotification({ type: 'success', message: 'Gallery deleted' });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6" style={{ color: `var(--${accentColor}-400)` }}>
@@ -184,6 +298,73 @@ export default function GalleryPage() {
                 </option>
               ))}
             </select>
+
+            {/* Edit/Delete selected gallery */}
+            {selectedGalleryId ? (
+              <div className="mb-6">
+                {!editingGallery ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={beginEditGallery}
+                      className={`px-3 py-2 rounded text-white`}
+                      style={{ backgroundColor: `var(--${accentColor}-500)` }}
+                    >
+                      Edit Selected
+                    </button>
+                    <button
+                      onClick={deleteGallery}
+                      className={`px-3 py-2 rounded border text-red-600 border-red-600`}
+                    >
+                      Delete Selected
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3 p-3 mt-2 rounded border">
+                    <div>
+                      <label className={`block text-sm mb-1 ${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Name</label>
+                      <input
+                        value={editingGallery.name}
+                        onChange={(e) => setEditingGallery((s) => (s ? { ...s, name: e.target.value } : s))}
+                        className={`w-full px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm mb-1 ${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
+                      <textarea
+                        rows={2}
+                        value={editingGallery.description}
+                        onChange={(e) => setEditingGallery((s) => (s ? { ...s, description: e.target.value } : s))}
+                        className={`w-full px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                      />
+                    </div>
+                    <label className="inline-flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editingGallery.isPublic}
+                        onChange={(e) => setEditingGallery((s) => (s ? { ...s, isPublic: e.target.checked } : s))}
+                      />
+                      <span className={`${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Public</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={saveGalleryEdits}
+                        disabled={savingGallery}
+                        className={`px-3 py-2 rounded text-white disabled:opacity-60`}
+                        style={{ backgroundColor: `var(--${accentColor}-500)` }}
+                      >
+                        {savingGallery ? 'Saving…' : 'Save'}
+                      </button>
+                      <button
+                        onClick={() => setEditingGallery(null)}
+                        className={`px-3 py-2 rounded border`}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
 
             <form onSubmit={createGallery} className="space-y-3">
               <div>
@@ -352,33 +533,100 @@ export default function GalleryPage() {
                         <Image src={item.imageUrl || '/placeholder-hero.svg'} alt={item.altText || item.title} className="w-full h-full object-cover rounded-lg" width={128} height={128} />
                       </div>
                       <div className="flex-grow">
-                        <h3 className="text-lg font-bold" style={{ color: `var(--${accentColor}-400)` }}>{item.title}</h3>
-                        <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'} mt-1`}>{item.description}</p>
-                        <p className={`text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-1`}>Alt Text: {item.altText}</p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {tagsArr.map((tag: string) => (
-                            <span key={tag} className="px-2 py-1 rounded-full text-xs text-white" style={{ backgroundColor: `var(--${accentColor}-500)` }}>#{tag}</span>
-                          ))}
-                        </div>
-                        <div className="flex justify-between items-center mt-2">
-                          <span className={`text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Added: {formatDateStr(item.createdAt)}</span>
-                          {deleteConfirmId === item.id ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-red-500 text-sm">Are you sure?</span>
-                              <button onClick={() => deleteItem(item.id)} className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">Yes, Delete</button>
-                              <button onClick={() => setDeleteConfirmId(null)} className="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600">Cancel</button>
+                        {editingItemId === item.id ? (
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              <input
+                                className={`px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                                placeholder="Title"
+                                value={editItemForm.title}
+                                onChange={(e) => setEditItemForm((s) => ({ ...s, title: e.target.value }))}
+                              />
+                              <input
+                                className={`px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                                placeholder="Image URL"
+                                value={editItemForm.imageUrl}
+                                onChange={(e) => setEditItemForm((s) => ({ ...s, imageUrl: e.target.value }))}
+                              />
                             </div>
-                          ) : (
-                            <div className="flex gap-2">
-                              <button className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`} style={{ color: `var(--${accentColor}-400)` }}>
-                                <FaEdit />
+                            <div className="text-sm">Optional: upload new image</div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) uploadEditImage(f);
+                              }}
+                            />
+                            {uploading ? <div className="text-xs text-gray-400">Uploading…</div> : null}
+                            {uploadError ? <div className="text-xs text-red-500">{uploadError}</div> : null}
+                            <input
+                              className={`w-full px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                              placeholder="Alt text"
+                              value={editItemForm.altText}
+                              onChange={(e) => setEditItemForm((s) => ({ ...s, altText: e.target.value }))}
+                            />
+                            <textarea
+                              rows={3}
+                              className={`w-full px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                              placeholder="Description"
+                              value={editItemForm.description}
+                              onChange={(e) => setEditItemForm((s) => ({ ...s, description: e.target.value }))}
+                            />
+                            <input
+                              className={`w-full px-3 py-2 rounded-md ${colorMode === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} border`}
+                              placeholder="Tags (comma separated)"
+                              value={editItemForm.tags}
+                              onChange={(e) => setEditItemForm((s) => ({ ...s, tags: e.target.value }))}
+                            />
+                            <div className="flex items-center gap-2 pt-2">
+                              <button
+                                onClick={saveEditItem}
+                                disabled={savingEdit}
+                                className="px-3 py-2 rounded text-white disabled:opacity-60"
+                                style={{ backgroundColor: `var(--${accentColor}-500)` }}
+                              >
+                                {savingEdit ? 'Saving…' : 'Save'}
                               </button>
-                              <button onClick={() => setDeleteConfirmId(item.id)} className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'} text-red-500`}>
-                                <FaTrash />
+                              <button
+                                onClick={() => setEditingItemId(null)}
+                                className="px-3 py-2 rounded border"
+                              >
+                                Cancel
                               </button>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          <>
+                            <h3 className="text-lg font-bold" style={{ color: `var(--${accentColor}-400)` }}>{item.title}</h3>
+                            <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'} mt-1`}>{item.description}</p>
+                            <p className={`text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-1`}>Alt Text: {item.altText}</p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {tagsArr.map((tag: string) => (
+                                <span key={tag} className="px-2 py-1 rounded-full text-xs text-white" style={{ backgroundColor: `var(--${accentColor}-500)` }}>#{tag}</span>
+                              ))}
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                              <span className={`text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Added: {formatDateStr(item.createdAt)}</span>
+                              {deleteConfirmId === item.id ? (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-red-500 text-sm">Are you sure?</span>
+                                  <button onClick={() => deleteItem(item.id)} className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">Yes, Delete</button>
+                                  <button onClick={() => setDeleteConfirmId(null)} className="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600">Cancel</button>
+                                </div>
+                              ) : (
+                                <div className="flex gap-2">
+                                  <button onClick={() => beginEditItem(item)} className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`} style={{ color: `var(--${accentColor}-400)` }}>
+                                    <FaEdit />
+                                  </button>
+                                  <button onClick={() => setDeleteConfirmId(item.id)} className={`p-2 rounded-full ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'} text-red-500`}>
+                                    <FaTrash />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   );

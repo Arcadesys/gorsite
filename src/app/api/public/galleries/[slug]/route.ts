@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
-  const gallery = await prisma.gallery.findUnique({ where: { slug: params.slug } });
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  // Note: Gallery doesn't have a unique slug field globally, so we need to find by userId_slug composite key
+  // For now, let's search all galleries with this slug and return the first public one
+  const gallery = await prisma.gallery.findFirst({ 
+    where: { slug, isPublic: true },
+    include: { user: { select: { id: true } } }
+  });
   if (!gallery || !gallery.isPublic) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   const items = await prisma.galleryItem.findMany({
     where: { galleryId: gallery.id },

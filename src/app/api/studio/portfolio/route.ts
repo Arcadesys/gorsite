@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const displayName =
       (user.user_metadata as any)?.display_name ||
       (user.user_metadata as any)?.full_name ||
-      localPart ||
+      base ||
       'Artist'
 
     portfolio = await prisma.portfolio.create({

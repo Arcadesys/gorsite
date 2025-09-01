@@ -5,7 +5,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 export default function AdminSetupPage() {
   const { accentColor } = useTheme();
-  const [email, setEmail] = useState('austen@thearcades.me');
+  const [email, setEmail] = useState('austen@artpop.vercel.app');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);

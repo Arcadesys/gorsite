@@ -8,8 +8,9 @@ async function getGallery(slug: string) {
   return res.json();
 }
 
-export default async function GalleryBySlug({ params }: { params: { slug: string } }) {
-  const data = await getGallery(params.slug);
+export default async function GalleryBySlug({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const data = await getGallery(slug);
   if (!data) return notFound();
   const { gallery, items } = data as any;
 

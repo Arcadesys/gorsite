@@ -62,7 +62,7 @@ export default function StudioHome() {
                   className="underline font-mono"
                   style={{ color: c400 }}
                 >
-                  thearcades.me/{portfolio.slug}
+                  artpop.vercel.app/{portfolio.slug}
                 </a>
               </p>
             </div>

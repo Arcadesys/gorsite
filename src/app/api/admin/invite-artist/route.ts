@@ -11,15 +11,16 @@ export async function POST(req: NextRequest) {
   if (result instanceof NextResponse) {
     return result
   }
-  // Ensure inviter exists in local DB for FK integrity
-  await ensureLocalUser(result.user as any)
-
+  
   const { email, inviteMessage } = await req.json().catch(() => ({}))
   if (!email) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 })
   }
 
   try {
+    // Ensure inviter exists in local DB for FK integrity - do this first
+    await ensureLocalUser(result.user as any)
+
     // Generate a secure invitation token
     const inviteToken = randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days

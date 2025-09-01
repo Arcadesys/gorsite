@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { POST as uploadHandler } from '../src/app/api/uploads/route'
 
 // Mock Supabase server client
-vi.mock('../src/lib/supabase', () => {
+vi.mock('@/lib/supabase', () => {
   const auth = {
     getUser: vi.fn(async () => ({ data: { user: { id: 'user-1', email: 'u@example.com' } }, error: null }))
   }
@@ -29,13 +29,19 @@ describe('uploads api', () => {
 
   it('rejects unauthenticated', async () => {
     // Override auth to return no user
-    const supa = await import('../src/lib/supabase')
+    const supa = await import('@/lib/supabase')
     ;(supa.getSupabaseServer as any).mockReturnValueOnce({
       auth: { getUser: async () => ({ data: { user: null }, error: new Error('no') }) },
       storage: {}
     })
 
-    const req = new Request('http://test/api/uploads', { method: 'POST' })
+    // Create a proper FormData request even though auth will fail
+    const fd = new FormData()
+    const blob = new Blob([new Uint8Array([137,80,78,71])], { type: 'image/png' })
+    const file = new File([blob], 'test.png', { type: 'image/png' })
+    fd.append('file', file)
+    const req = new Request('http://test/api/uploads', { method: 'POST', body: fd })
+    
     const res: Response = await uploadHandler(req as any)
     expect(res.status).toBe(401)
   })

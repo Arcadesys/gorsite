@@ -18,11 +18,12 @@
     "@mailchimp/mailchimp_marketing": "3.0.80",
     "@prisma/client": "6.5.0",
     "@stripe/stripe-js": "6.0.0",
+    "@supabase/ssr": "^0.5.0",
+    "@supabase/supabase-js": "^2.47.10",
     "bcrypt": "5.1.1",
     "formidable": "^3.5.4",
     "glob": "11.0.1",
     "next": "^15.5.2",
-    
     "prisma": "6.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -30,8 +31,7 @@
     "rimraf": "6.0.1",
     "stripe": "17.7.0",
     "superagent": "10.2.0",
-    "@supabase/supabase-js": "^2.47.10",
-    "@supabase/ssr": "^0.5.0"
+    "vitest": "^3.2.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.0.0",

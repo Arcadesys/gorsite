@@ -3,10 +3,11 @@ import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import PlaceholderArt from '@/components/PlaceholderArt'
 
-export default async function ArtistGalleryPage({ params }: { params: { artist: string, gallery: string } }) {
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.artist } })
+export default async function ArtistGalleryPage({ params }: { params: Promise<{ artist: string, gallery: string }> }) {
+  const { artist, gallery: gallerySlug } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug: artist } })
   if (!portfolio) return notFound()
-  const gallery = await prisma.gallery.findUnique({ where: { userId_slug: { userId: portfolio.userId, slug: params.gallery } } })
+  const gallery = await prisma.gallery.findUnique({ where: { userId_slug: { userId: portfolio.userId, slug: gallerySlug } } })
   if (!gallery || !gallery.isPublic) return notFound()
   const items = await prisma.galleryItem.findMany({ where: { galleryId: gallery.id }, orderBy: [{ position: 'asc' }, { createdAt: 'desc' }] })
 

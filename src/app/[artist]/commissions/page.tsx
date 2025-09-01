@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
-export default async function ArtistCommissionsPage({ params }: { params: { artist: string } }) {
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.artist } })
+export default async function ArtistCommissionsPage({ params }: { params: Promise<{ artist: string }> }) {
+  const { artist } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug: artist } })
   if (!portfolio) return notFound()
   const tiers = await prisma.commissionPrice.findMany({
     where: { portfolioId: portfolio.id, active: true },

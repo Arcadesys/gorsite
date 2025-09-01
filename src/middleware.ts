@@ -6,6 +6,11 @@ import { getSupabaseServer } from '@/lib/supabase';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Explicitly skip API routes to avoid NextResponse.next() in app route handlers
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+  
   // Redirect registration page to login since we don't allow registration
   if (pathname === '/admin/register') {
     return NextResponse.redirect(new URL('/admin/login', request.url));
@@ -101,5 +106,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/studio/:path*', '/auth/change-password'],
+  matcher: [
+    '/admin/:path*',
+    '/studio/:path*',
+    '/auth/change-password'
+  ],
 };
