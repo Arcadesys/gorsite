@@ -11,6 +11,10 @@ type UserRow = {
   roles: string[];
   role?: string;
   is_admin?: boolean;
+  is_superadmin?: boolean;
+  is_deactivated?: boolean;
+  banned_until?: string;
+  can_manage?: boolean;
 };
 
 type Portfolio = {
@@ -29,6 +33,7 @@ export default function SystemPage() {
   const [inviteRole, setInviteRole] = useState<'ADMIN' | 'ARTIST'>('ARTIST');
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserRow | null>(null);
 
   const c600 = `var(--${accentColor}-600)`;
 
@@ -39,6 +44,10 @@ export default function SystemPage() {
     ]);
     setUsers(u.users || []);
     setPortfolios(p.portfolios || []);
+    
+    // Find the current user (superadmin)
+    const current = (u.users || []).find((user: UserRow) => user.is_superadmin);
+    setCurrentUser(current || null);
   }
 
   useEffect(() => { load(); }, []);
@@ -81,6 +90,43 @@ export default function SystemPage() {
     }
   }
 
+  async function manageUser(id: string, action: 'deactivate' | 'activate' | 'delete') {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    const confirmMessages = {
+      deactivate: `Are you sure you want to deactivate ${user.email}? They will not be able to sign in.`,
+      activate: `Are you sure you want to reactivate ${user.email}? They will be able to sign in again.`,
+      delete: `Are you sure you want to permanently delete ${user.email}? This action cannot be undone and will remove all their data.`
+    };
+
+    if (!confirm(confirmMessages[action])) return;
+
+    setLoading(true); setErr(null);
+    try {
+      if (action === 'delete') {
+        const res = await fetch(`/api/admin/users/${id}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+      } else {
+        const res = await fetch(`/api/admin/users/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `Failed to ${action} user`);
+      }
+      await load();
+    } catch (e: any) {
+      setErr(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="p-6 space-y-10">
       <div>
@@ -88,60 +134,98 @@ export default function SystemPage() {
         <p className="text-sm text-gray-400">Invite admins or artists and manage roles.</p>
       </div>
 
-      <form onSubmit={invite} className="space-y-3 max-w-xl">
-        {err ? <div className="text-red-500">{err}</div> : null}
-        <div>
-          <label className="block text-sm mb-1">Email</label>
-          <input
-            type="email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            className="w-full px-3 py-2 rounded border bg-transparent"
-            placeholder="user@example.com"
-          />
+      {currentUser ? (
+        <form onSubmit={invite} className="space-y-3 max-w-xl">
+          {err ? <div className="text-red-500">{err}</div> : null}
+          <div>
+            <label className="block text-sm mb-1">Email</label>
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              className="w-full px-3 py-2 rounded border bg-transparent"
+              placeholder="user@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Role</label>
+            <select
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value as any)}
+              className="w-full px-3 py-2 rounded border bg-transparent"
+            >
+              <option value="ARTIST">ARTIST</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+          <button disabled={loading} className="text-white font-semibold px-4 py-2 rounded" style={{ backgroundColor: c600 }}>
+            {loading ? 'Inviting…' : 'Send Invite'}
+          </button>
+        </form>
+      ) : (
+        <div className="text-gray-500 text-sm max-w-xl">
+          Only superadmins can invite new users.
         </div>
-        <div>
-          <label className="block text-sm mb-1">Role</label>
-          <select
-            value={inviteRole}
-            onChange={(e) => setInviteRole(e.target.value as any)}
-            className="w-full px-3 py-2 rounded border bg-transparent"
-          >
-            <option value="ARTIST">ARTIST</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
-        </div>
-        <button disabled={loading} className="text-white font-semibold px-4 py-2 rounded" style={{ backgroundColor: c600 }}>
-          {loading ? 'Inviting…' : 'Send Invite'}
-        </button>
-      </form>
+      )}
 
       <div className="space-y-3">
         <h2 className="text-xl font-semibold">Users</h2>
+        {currentUser && (
+          <div className="bg-blue-900/20 border border-blue-500/50 rounded p-3 text-sm">
+            <strong>Superadmin Access:</strong> You have elevated privileges to manage user accounts.
+          </div>
+        )}
         <div className="overflow-x-auto border rounded">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-800">
               <tr>
                 <th className="text-left p-3">Email</th>
                 <th className="text-left p-3">Role</th>
+                <th className="text-left p-3">Status</th>
                 <th className="text-left p-3">Last Sign-In</th>
                 <th className="text-left p-3">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-t border-gray-800">
-                  <td className="p-3">{u.email}</td>
+                <tr key={u.id} className={`border-t border-gray-800 ${u.is_deactivated ? 'opacity-60 bg-red-900/10' : ''}`}>
+                  <td className="p-3">
+                    {u.email}
+                    {u.is_superadmin && <span className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs rounded">SUPERADMIN</span>}
+                  </td>
                   <td className="p-3">{u.is_admin ? 'ADMIN' : (u.role || 'ARTIST')}</td>
+                  <td className="p-3">
+                    {u.is_deactivated ? (
+                      <span className="text-red-400 font-medium">DEACTIVATED</span>
+                    ) : (
+                      <span className="text-green-400">ACTIVE</span>
+                    )}
+                  </td>
                   <td className="p-3">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : '-'}</td>
                   <td className="p-3 space-x-2">
-                    <button onClick={() => updateRole(u.id, 'ADMIN')} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: c600, color: '#fff' }}>Make Admin</button>
-                    <button onClick={() => updateRole(u.id, 'ARTIST')} className="px-2 py-1 rounded text-xs border">Make Artist</button>
+                    {u.can_manage ? (
+                      <>
+                        {!u.is_deactivated ? (
+                          <>
+                            <button onClick={() => updateRole(u.id, 'ADMIN')} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: c600, color: '#fff' }}>Make Admin</button>
+                            <button onClick={() => updateRole(u.id, 'ARTIST')} className="px-2 py-1 rounded text-xs border">Make Artist</button>
+                            <button onClick={() => manageUser(u.id, 'deactivate')} className="px-2 py-1 rounded text-xs bg-yellow-600 text-white">Deactivate</button>
+                          </>
+                        ) : (
+                          <button onClick={() => manageUser(u.id, 'activate')} className="px-2 py-1 rounded text-xs bg-green-600 text-white">Reactivate</button>
+                        )}
+                        <button onClick={() => manageUser(u.id, 'delete')} className="px-2 py-1 rounded text-xs bg-red-600 text-white">Delete</button>
+                      </>
+                    ) : (
+                      <span className="text-gray-500 text-xs">
+                        {u.is_superadmin ? 'You' : 'No permissions'}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
               {users.length === 0 ? (
-                <tr><td className="p-3 text-gray-500" colSpan={4}>No users found.</td></tr>
+                <tr><td className="p-3 text-gray-500" colSpan={5}>No users found.</td></tr>
               ) : null}
             </tbody>
           </table>
