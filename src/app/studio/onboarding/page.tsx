@@ -115,13 +115,13 @@ export default function OnboardingPage() {
       <div className={`${colorMode === 'dark' ? 'bg-gray-900' : 'bg-white'} border rounded p-4 space-y-3`}>
         <Step
           ok={requirements.portfolio}
-          title="Portfolio assigned"
-          description={requirements.portfolio ? 'Your portfolio slug is linked to your account.' : 'Ask an admin to create a portfolio and assign it to you.'}
+          title="Portfolio setup"
+          description={requirements.portfolio ? 'Your artist URL and portfolio are ready.' : 'Complete your portfolio setup to be discoverable.'}
           action={
             requirements.portfolio ? (
-              <button className="px-3 py-2 text-xs rounded border" onClick={() => router.push('/studio/portfolio')}>Open</button>
+              <button className="px-3 py-2 text-xs rounded border" onClick={() => router.push('/studio/portfolio')}>Manage URL</button>
             ) : (
-              <span className="text-xs opacity-70">Admin action required</span>
+              <button className="px-3 py-2 text-xs rounded border" onClick={() => router.push('/studio/portfolio')}>Set up now</button>
             )
           }
         />

@@ -32,6 +32,7 @@ export default function SystemPage() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'ADMIN' | 'ARTIST'>('ARTIST');
+  const [inviteMessage, setInviteMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<UserRow | null>(null);
@@ -57,14 +58,27 @@ export default function SystemPage() {
     e.preventDefault();
     setLoading(true); setErr(null);
     try {
-      const res = await fetch('/api/admin/users', {
+      // Use different endpoints based on role
+      const endpoint = inviteRole === 'ARTIST' ? '/api/admin/invite-artist' : '/api/admin/users';
+      const payload = inviteRole === 'ARTIST' 
+        ? { email: inviteEmail, inviteMessage } 
+        : { email: inviteEmail, role: inviteRole };
+      
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to invite');
+      
+      // Show success message with details
+      if (inviteRole === 'ARTIST') {
+        alert(`✅ Custom invitation sent to ${inviteEmail}!\n\nThey'll receive a branded email from "The Arcade Art Gallery" with instructions to:\n1. Choose their artist URL\n2. Create a password\n3. Set up their first gallery\n\nThe invitation will expire in 7 days.`);
+      }
+      
       setInviteEmail('');
+      setInviteMessage('');
       await load();
     } catch (e: any) {
       setErr(e.message);
@@ -164,7 +178,7 @@ export default function SystemPage() {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               className="w-full px-3 py-2 rounded border bg-transparent"
-              placeholder="user@example.com"
+              placeholder="artist@example.com"
             />
           </div>
           <div>
@@ -174,13 +188,39 @@ export default function SystemPage() {
               onChange={(e) => setInviteRole(e.target.value as any)}
               className="w-full px-3 py-2 rounded border bg-transparent"
             >
-              <option value="ARTIST">ARTIST</option>
-              <option value="ADMIN">ADMIN</option>
+              <option value="ARTIST">ARTIST (Custom branded email)</option>
+              <option value="ADMIN">ADMIN (Standard Supabase email)</option>
             </select>
           </div>
+          {inviteRole === 'ARTIST' && (
+            <div>
+              <label className="block text-sm mb-1">Personal Message (Optional)</label>
+              <textarea
+                value={inviteMessage}
+                onChange={(e) => setInviteMessage(e.target.value)}
+                className="w-full px-3 py-2 rounded border bg-transparent"
+                rows={3}
+                placeholder="Add a personal welcome message for this artist..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This message will be included in the invitation email from "The Arcade Art Gallery"
+              </p>
+            </div>
+          )}
           <button disabled={loading} className="text-white font-semibold px-4 py-2 rounded" style={{ backgroundColor: c600 }}>
-            {loading ? 'Inviting…' : 'Send Invite'}
+            {loading ? 'Sending…' : 'Send Invite'}
           </button>
+          {inviteRole === 'ARTIST' && (
+            <div className="text-xs text-gray-400 bg-gray-800 p-3 rounded">
+              <strong>Artist Invitation Flow:</strong>
+              <ol className="list-decimal ml-4 mt-1 space-y-1">
+                <li>Artist receives branded email from "The Arcade Art Gallery"</li>
+                <li>They choose their unique URL slug (e.g., /john-artist)</li>
+                <li>They create a password and set up their profile</li>
+                <li>They're guided to create their first gallery page</li>
+              </ol>
+            </div>
+          )}
         </form>
       ) : (
         <div className="text-gray-500 text-sm max-w-xl">

@@ -43,22 +43,23 @@ model Session {
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String             @id @default(cuid())
   name          String?
-  email         String?      @unique
+  email         String?            @unique
   emailVerified DateTime?
   password      String?
   image         String?
-  role          UserRole     @default(USER)
-  status        UserStatus   @default(ACTIVE)
+  role          UserRole           @default(USER)
+  status        UserStatus         @default(ACTIVE)
   deactivatedAt DateTime?
   accounts      Account[]
   sessions      Session[]
   commissions   Commission[]
   galleries     Gallery[]
   portfolios    Portfolio[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  sentInvitations ArtistInvitation[] @relation("InvitedBy")
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }
 
 model VerificationToken {
@@ -78,6 +79,28 @@ enum UserStatus {
   ACTIVE
   DEACTIVATED
   DELETED
+}
+
+// Artist Invitation Model
+model ArtistInvitation {
+  id            String                   @id @default(cuid())
+  email         String
+  token         String                   @unique
+  expiresAt     DateTime
+  status        ArtistInvitationStatus   @default(PENDING)
+  customMessage String?
+  invitedBy     String
+  inviter       User                     @relation("InvitedBy", fields: [invitedBy], references: [id])
+  acceptedAt    DateTime?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+}
+
+enum ArtistInvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
 }
 
 // Site Configuration Model

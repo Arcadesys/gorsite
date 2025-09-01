@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 // ...existing code...
 import { useRouter } from 'next/navigation';
-import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaEnvelope, FaLock, FaExclamationCircle, FaCheck } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import Link from 'next/link';
 import { getSupabaseBrowser } from '@/lib/supabase';
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function LoginPage() {
     
     const urlParams = new URLSearchParams(window.location.search);
     const errorParam = urlParams.get('error');
+    const messageParam = urlParams.get('message');
     
     if (errorParam) {
       switch (errorParam) {
@@ -46,6 +48,10 @@ export default function LoginPage() {
         default:
           setError('An authentication error occurred.');
       }
+    }
+    
+    if (messageParam) {
+      setSuccess(messageParam);
     }
   }, [isClient]);
 
@@ -181,6 +187,15 @@ export default function LoginPage() {
           </div>
         )}
 
+        {success && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <div className="flex items-center">
+              <FaCheck className="mr-2" />
+              <span>{success}</span>
+            </div>
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleEmailLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -238,6 +253,18 @@ export default function LoginPage() {
                   placeholder="Password"
                 />
               </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end">
+            <div className="text-sm">
+              <Link
+                href="/auth/forgot-password"
+                className="font-medium hover:underline"
+                style={{ color: `var(--${accentColor}-500)` }}
+              >
+                Forgot your password?
+              </Link>
             </div>
           </div>
 

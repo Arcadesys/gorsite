@@ -110,10 +110,12 @@ npm run setup:supabase
 ### Multi-tenant setup
 
 - Migrate the database to include the `Portfolio` model (above steps already cover Prisma migrations).
-- Create portfolios via the Admin UI:
+- Invite artists via the Admin UI:
   - Log in at `/admin/login` (Supabase auth) as an admin.
-  - Open Admin → Portfolios and create a portfolio with a unique slug, display name, and the Prisma `User` ID for the artist.
+  - Open Admin → System and send invitations to artists via email.
+  - Artists create their own portfolios during the signup process by choosing their unique slug.
 - Access the public site at `/{artist-slug}` and `/{artist-slug}/galleries`.
+- Admin can still manually create portfolios via Admin → Portfolios if needed for special cases.
 ```
 
 ## Branding
