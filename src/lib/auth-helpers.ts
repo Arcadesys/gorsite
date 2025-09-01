@@ -63,6 +63,11 @@ export async function requireSuperAdmin(req: NextRequest): Promise<
   return result
 }
 
+// Check if user needs to change their password
+export function requiresPasswordChange(user: SupabaseUser): boolean {
+  return Boolean(user?.user_metadata?.force_password_change === true)
+}
+
 // Ensure a matching local User row exists for the Supabase auth user.
 // This keeps existing Prisma relations working without NextAuth.
 export async function ensureLocalUser(user: SupabaseUser) {

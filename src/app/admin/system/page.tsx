@@ -91,7 +91,7 @@ export default function SystemPage() {
     }
   }
 
-  async function manageUser(id: string, action: 'deactivate' | 'activate' | 'delete' | 'resend_invite') {
+  async function manageUser(id: string, action: 'deactivate' | 'activate' | 'delete' | 'resend_invite' | 'reset_password') {
     const user = users.find(u => u.id === id);
     if (!user) return;
 
@@ -99,7 +99,8 @@ export default function SystemPage() {
       deactivate: `Are you sure you want to deactivate ${user.email}? They will not be able to sign in.`,
       activate: `Are you sure you want to reactivate ${user.email}? They will be able to sign in again.`,
       delete: `Are you sure you want to permanently delete ${user.email}? This action cannot be undone and will remove all their data.`,
-      resend_invite: `Resend invitation email to ${user.email}?`
+      resend_invite: `Resend invitation email to ${user.email}?`,
+      reset_password: `Generate a new random password for ${user.email}? They will be required to change it on next login.`
     };
 
     if (!confirm(confirmMessages[action])) return;
@@ -119,6 +120,16 @@ export default function SystemPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to resend invitation');
         alert(data.message || 'Invitation email sent successfully!');
+      } else if (action === 'reset_password') {
+        const res = await fetch(`/api/admin/users/${id}/reset-password`, {
+          method: 'POST',
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+        
+        // Show the temporary password to the superadmin
+        const message = `Password reset for ${user.email}\n\nTemporary password: ${data.temporaryPassword}\n\nPlease share this securely with the user. They will be required to change it on next login.`;
+        alert(message);
       } else {
         const res = await fetch(`/api/admin/users/${id}`, {
           method: 'PATCH',
@@ -233,6 +244,9 @@ export default function SystemPage() {
                         )}
                         {!u.email_confirmed_at && (
                           <button onClick={() => manageUser(u.id, 'resend_invite')} className="px-2 py-1 rounded text-xs bg-blue-600 text-white">Resend Invite</button>
+                        )}
+                        {u.email_confirmed_at && (
+                          <button onClick={() => manageUser(u.id, 'reset_password')} className="px-2 py-1 rounded text-xs bg-orange-600 text-white">Reset Password</button>
                         )}
                         <button onClick={() => manageUser(u.id, 'delete')} className="px-2 py-1 rounded text-xs bg-red-600 text-white">Delete</button>
                       </div>
