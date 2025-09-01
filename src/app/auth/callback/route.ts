@@ -24,6 +24,18 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL('/auth/set-password', requestUrl.origin))
       }
 
+      // Check if this is a password recovery type
+      if (type === 'recovery') {
+        // Redirect to password reset page with the access and refresh tokens
+        const { data: session } = await supabase.auth.getSession()
+        if (session?.session) {
+          const resetUrl = new URL('/auth/reset-password', requestUrl.origin)
+          resetUrl.searchParams.set('access_token', session.session.access_token)
+          resetUrl.searchParams.set('refresh_token', session.session.refresh_token)
+          return NextResponse.redirect(resetUrl)
+        }
+      }
+
       // For other auth types, redirect based on role
       const { data: { user } } = await supabase.auth.getUser()
       const isAdmin = Boolean(
