@@ -18,6 +18,7 @@ to authenticated
 with check (
   bucket_id = 'artworks'
   and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
 );
 
 -- Policy: users can manage their own files under users/<uid>/
@@ -27,6 +28,7 @@ to authenticated
 using (
   bucket_id = 'artworks'
   and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
 );
 
 create policy if not exists "Users can delete their own files"
@@ -35,6 +37,7 @@ to authenticated
 using (
   bucket_id = 'artworks'
   and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
 );
 
 -- Optional: admin role can do anything (set custom JWT with role claim)

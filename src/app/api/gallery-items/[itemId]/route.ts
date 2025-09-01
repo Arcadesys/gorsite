@@ -8,12 +8,14 @@ async function ensureItemOwner(userId: string, itemId: string) {
   return item;
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { itemId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ itemId: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const existing = await ensureItemOwner(user.id, params.itemId);
+  
+  const { itemId } = await params;
+  const existing = await ensureItemOwner(user.id, itemId);
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
 
   const body = await req.json();
@@ -30,12 +32,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { itemId: st
   return NextResponse.json(updated, { headers: res.headers });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { itemId: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ itemId: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const existing = await ensureItemOwner(user.id, params.itemId);
+  
+  const { itemId } = await params;
+  const existing = await ensureItemOwner(user.id, itemId);
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
   await prisma.galleryItem.delete({ where: { id: existing.id } });
   return NextResponse.json({ ok: true }, { headers: res.headers });

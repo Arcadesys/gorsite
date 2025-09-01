@@ -57,7 +57,7 @@ Users can now create and manage their own portfolio slug (artist URL) at any tim
 ```
 ┌─────────────────────────────────────────┐
 │ Your Gallery URL                        │
-│ thearcades.me/john-artist    [Manage URL]│
+│ artpop.vercel.app/john-artist    [Manage URL]│
 └─────────────────────────────────────────┘
 ```
 
@@ -65,7 +65,7 @@ Users can now create and manage their own portfolio slug (artist URL) at any tim
 ```
 ┌─────────────────────────────────────────┐
 │ Your Artist URL                         │
-│ thearcades.me/[john-artist    ] ✅      │
+│ artpop.vercel.app/[john-artist    ] ✅      │
 │ ✅ This URL is available!               │
 │ ⚠️ Changing URL will break existing links│
 └─────────────────────────────────────────┘
@@ -121,12 +121,12 @@ When a user changes their slug, the system shows a warning:
 ### Initial Setup (via invitation)
 1. Artist receives invitation email
 2. Chooses slug during signup: `digital-dreams`
-3. Gallery URL becomes: `thearcades.me/digital-dreams`
+3. Gallery URL becomes: `artpop.vercel.app/digital-dreams`
 
 ### Later Rebranding
 1. Artist goes to `/studio/portfolio`
 2. Changes slug from `digital-dreams` to `dream-artist`
-3. Gallery URL becomes: `thearcades.me/dream-artist`
+3. Gallery URL becomes: `artpop.vercel.app/dream-artist`
 4. Old URL (`digital-dreams`) becomes available for others
 
 ### Conflict Handling

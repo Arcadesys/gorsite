@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 
-export default async function CommissionRequestPage({ params, searchParams }: { params: { artist: string }, searchParams: { tier?: string } }) {
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.artist } })
-  if (!portfolio) return redirect(`/${params.artist}/commissions`)
+export default async function CommissionRequestPage({ params, searchParams }: { params: Promise<{ artist: string }>, searchParams: { tier?: string } }) {
+  const { artist } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug: artist } })
+  if (!portfolio) return redirect(`/${artist}/commissions`)
   const tierId = searchParams.tier
   const tier = tierId ? await prisma.commissionPrice.findFirst({ where: { id: tierId, portfolioId: portfolio.id } }) : null
 

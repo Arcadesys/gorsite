@@ -4,8 +4,9 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import PlaceholderArt from '@/components/PlaceholderArt';
 
-export default async function ArtistHome({ params }: { params: { artist: string } }) {
-  const slug = params.artist;
+export default async function ArtistHome({ params }: { params: Promise<{ artist: string }> }) {
+  const { artist } = await params;
+  const slug = artist;
   const portfolio = await prisma.portfolio.findUnique({ where: { slug } });
   if (!portfolio) return notFound();
 

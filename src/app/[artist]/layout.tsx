@@ -8,9 +8,10 @@ export default async function ArtistLayout({
   params,
 }: {
   children: ReactNode;
-  params: { artist: string };
+  params: Promise<{ artist: string }>;
 }) {
-  const slug = params.artist;
+  const { artist } = await params;
+  const slug = artist;
   const portfolio = await prisma.portfolio.findUnique({ where: { slug } });
   const galleries = portfolio
     ? await prisma.gallery.findMany({

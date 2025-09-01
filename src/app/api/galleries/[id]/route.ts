@@ -8,22 +8,24 @@ async function ensureOwner(userId: string, galleryId: string) {
   return g;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const g = await ensureOwner(user.id, params.id);
+  const { id } = await context.params;
+  const g = await ensureOwner(user.id, id);
   if (!g) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
   return NextResponse.json(g, { headers: res.headers });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const g = await ensureOwner(user.id, params.id);
+  const { id } = await context.params;
+  const g = await ensureOwner(user.id, id);
   if (!g) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
 
   const body = await req.json();
@@ -35,14 +37,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(updated, { headers: res.headers });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const authRes = await requireUser(req);
   if (authRes instanceof NextResponse) return authRes;
   const { user, res } = authRes;
   await ensureLocalUser(user);
-  const g = await ensureOwner(user.id, params.id);
+  const { id } = await context.params;
+  const g = await ensureOwner(user.id, id);
   if (!g) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: res.headers });
   await prisma.gallery.delete({ where: { id: g.id } });
   return NextResponse.json({ ok: true }, { headers: res.headers });
 }
-

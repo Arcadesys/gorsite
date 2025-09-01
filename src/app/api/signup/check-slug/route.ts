@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { isReservedSlug } from '@/lib/slug-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ 
       available: false, 
       error: 'Slug must be at least 3 characters and contain only lowercase letters, numbers, and hyphens' 
+    }, { status: 400 })
+  }
+
+  if (isReservedSlug(slug)) {
+    return NextResponse.json({ 
+      available: false, 
+      error: 'This slug is reserved'
     }, { status: 400 })
   }
 

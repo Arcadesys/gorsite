@@ -10,20 +10,22 @@ function isAdmin(user: any) {
   )
 }
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.slug } })
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug } })
   if (!portfolio) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const prices = await prisma.commissionPrice.findMany({ where: { portfolioId: portfolio.id }, orderBy: [{ position: 'asc' }, { createdAt: 'asc' }] })
   return NextResponse.json({ prices })
 }
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.slug } })
+  const { slug } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug } })
   if (!portfolio) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const body = await req.json().catch(() => ({}))

@@ -219,11 +219,21 @@ model GalleryItem {
   altText          String?
   tags             String? // JSON string of tags
   position         Int?
+  
+  // Artist attribution fields
+  artistName       String?           // Name of the artist who created this artwork
+  artistPortfolioSlug String?        // Link to artist's portfolio (if they have one on the platform)
+  artistExternalUrl String?          // External link to artist's website/social media
+  isOriginalWork   Boolean          @default(true) // Whether this is original work or commissioned/collaborative
+  
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   commissionPrices CommissionPrice[] // Add this relation field
 
   gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  
+  // Optional: Link to artist's portfolio if they're on the platform
+  artistPortfolio Portfolio? @relation("ArtistWorks", fields: [artistPortfolioSlug], references: [slug])
 }
 
 // Multi-tenant portfolio per artist
@@ -243,6 +253,7 @@ model Portfolio {
   userId          String
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   prices          CommissionPrice[] // Add this relation field
+  artistWorks     GalleryItem[]     @relation("ArtistWorks") // Artworks attributed to this artist
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 }

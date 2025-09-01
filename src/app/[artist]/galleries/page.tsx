@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 
-export default async function ArtistGalleries({ params }: { params: { artist: string } }) {
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.artist } });
+export default async function ArtistGalleries({ params }: { params: Promise<{ artist: string }> }) {
+  const { artist } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug: artist } });
   if (!portfolio) return null;
   const galleries = await prisma.gallery.findMany({
     where: { userId: portfolio.userId, isPublic: true },

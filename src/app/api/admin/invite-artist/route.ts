@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireSuperAdmin } from '@/lib/auth-helpers'
+import { requireSuperAdmin, ensureLocalUser } from '@/lib/auth-helpers'
 import { prisma } from '@/lib/prisma'
 import { randomBytes } from 'crypto'
 
@@ -11,13 +11,16 @@ export async function POST(req: NextRequest) {
   if (result instanceof NextResponse) {
     return result
   }
-
+  
   const { email, inviteMessage } = await req.json().catch(() => ({}))
   if (!email) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 })
   }
 
   try {
+    // Ensure inviter exists in local DB for FK integrity - do this first
+    await ensureLocalUser(result.user as any)
+
     // Generate a secure invitation token
     const inviteToken = randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
@@ -75,7 +78,7 @@ async function sendArtistInvitationEmail({
   // In production, you'd integrate with your email service (SendGrid, Mailgun, etc.)
   
   const emailContent = `
-From: ${galleryName} <noreply@thearcades.me>
+From: ${galleryName} <noreply@artpop.vercel.app>
 To: ${to}
 Subject: You're Invited to Join ${galleryName}
 
@@ -115,7 +118,7 @@ Creating spaces for digital artists to thrive
   
   await sgMail.send({
     to,
-    from: { email: 'noreply@thearcades.me', name: galleryName },
+    from: { email: 'noreply@artpop.vercel.app', name: galleryName },
     subject: `You're Invited to Join ${galleryName}`,
     html: generateHTMLEmailTemplate({ inviteLink, customMessage, galleryName })
   })

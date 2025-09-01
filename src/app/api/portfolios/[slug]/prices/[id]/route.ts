@@ -17,12 +17,14 @@ async function ensureOwner(userId: string, slug: string) {
   return ownerId === userId ? portfolio : null
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { slug: string, id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ slug: string, id: string }> }) {
   const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.slug } })
+  
+  const { slug, id } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug } })
   if (!portfolio) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (!isAdmin(user) && user.id !== portfolio.userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -35,20 +37,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
   if (typeof body.position === 'number' || body.position === null) data.position = body.position
   if (typeof body.active === 'boolean') data.active = body.active
 
-  const updated = await prisma.commissionPrice.update({ where: { id: params.id }, data })
+  const updated = await prisma.commissionPrice.update({ where: { id }, data })
   return NextResponse.json({ price: updated })
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { slug: string, id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ slug: string, id: string }> }) {
   const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: params.slug } })
+  
+  const { slug, id } = await params;
+  const portfolio = await prisma.portfolio.findUnique({ where: { slug } })
   if (!portfolio) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (!isAdmin(user) && user.id !== portfolio.userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  await prisma.commissionPrice.delete({ where: { id: params.id } })
+  await prisma.commissionPrice.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
 

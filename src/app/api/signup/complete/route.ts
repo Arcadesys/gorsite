@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { isReservedSlug } from '@/lib/slug-utils'
 import { ensureLocalUser } from '@/lib/auth-helpers'
 
 export const dynamic = 'force-dynamic'
@@ -22,6 +23,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    if (isReservedSlug(slug)) {
+      return NextResponse.json({ error: 'Artist URL is reserved' }, { status: 400 })
+    }
     // Validate the invitation
     const invitation = await prisma.artistInvitation.findUnique({
       where: { token }
@@ -90,6 +94,21 @@ export async function POST(req: NextRequest) {
         colorMode: 'dark'     // Default color mode
       }
     })
+
+    // Ensure hidden commissions gallery exists for user
+    const baseSlug = 'commissions'
+    const existing = await prisma.gallery.findFirst({ where: { userId, slug: baseSlug } })
+    if (!existing) {
+      await prisma.gallery.create({
+        data: {
+          userId,
+          name: 'Commissions',
+          description: 'Commission examples and price points',
+          isPublic: false,
+          slug: baseSlug,
+        },
+      })
+    }
 
     // Mark invitation as accepted
     await prisma.artistInvitation.update({

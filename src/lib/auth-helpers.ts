@@ -11,7 +11,9 @@ export type SupabaseUser = {
 
 // Create a Supabase server client for Route Handlers and return the response holder
 export function getRouteSupabase(req: NextRequest) {
-  const res = NextResponse.next()
+  // In route handlers, NextResponse.next() is not supported.
+  // Use a fresh NextResponse to capture cookie updates from Supabase.
+  const res = new NextResponse()
   const supabase = getSupabaseServer(req, res)
   return { supabase, res }
 }
@@ -40,7 +42,7 @@ export function isAdmin(user: SupabaseUser): boolean {
 
 // Check if user is a superadmin (has special privileges like user management)
 export function isSuperAdmin(user: SupabaseUser): boolean {
-  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase()
+  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@artpop.vercel.app').toLowerCase()
   const userEmail = (user?.email || '').toLowerCase()
   
   return isAdmin(user) && userEmail === superEmail
