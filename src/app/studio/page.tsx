@@ -89,7 +89,8 @@ export default function StudioHome() {
               </span>
             ) : (
               <span>
-                Your admin will create your portfolio container (slug). If you believe this is missing, contact an admin.
+                Set up your portfolio and artist URL —
+                <button className="underline ml-1" onClick={() => router.push('/studio/portfolio')}>Configure Portfolio</button>
               </span>
             )}
           </li>
@@ -104,12 +105,12 @@ export default function StudioHome() {
         </ol>
         {!portfolio ? (
           <div className="mt-4 text-sm text-yellow-400">
-            An admin must first invite you and assign a portfolio.
+            Complete your portfolio setup to make your gallery discoverable.
           </div>
         ) : null}
         <div className="mt-4">
-          <button onClick={() => router.push(portfolio ? '/studio/portfolio' : '/studio')} className="px-4 py-2 rounded text-white" style={{ backgroundColor: c600 }}>
-            {portfolio ? 'Configure Portfolio' : 'Refresh' }
+          <button onClick={() => router.push('/studio/portfolio')} className="px-4 py-2 rounded text-white" style={{ backgroundColor: c600 }}>
+            {portfolio ? 'Configure Portfolio' : 'Set Up Portfolio' }
           </button>
         </div>
         {error ? <div className="mt-3 text-sm text-red-500">{error}</div> : null}

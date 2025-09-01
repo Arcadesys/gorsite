@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
@@ -15,7 +15,7 @@ type InvitationData = {
   status: string;
 };
 
-export default function SignupPage() {
+function SignupForm() {
   const [invitation, setInvitation] = useState<InvitationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -507,5 +507,17 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }

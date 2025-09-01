@@ -90,6 +90,14 @@ export default function PortfoliosPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Portfolios</h1>
+      
+      <div className={`p-4 rounded-lg border mb-6 ${colorMode === 'dark' ? 'bg-blue-900/20 border-blue-500/50' : 'bg-blue-100 border-blue-500'}`}>
+        <p className={`text-sm ${colorMode === 'dark' ? 'text-blue-200' : 'text-blue-800'}`}>
+          <strong>ℹ️ Note:</strong> Portfolios are normally created automatically when artists accept their invitations through the signup flow. 
+          Only use the form below for special cases where manual portfolio creation is needed.
+        </p>
+      </div>
+      
       <form onSubmit={onCreate} className="space-y-4 max-w-xl mb-8">
         {error ? <div className="text-red-500">{error}</div> : null}
         <div>
