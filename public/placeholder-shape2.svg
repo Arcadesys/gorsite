@@ -1,0 +1,24 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract shape 2">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#00ffad" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#00ffad" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg2)"/>
+  <ellipse cx="400" cy="260" rx="300" ry="180" fill="url(#glow2)"/>
+  <g fill="#60a5fa" opacity="0.25">
+    <circle cx="120" cy="520" r="20"/>
+    <circle cx="180" cy="540" r="10"/>
+    <circle cx="720" cy="520" r="14"/>
+    <circle cx="680" cy="560" r="8"/>
+    <circle cx="620" cy="540" r="6"/>
+  </g>
+  <path d="M120 140 L220 340 L20 340 Z" fill="#f59e0b" opacity="0.25"/>
+  <path d="M600 140 L760 240 L520 300 Z" fill="#8b5cf6" opacity="0.25"/>
+</svg>
+

@@ -4,24 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPalette, FaClipboardList, FaCog } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
-import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
-  const { status } = useSession();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { accentColor, colorMode } = useTheme();
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-      return;
-    }
-
-    if (status !== 'loading') {
-      setIsLoading(false);
-    }
-  }, [status, router]);
+  // Auth gating is handled in middleware; this page can assume an authenticated admin
 
   if (isLoading) {
     return (

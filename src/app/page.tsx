@@ -29,23 +29,35 @@ export default function Home() {
             className="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
             style={{ color: colorMode === 'dark' ? '#e5e7eb' : '#374151' }}
           >
-            Artist-run studio for character art, graffiti lettering, and vibrant commissions.
+            Furry art and tattoo design from Day and Night Productions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/galleries"
+              className="border font-bold py-3 px-8 rounded-full transition"
+              style={{ borderColor: c600, color: c400 }}
+            >
+              View Portfolio
+            </Link>
             <Link
               href="/commissions"
               className="text-white font-bold py-3 px-8 rounded-full transition"
               style={{ backgroundColor: c600 }}
             >
-              Commission Us
+              Start Your Journey
             </Link>
-            <Link
-              href="/gallery"
-              className="border font-bold py-3 px-8 rounded-full transition"
-              style={{ borderColor: c600, color: c400 }}
-            >
-              View Gallery
-            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* About the Artist */}
+      <section className="py-12 md:py-16" style={{ backgroundColor: colorMode === 'dark' ? '#0b0b0b' : '#f9fafb' }}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6" style={{ color: c400 }}>About the Artist</h2>
+            <p className={colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+              Artist-run studio. I am a 30+ mother. Graphic designer, retired tattoo artist and comic book creator, in the works. I have been creating artistic content of many different mediums for the better half of 18 years now, I do custom tattoo designs and character concept art. Including paintings for custom skateboard decks. I enjoy reading and spending time with my family in my down time. My kids are an important part of my life and influence my creative side and bring me the energy I need to get up and work in the morning. Building on my career as an artist to provide for my family is my driving goal.
+            </p>
           </div>
         </div>
       </section>
@@ -136,7 +148,7 @@ export default function Home() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6 text-white">Ready to bring your ideas to life?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: '#d1fae5' }}>
-            Let&apos;s work together to create something amazing. Get in touch today!
+            Have you ever wanted to bring a character idea to life for a video game? Had a creature concept for a tabletop game? Or just wanted to see a piece of your imagination on screen? I can help! I&apos;m willing to work with barebones concepts and mesh with you to bring your ideas to life. From comic designs and fantastical creatures to skateboards and tattoos—anything under the sun, Day and Night. Reach out and let&apos;s make magic together!
           </p>
           <Link 
             href="/contact" 

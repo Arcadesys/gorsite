@@ -1,0 +1,12 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract shape 7">
+  <rect width="800" height="600" fill="#111827"/>
+  <g transform="translate(100,120)" opacity="0.25">
+    <path d="M0 0 C60 40 120 -20 180 0 C240 20 300 80 360 60 C420 40 480 -20 540 0 L540 140 L0 140 Z" fill="#10b981"/>
+  </g>
+  <g transform="translate(80,340)" opacity="0.25">
+    <rect x="0" y="0" width="200" height="40" rx="20" fill="#60a5fa"/>
+    <rect x="240" y="0" width="160" height="40" rx="20" fill="#f59e0b"/>
+    <rect x="440" y="0" width="120" height="40" rx="20" fill="#a855f7"/>
+  </g>
+</svg>
+

@@ -6,10 +6,13 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup:supabase": "node scripts/setup-supabase.js",
+    "db:generate": "prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "2.8.0",
     "@mailchimp/mailchimp_marketing": "3.0.80",
     "@prisma/client": "6.5.0",
     "@stripe/stripe-js": "6.0.0",
@@ -17,7 +20,7 @@
     "formidable": "^3.5.4",
     "glob": "11.0.1",
     "next": "^15.5.2",
-    "next-auth": "5.0.0-beta.29",
+    
     "prisma": "6.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",

@@ -53,6 +53,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   commissions   Commission[]
+  galleries     Gallery[]
+  portfolios    Portfolio[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -158,4 +160,74 @@ enum CommissionPriority {
   NORMAL
   HIGH
   URGENT
+}
+
+// Gallery Models
+model Gallery {
+  id          String        @id @default(cuid())
+  userId      String
+  name        String
+  slug        String
+  description String?
+  isPublic    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  items       GalleryItem[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  galleryId   String
+  title       String
+  description String?
+  imageUrl    String
+  altText     String?
+  tags        String?  // JSON string of tags
+  position    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+}
+
+// Multi-tenant portfolio per artist
+model Portfolio {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  displayName    String
+  description    String?
+  accentColor    String   @default("green")
+  colorMode      String   @default("dark")
+  logoUrl        String?
+  heroImageLight String?
+  heroImageDark  String?
+  heroImageMobile String?
+  about          String?
+  menu           String? // JSON string for custom nav order/labels
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// Commission price catalog per portfolio
+model CommissionPrice {
+  id            String    @id @default(cuid())
+  portfolioId   String
+  title         String
+  description   String?
+  price         Float
+  imageUrl      String?
+  galleryItemId String?
+  position      Int? 
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  galleryItem GalleryItem? @relation(fields: [galleryItemId], references: [id])
 }

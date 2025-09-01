@@ -1,0 +1,10 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract shape 5">
+  <rect width="800" height="600" fill="#0a0a0a"/>
+  <g opacity="0.25">
+    <polygon points="100,120 200,100 240,180 160,220" fill="#22d3ee"/>
+    <polygon points="300,140 380,100 420,200 320,240" fill="#10b981"/>
+    <polygon points="520,160 600,120 660,220 560,260" fill="#f59e0b"/>
+  </g>
+  <rect x="120" y="360" width="560" height="60" rx="30" fill="#00ffad" opacity="0.15"/>
+</svg>
+

@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* Tailwind v4 source scanning: explicit globs and no implicit root */
-/* Explicit project root for Tailwind v4 scanner, plus globs */
-@source "../src/**/*.{js,ts,jsx,tsx,mdx}";
-@source "../public/**/*";
+/* Tailwind v4 source scanning: point to actual project files */
+/* From src/app/globals.css, one level up is src/, two up is project root */
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../public/**/*";
 
 :root {
   --background: #ffffff;
