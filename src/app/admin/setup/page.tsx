@@ -97,7 +97,7 @@ export default function AdminSetupPage() {
         </form>
 
         <p className="text-xs text-gray-500 mt-4 text-center">
-          This will create or update the admin account for austen@thearcades.me only.
+          This will create or update the admin account for austen@artpop.vercel.app only.
         </p>
       </div>
     </div>

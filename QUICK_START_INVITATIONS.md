@@ -28,7 +28,7 @@ When an artist clicks the invitation link, they go through this flow:
 ### Step 1: Choose Artist URL
 - They pick their unique URL slug (e.g., "john-artist")
 - Real-time checking shows if it's available
-- URL will be: `thearcades.me/john-artist`
+- URL will be: `artpop.vercel.app/john-artist`
 
 ### Step 2: Create Account
 - Enter their display name

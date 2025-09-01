@@ -83,7 +83,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         // Bootstrap superadmin on first login if matching configured email
-        const superEmail = 'austen@thearcades.me';
+        const superEmail = 'austen@artpop.vercel.app';
         if (email.trim().toLowerCase() === superEmail) {
           try {
             const resp = await fetch('/api/admin/bootstrap-superadmin', {

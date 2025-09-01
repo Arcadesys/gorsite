@@ -78,7 +78,7 @@ async function sendArtistInvitationEmail({
   // In production, you'd integrate with your email service (SendGrid, Mailgun, etc.)
   
   const emailContent = `
-From: ${galleryName} <noreply@thearcades.me>
+From: ${galleryName} <noreply@artpop.vercel.app>
 To: ${to}
 Subject: You're Invited to Join ${galleryName}
 
@@ -118,7 +118,7 @@ Creating spaces for digital artists to thrive
   
   await sgMail.send({
     to,
-    from: { email: 'noreply@thearcades.me', name: galleryName },
+    from: { email: 'noreply@artpop.vercel.app', name: galleryName },
     subject: `You're Invited to Join ${galleryName}`,
     html: generateHTMLEmailTemplate({ inviteLink, customMessage, galleryName })
   })

@@ -30,7 +30,7 @@ When the artist clicks the invitation link, they are taken to `/signup?token=...
    - Real-time availability checking
    - Format validation (lowercase, numbers, hyphens only)
    - Minimum 3 characters required
-   - Example: `john-artist` → `thearcades.me/john-artist`
+   - Example: `john-artist` → `artpop.vercel.app/john-artist`
 
 2. **Create their profile**
    - Enter their display name
@@ -116,7 +116,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 await sgMail.send({
   to: email,
-  from: { email: 'noreply@thearcades.me', name: 'The Arcade Art Gallery' },
+  from: { email: 'noreply@artpop.vercel.app', name: 'The Arcade Art Gallery' },
   subject: `You're Invited to Join The Arcade Art Gallery`,
   html: generateHTMLEmailTemplate({ inviteLink, customMessage, galleryName })
 })
@@ -131,7 +131,7 @@ SENDGRID_API_KEY=your_sendgrid_api_key
 
 # Gallery branding
 GALLERY_NAME="The Arcade Art Gallery"
-GALLERY_EMAIL="noreply@thearcades.me"
+GALLERY_EMAIL="noreply@artpop.vercel.app"
 ```
 
 ## Security Features

@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
 
     // If user is a superadmin and is visiting the base /admin path,
     // redirect them to the system management page. Otherwise send admins to dashboard.
-    const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase();
+    const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@artpop.vercel.app').toLowerCase();
     const isSuperAdmin = isAdmin && (String(authUser?.email || '').toLowerCase() === superEmail);
 
     if (pathname === '/admin' || pathname === '/admin/') {

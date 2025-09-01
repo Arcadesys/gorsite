@@ -13,7 +13,7 @@ function isAdminUser(u: any) {
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json().catch(() => ({}))
-  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase()
+  const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@artpop.vercel.app').toLowerCase()
   if (!email || !password) return NextResponse.json({ error: 'Missing email or password' }, { status: 400 })
   if (email.toLowerCase() !== superEmail) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
