@@ -10,7 +10,9 @@
     "setup:supabase": "node scripts/setup-supabase.js",
     "db:generate": "prisma generate",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "3.0.80",
