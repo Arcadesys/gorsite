@@ -21,6 +21,7 @@ function SignupForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
+    email: '',
     slug: '',
     password: '',
     confirmPassword: '',
@@ -118,6 +119,11 @@ function SignupForm() {
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!formData.email) {
+      setError('Please enter your email address');
+      return;
+    }
+    
     if (!formData.slug) {
       setError('Please choose your artist URL');
       return;
@@ -164,6 +170,7 @@ function SignupForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token,
+          email: formData.email,
           slug: formData.slug,
           displayName: formData.displayName,
           password: formData.password,
@@ -259,11 +266,6 @@ function SignupForm() {
           <p className={`mt-2 text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             Welcome! You've been invited to showcase your art.
           </p>
-          {invitation?.email && (
-            <p className={`mt-1 text-sm ${colorMode === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
-              {invitation.email}
-            </p>
-          )}
         </div>
 
         {/* Custom Message */}
@@ -298,10 +300,40 @@ function SignupForm() {
           </div>
         )}
 
-        {/* Step 1: Choose slug and display name */}
+        {/* Step 1: Enter email, choose slug and display name */}
         {step === 1 && (
           <form className="mt-8 space-y-6" onSubmit={handleStep1Submit}>
             <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaEnvelope className={`${colorMode === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`appearance-none rounded-md relative block w-full px-3 py-3 pl-10 ${
+                      colorMode === 'dark' 
+                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
+                        : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
+                    } border focus:outline-none focus:ring-2 focus:z-10 focus:ring-opacity-50`}
+                    style={{ 
+                      borderColor: colorMode === 'dark' ? `var(--${accentColor}-800)` : `var(--${accentColor}-200)`
+                    }}
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+                <p className={`mt-1 text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  This will be used for your artist account
+                </p>
+              </div>
               <div>
                 <label htmlFor="slug" className="block text-sm font-medium mb-2">
                   Choose Your Artist URL
@@ -386,7 +418,7 @@ function SignupForm() {
 
             <button
               type="submit"
-              disabled={!formData.slug || !formData.displayName || slugAvailable !== true}
+              disabled={!formData.email || !formData.slug || !formData.displayName || slugAvailable !== true}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50"
               style={{ 
                 backgroundColor: getButtonBgColor(),
@@ -404,14 +436,17 @@ function SignupForm() {
             <div className="space-y-4">
               <div className="text-center mb-4">
                 <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Great! Your URL will be: <span className="font-mono font-bold">/{formData.slug}</span>
+                  Email: <span className="font-mono font-bold">{formData.email}</span>
+                </p>
+                <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Your URL will be: <span className="font-mono font-bold">/{formData.slug}</span>
                 </p>
                 <button 
                   type="button" 
                   onClick={() => setStep(1)}
                   className="text-xs text-blue-400 underline mt-1"
                 >
-                  Change URL
+                  Change Details
                 </button>
               </div>
 

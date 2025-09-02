@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic'
 
 // POST /api/signup/complete - Complete the artist signup process
 export async function POST(req: NextRequest) {
-  const { token, slug, displayName, password } = await req.json().catch(() => ({}))
+  const { token, email, slug, displayName, password } = await req.json().catch(() => ({}))
 
-  if (!token || !slug || !displayName || !password) {
+  if (!token || !email || !slug || !displayName || !password) {
     return NextResponse.json({ 
       error: 'Missing required fields' 
     }, { status: 400 })
@@ -48,10 +48,19 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    // Create the user in Supabase Auth
+    // Check if email is already in use
     const admin = getSupabaseAdmin()
+    const { data: existingUser } = await (admin as any).auth.admin.getUserByEmail(email)
+    
+    if (existingUser?.user) {
+      return NextResponse.json({ 
+        error: 'An account with this email already exists' 
+      }, { status: 400 })
+    }
+
+    // Create the user in Supabase Auth
     const { data: authData, error: authError } = await (admin as any).auth.admin.createUser({
-      email: invitation.email,
+      email: email,
       password: password,
       email_confirm: true,
       user_metadata: { 
@@ -76,7 +85,7 @@ export async function POST(req: NextRequest) {
     // Create local user record
     await ensureLocalUser({
       id: userId,
-      email: invitation.email,
+      email: email,
       user_metadata: {
         display_name: displayName,
         role: 'ARTIST'
@@ -110,10 +119,11 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Mark invitation as accepted
+    // Mark invitation as accepted and update with the email used
     await prisma.artistInvitation.update({
       where: { id: invitation.id },
       data: { 
+        email: email, // Update with the actual email used
         status: 'ACCEPTED',
         acceptedAt: new Date()
       }

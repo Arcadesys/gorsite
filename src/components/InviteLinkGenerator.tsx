@@ -8,8 +8,6 @@ interface InviteLinkGeneratorProps {
 }
 
 export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProps) {
-  const [email, setEmail] = useState('')
-  const [customMessage, setCustomMessage] = useState('')
   const [inviteLink, setInviteLink] = useState('')
   const [inviteData, setInviteData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -17,19 +15,13 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
   const [error, setError] = useState('')
 
   const generateInviteLink = async () => {
-    if (!email) {
-      setError('Email is required')
-      return
-    }
-
     setIsLoading(true)
     setError('')
 
     try {
       const response = await fetch('/api/admin/generate-invite-link', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, customMessage })
+        headers: { 'Content-Type': 'application/json' }
       })
 
       const data = await response.json()
@@ -58,8 +50,6 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
   }
 
   const reset = () => {
-    setEmail('')
-    setCustomMessage('')
     setInviteLink('')
     setInviteData(null)
     setError('')
@@ -71,7 +61,7 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <FaLink className="text-blue-500" />
-          Generate Invite Link
+          Generate Artist Invite Link
         </h3>
         {onClose && (
           <button
@@ -85,31 +75,9 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
 
       {!inviteLink ? (
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Artist Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="artist@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Custom Message (Optional)
-            </label>
-            <textarea
-              value={customMessage}
-              onChange={(e) => setCustomMessage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              rows={3}
-              placeholder="Welcome to our gallery..."
-            />
-          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Generate a secure invitation link that allows artists to sign up and create their portfolio.
+          </p>
 
           {error && (
             <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded">
@@ -120,7 +88,7 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
           <button
             onClick={generateInviteLink}
             disabled={isLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white py-2 px-4 rounded-md flex items-center justify-center gap-2 transition"
+            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white py-3 px-4 rounded-md flex items-center justify-center gap-2 transition"
           >
             {isLoading ? (
               <>
@@ -137,37 +105,14 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
         </div>
       ) : (
         <div className="space-y-4">
-          <div className={`border rounded-lg p-4 ${
-            inviteData?.isExisting 
-              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-              : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-          }`}>
-            <div className={`flex items-center gap-2 mb-2 ${
-              inviteData?.isExisting ? 'text-blue-800 dark:text-blue-400' : 'text-green-800 dark:text-green-400'
-            }`}>
+          <div className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 border rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2 text-green-800 dark:text-green-400">
               <FaCheck />
-              <span className="font-medium">
-                {inviteData?.isExisting ? 'Existing Invitation Found!' : 'Invite Link Generated!'}
-              </span>
+              <span className="font-medium">Invite Link Generated!</span>
             </div>
-            <p className={`text-sm ${
-              inviteData?.isExisting ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'
-            }`}>
-              {inviteData?.isExisting ? (
-                <>
-                  An invitation for <strong>{email}</strong> already exists. 
-                  {inviteData.invitedBy && ` Originally sent by ${inviteData.invitedBy}`}
-                  {inviteData.createdAt && ` on ${new Date(inviteData.createdAt).toLocaleDateString()}`}.
-                </>
-              ) : (
-                <>Share this link with <strong>{email}</strong> to let them sign up directly.</>
-              )}
+            <p className="text-sm text-green-700 dark:text-green-300">
+              Share this link with artists to let them sign up and create their portfolio.
             </p>
-            {inviteData?.customMessage && inviteData.isExisting && (
-              <p className="text-sm mt-2 italic">
-                Original message: "{inviteData.customMessage}"
-              </p>
-            )}
           </div>
 
           <div>
@@ -196,8 +141,8 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
           </div>
 
           <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-3 rounded">
-            💡 <strong>Tip:</strong> This link expires in 7 days. You can also send a regular invitation 
-            with email for a more professional experience.
+            💡 <strong>Note:</strong> This link expires in 7 days. Artists can use this link to 
+            create their account, choose their URL, and set up their portfolio.
           </div>
 
           <div className="flex gap-2">

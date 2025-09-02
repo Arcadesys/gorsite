@@ -6,7 +6,7 @@ import { getBaseUrl } from '@/lib/base-url'
 
 export const dynamic = 'force-dynamic'
 
-// POST /api/admin/generate-invite-link - Generate invite link without sending email
+// POST /api/admin/generate-invite-link - Generate generic invite link
 export async function POST(req: NextRequest) {
   const result = await requireSuperAdmin(req)
   if (result instanceof NextResponse) {
@@ -14,44 +14,6 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { email, customMessage } = await req.json()
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
-    }
-
-      // Check if invitation already exists
-  const existingInvitation = await prisma.artistInvitation.findFirst({
-    where: {
-      email,
-      status: { not: 'ACCEPTED' }, // Check for non-accepted invitations (PENDING, EXPIRED, REVOKED)
-      expiresAt: { gt: new Date() } // Only check non-expired invitations
-    },
-    include: {
-      inviter: {
-        select: { email: true }
-      }
-    }
-  })
-
-    if (existingInvitation) {
-      // Return the existing invitation instead of creating a new one
-      const baseUrl = getBaseUrl()
-      const inviteLink = `${baseUrl}/signup?token=${existingInvitation.token}`
-      
-      return NextResponse.json({
-        success: true,
-        inviteLink,
-        email: existingInvitation.email,
-        expiresAt: existingInvitation.expiresAt.toISOString(),
-        message: 'Found existing invitation',
-        isExisting: true,
-        createdAt: existingInvitation.createdAt.toISOString(),
-        invitedBy: existingInvitation.inviter?.email || 'Unknown',
-        customMessage: existingInvitation.customMessage
-      })
-    }
-
     // Ensure inviter exists in local DB for FK integrity
     await ensureLocalUser(result.user as any)
 
@@ -59,14 +21,14 @@ export async function POST(req: NextRequest) {
     const inviteToken = randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
 
-    // Store the invitation in the database
-    await prisma.artistInvitation.create({
+    // Store the invitation in the database (without specific email)
+    const invitation = await prisma.artistInvitation.create({
       data: {
-        email: email.toLowerCase(),
+        email: '', // Empty email for generic invitations
         token: inviteToken,
         expiresAt,
         invitedBy: result.user.id,
-        customMessage: customMessage || null,
+        customMessage: null,
         status: 'PENDING'
       }
     })
@@ -78,9 +40,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       inviteLink,
-      email,
+      invitationId: invitation.id,
       expiresAt: expiresAt.toISOString(),
-      message: 'Invite link generated successfully'
+      message: 'Generic invite link generated successfully'
     })
 
   } catch (error: any) {
