@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
 import { FaUser, FaLock, FaEnvelope, FaCheck, FaExclamationCircle, FaPalette } from 'react-icons/fa';
+import { validatePassword, getPasswordRequirements } from '@/lib/password-validation';
 
 type InvitationData = {
   id: string;
@@ -152,8 +153,10 @@ function SignupForm() {
     setLoading(true);
     setError('');
 
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    // Use the shared password validation
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setError(passwordError);
       setLoading(false);
       return;
     }
@@ -473,8 +476,16 @@ function SignupForm() {
                     style={{ 
                       borderColor: colorMode === 'dark' ? `var(--${accentColor}-800)` : `var(--${accentColor}-200)`
                     }}
-                    placeholder="Create a secure password (min 8 characters)"
+                    placeholder="Create a secure password"
                   />
+                </div>
+                <div className={`mt-2 text-xs ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Password requirements:
+                  <ul className="mt-1 ml-4 list-disc">
+                    {getPasswordRequirements().map((req, index) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
               

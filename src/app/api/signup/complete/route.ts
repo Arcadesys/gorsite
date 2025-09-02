@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { isReservedSlug } from '@/lib/slug-utils'
 import { ensureLocalUser } from '@/lib/auth-helpers'
+import { validatePassword } from '@/lib/password-validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,9 +17,11 @@ export async function POST(req: NextRequest) {
     }, { status: 400 })
   }
 
-  if (password.length < 8) {
+  // Use the shared password validation
+  const passwordError = validatePassword(password);
+  if (passwordError) {
     return NextResponse.json({ 
-      error: 'Password must be at least 8 characters' 
+      error: passwordError 
     }, { status: 400 })
   }
 

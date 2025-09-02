@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaLock, FaEye, FaEyeSlash, FaExclamationCircle, FaCheck } from 'react-icons/fa';
 import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
+import { validatePassword, getPasswordRequirements } from '@/lib/password-validation';
 
 export default function ChangePasswordPage() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -47,22 +48,6 @@ export default function ChangePasswordPage() {
     
     checkAuth();
   }, [isClient, router]);
-
-  const validatePassword = (password: string) => {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters long';
-    }
-    if (!/(?=.*[a-z])/.test(password)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!/(?=.*[A-Z])/.test(password)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!/(?=.*\d)/.test(password)) {
-      return 'Password must contain at least one number';
-    }
-    return null;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,7 +228,12 @@ export default function ChangePasswordPage() {
               </button>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Password must be at least 8 characters with uppercase, lowercase, and numbers
+              Password requirements:
+              <ul className="mt-1 ml-4 list-disc">
+                {getPasswordRequirements().map((req, index) => (
+                  <li key={index}>{req}</li>
+                ))}
+              </ul>
             </div>
           </div>
 
