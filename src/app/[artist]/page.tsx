@@ -14,6 +14,14 @@ export default async function ArtistHome({ params }: { params: Promise<{ artist:
     where: { userId: portfolio.userId, isPublic: true },
     orderBy: { createdAt: 'desc' },
     take: 6,
+    include: {
+      featuredItem: true,
+      items: {
+        take: 1,
+        orderBy: [{ position: 'asc' }, { createdAt: 'desc' }],
+        select: { id: true, imageUrl: true },
+      },
+    },
   });
 
   return (
@@ -59,8 +67,11 @@ export default async function ArtistHome({ params }: { params: Promise<{ artist:
               {galleries.map((g) => (
                 <Link key={g.id} href={`/${portfolio.slug}/${g.slug}`} className="rounded-lg overflow-hidden bg-black shadow-lg">
                   <div className="relative h-56">
-                    {/* In absence of cover image, show placeholder */}
-                    <PlaceholderArt width={400} height={224} className="w-full h-full" />
+                    {g.featuredItem?.imageUrl || g.items?.[0]?.imageUrl ? (
+                      <Image src={(g.featuredItem?.imageUrl || g.items?.[0]?.imageUrl)!} alt={g.name} fill className="object-cover" />
+                    ) : (
+                      <PlaceholderArt width={400} height={224} className="w-full h-full" />
+                    )}
                   </div>
                   <div className="p-5">
                     <h3 className="text-xl font-bold text-emerald-400 mb-1">{g.name}</h3>

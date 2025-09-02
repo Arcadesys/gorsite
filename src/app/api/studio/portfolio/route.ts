@@ -95,6 +95,25 @@ export async function PATCH(req: NextRequest) {
     }
   }
   
+  // Handle featured item assignment for the artist's main gallery image
+  if (Object.prototype.hasOwnProperty.call(body, 'featuredItemId')) {
+    const featuredItemId = (body as any).featuredItemId as string | null
+    if (featuredItemId === null) {
+      data.featuredItemId = null
+    } else if (typeof featuredItemId === 'string' && featuredItemId.trim()) {
+      // Ensure the item belongs to one of the user's galleries
+      const item = await prisma.galleryItem.findUnique({ where: { id: featuredItemId } })
+      if (!item) {
+        return NextResponse.json({ error: 'Featured item not found' }, { status: 400 })
+      }
+      const gallery = await prisma.gallery.findUnique({ where: { id: item.galleryId }, select: { userId: true } })
+      if (!gallery || gallery.userId !== user.id) {
+        return NextResponse.json({ error: 'Not allowed to feature this item' }, { status: 403 })
+      }
+      data.featuredItemId = featuredItemId
+    }
+  }
+  
   const updated = await prisma.portfolio.update({ where: { id: portfolio.id }, data })
   return NextResponse.json({ portfolio: updated })
 }

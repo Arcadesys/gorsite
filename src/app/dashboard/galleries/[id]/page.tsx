@@ -14,6 +14,7 @@ interface Gallery {
   description?: string;
   isPublic: boolean;
   createdAt: string;
+  featuredItemId?: string | null;
 }
 
 interface GalleryItem {
@@ -98,6 +99,45 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
     } catch (error) {
       console.error('Failed to delete artwork:', error);
       alert('Failed to delete artwork');
+    }
+  };
+
+  const setFeaturedForGallery = async (itemId: string) => {
+    try {
+      const response = await fetch(`/api/galleries/${galleryId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featuredItemId: itemId }),
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setGallery(updated);
+      } else {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || 'Failed to set featured image');
+      }
+    } catch (e) {
+      console.error('Failed to set featured image', e);
+      alert('Failed to set featured image');
+    }
+  };
+
+  const setFeaturedForPortfolio = async (itemId: string) => {
+    try {
+      const response = await fetch(`/api/studio/portfolio`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featuredItemId: itemId }),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || 'Failed to set main featured image');
+      } else {
+        alert('Set as main featured image');
+      }
+    } catch (e) {
+      console.error('Failed to set main featured image', e);
+      alert('Failed to set main featured image');
     }
   };
 
@@ -261,8 +301,31 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
                       >
                         <FaTrash size={16} />
                       </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFeaturedForGallery(item.id);
+                        }}
+                        className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition"
+                        title="Set as gallery featured"
+                      >
+                        ⭐
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFeaturedForPortfolio(item.id);
+                        }}
+                        className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition"
+                        title="Set as main featured"
+                      >
+                        🏠
+                      </button>
                     </div>
                   </div>
+                  {gallery?.featuredItemId === item.id && (
+                    <div className="absolute top-2 left-2 bg-emerald-600 text-white text-xs px-2 py-1 rounded">Featured</div>
+                  )}
                 </div>
 
                 {/* Content */}

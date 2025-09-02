@@ -150,6 +150,10 @@ model Gallery {
   updatedAt   DateTime      @updatedAt
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   items       GalleryItem[]
+  
+  // Optional featured item to represent the gallery
+  featuredItemId String? @unique
+  featuredItem   GalleryItem? @relation("GalleryFeaturedItem", fields: [featuredItemId], references: [id], onDelete: SetNull)
 
   @@unique([userId, slug])
 }
@@ -172,6 +176,10 @@ model GalleryItem {
   commissionPrices    CommissionPrice[]
   artistPortfolio     Portfolio?        @relation("ArtistWorks", fields: [artistPortfolioSlug], references: [slug])
   gallery             Gallery           @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  // Back-relations for featured associations
+  featuredInGallery   Gallery?          @relation("GalleryFeaturedItem")
+  featuredInPortfolio Portfolio?        @relation("PortfolioFeaturedItem")
 }
 
 model Portfolio {
@@ -193,6 +201,10 @@ model Portfolio {
   prices          CommissionPrice[]
   artistWorks     GalleryItem[]     @relation("ArtistWorks")
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional featured item to represent the artist's main gallery
+  featuredItemId String? @unique
+  featuredItem   GalleryItem? @relation("PortfolioFeaturedItem", fields: [featuredItemId], references: [id], onDelete: SetNull)
 }
 
 model CommissionPrice {

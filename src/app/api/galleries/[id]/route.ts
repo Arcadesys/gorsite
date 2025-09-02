@@ -35,6 +35,20 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
   if (typeof body.description === 'string' || body.description === null) data.description = body.description;
   if (typeof body.isPublic === 'boolean') data.isPublic = body.isPublic;
   
+  // Allow setting/clearing featured item if it belongs to this gallery
+  if (Object.prototype.hasOwnProperty.call(body, 'featuredItemId')) {
+    const featuredItemId = body.featuredItemId as string | null;
+    if (featuredItemId === null) {
+      data.featuredItemId = null;
+    } else if (typeof featuredItemId === 'string' && featuredItemId.trim()) {
+      const item = await prisma.galleryItem.findUnique({ where: { id: featuredItemId } });
+      if (!item || item.galleryId !== g.id) {
+        return NextResponse.json({ error: 'Invalid featured item' }, { status: 400, headers: res.headers });
+      }
+      data.featuredItemId = featuredItemId;
+    }
+  }
+  
   try {
     const updated = await prisma.gallery.update({ where: { id: g.id }, data });
     return NextResponse.json(updated, { headers: res.headers });
