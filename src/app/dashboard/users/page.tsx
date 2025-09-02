@@ -5,6 +5,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaBan, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import CopyInviteLink from '@/components/CopyInviteLink';
 
 interface User {
   id: string;
@@ -281,6 +282,13 @@ export default function UserManagementPage() {
                         >
                           <FaTrash />
                         </button>
+
+                        {!user.email_confirmed_at && (
+                          <CopyInviteLink 
+                            email={user.email}
+                            className="ml-2"
+                          />
+                        )}
                       </div>
                     )}
                     {!user.can_manage && (

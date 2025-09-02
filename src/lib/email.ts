@@ -19,13 +19,15 @@ export interface EmailOptions {
   subject: string
   html: string
   from?: string
+  logPrefix?: string
 }
 
-export async function sendEmail({ to, subject, html, from }: EmailOptions) {
+export async function sendEmail({ to, subject, html, from, logPrefix = 'EMAIL TO SEND:' }: EmailOptions) {
   const resendClient = getResendClient()
   
   if (!resendClient) {
     console.log('⚠️  RESEND_API_KEY not found, logging email instead:')
+    console.log(logPrefix)
     console.log('---')
     console.log(`From: ${from || 'The Arcade Art Gallery <noreply@artpop.vercel.app>'}`)
     console.log(`To: ${to}`)

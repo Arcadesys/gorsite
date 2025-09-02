@@ -91,6 +91,8 @@ async function sendArtistInvitationEmail({
     galleryName
   })
 
+  console.log(`INVITE_LINK: ${inviteLink}`) // For test compatibility
+
   return await sendEmail({
     to,
     subject: `You're Invited to Join ${galleryName}`,
@@ -122,6 +124,7 @@ async function sendSuperuserCopyEmail({
   return await sendEmail({
     to: superuserEmail,
     subject: `[COPY] Artist Invitation Sent to ${originalRecipient}`,
-    html
+    html,
+    logPrefix: 'SUPERUSER COPY EMAIL:'
   })
 }

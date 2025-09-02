@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import InviteLinkGenerator from '@/components/InviteLinkGenerator';
 
 export default function AdminSystemPage() {
   const { accentColor, colorMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [showInviteGenerator, setShowInviteGenerator] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -77,6 +79,15 @@ export default function AdminSystemPage() {
             <div className="font-semibold">User Management</div>
             <div className="text-sm opacity-75">Manage artist accounts and permissions</div>
           </button>
+
+          <button
+            onClick={() => setShowInviteGenerator(true)}
+            className="px-4 py-3 rounded border text-left transition-colors"
+            style={{ borderColor: `var(--${accentColor}-400)`, color: `var(--${accentColor}-400)` }}
+          >
+            <div className="font-semibold">Generate Invite Link</div>
+            <div className="text-sm opacity-75">Create instant invite links for artists</div>
+          </button>
         </div>
       </div>
 
@@ -91,6 +102,13 @@ export default function AdminSystemPage() {
           <div><strong>User ID:</strong> {user?.id}</div>
         </div>
       </div>
+
+      {/* Invite Link Generator Modal */}
+      {showInviteGenerator && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <InviteLinkGenerator onClose={() => setShowInviteGenerator(false)} />
+        </div>
+      )}
     </div>
   );
 }

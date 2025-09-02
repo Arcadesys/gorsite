@@ -65,8 +65,8 @@ describe('admin invite-artist api', () => {
     const allLogs = logSpy.mock.calls.map(c => String(c[0]))
     expect(allLogs.some(s => s.includes('EMAIL TO SEND:'))).toBe(true)
     expect(allLogs.some(s => s.includes('SUPERUSER COPY EMAIL:'))).toBe(true)
-    // Token should be deterministic from our mock: `01` repeated 64
-    const token = '01'.repeat(64)
+    // Token should be deterministic from our mock: `01` repeated 32 times (32 bytes * 2 hex chars)
+    const token = '01'.repeat(32)
     const expectedLink = `http://example.test/signup?token=${token}`
     expect(allLogs.join('\n')).toContain(expectedLink)
 
