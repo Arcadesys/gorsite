@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { getBaseUrl } from '@/lib/base-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     
     // Use Supabase's built-in password reset functionality
     const { error } = await admin.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/reset-password`,
+      redirectTo: `${getBaseUrl()}/auth/reset-password`,
     })
 
     if (error) {

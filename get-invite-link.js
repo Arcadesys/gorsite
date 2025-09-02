@@ -13,7 +13,15 @@ async function getInviteToken() {
     });
     
     if (latestInvitation) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const resolveBaseUrl = () => {
+        const raw = (process.env.NEXT_PUBLIC_BASE_URL || '').trim();
+        if (raw) return raw.startsWith('http') ? raw : `https://${raw}`;
+        const vercel = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL;
+        if (vercel) return `https://${vercel}`;
+        if (process.env.NODE_ENV !== 'production') return 'http://localhost:3000';
+        throw new Error('Base URL not configured. Set NEXT_PUBLIC_BASE_URL or VERCEL_URL.');
+      };
+      const baseUrl = resolveBaseUrl();
       const inviteLink = `${baseUrl}/signup?token=${latestInvitation.token}`;
       
       console.log('Latest invitation details:');

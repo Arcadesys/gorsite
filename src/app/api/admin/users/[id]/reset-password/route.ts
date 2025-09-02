@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSuperAdmin } from '@/lib/auth-helpers'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { prisma } from '@/lib/prisma'
+import { getBaseUrl } from '@/lib/base-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -100,7 +101,7 @@ New temporary password: ${newPassword}
 
 Please log in and change your password immediately.
 
-Login URL: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin/login
+Login URL: ${getBaseUrl()}/admin/login
 
 For security reasons, you will be required to change this password on your next login.
     `.trim()

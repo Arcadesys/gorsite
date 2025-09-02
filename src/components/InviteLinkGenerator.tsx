@@ -11,6 +11,7 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
   const [email, setEmail] = useState('')
   const [customMessage, setCustomMessage] = useState('')
   const [inviteLink, setInviteLink] = useState('')
+  const [inviteData, setInviteData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState('')
@@ -38,6 +39,7 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
       }
 
       setInviteLink(data.inviteLink)
+      setInviteData(data)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -59,6 +61,7 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
     setEmail('')
     setCustomMessage('')
     setInviteLink('')
+    setInviteData(null)
     setError('')
     setCopied(false)
   }
@@ -134,14 +137,37 @@ export default function InviteLinkGenerator({ onClose }: InviteLinkGeneratorProp
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-green-800 dark:text-green-400 mb-2">
+          <div className={`border rounded-lg p-4 ${
+            inviteData?.isExisting 
+              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+              : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+          }`}>
+            <div className={`flex items-center gap-2 mb-2 ${
+              inviteData?.isExisting ? 'text-blue-800 dark:text-blue-400' : 'text-green-800 dark:text-green-400'
+            }`}>
               <FaCheck />
-              <span className="font-medium">Invite Link Generated!</span>
+              <span className="font-medium">
+                {inviteData?.isExisting ? 'Existing Invitation Found!' : 'Invite Link Generated!'}
+              </span>
             </div>
-            <p className="text-sm text-green-700 dark:text-green-300">
-              Share this link with <strong>{email}</strong> to let them sign up directly.
+            <p className={`text-sm ${
+              inviteData?.isExisting ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'
+            }`}>
+              {inviteData?.isExisting ? (
+                <>
+                  An invitation for <strong>{email}</strong> already exists. 
+                  {inviteData.invitedBy && ` Originally sent by ${inviteData.invitedBy}`}
+                  {inviteData.createdAt && ` on ${new Date(inviteData.createdAt).toLocaleDateString()}`}.
+                </>
+              ) : (
+                <>Share this link with <strong>{email}</strong> to let them sign up directly.</>
+              )}
             </p>
+            {inviteData?.customMessage && inviteData.isExisting && (
+              <p className="text-sm mt-2 italic">
+                Original message: "{inviteData.customMessage}"
+              </p>
+            )}
           </div>
 
           <div>

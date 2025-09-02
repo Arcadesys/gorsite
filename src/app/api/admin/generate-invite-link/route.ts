@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSuperAdmin, ensureLocalUser } from '@/lib/auth-helpers'
 import { prisma } from '@/lib/prisma'
 import { randomBytes } from 'crypto'
+import { getBaseUrl } from '@/lib/base-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,38 @@ export async function POST(req: NextRequest) {
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    }
+
+      // Check if invitation already exists
+  const existingInvitation = await prisma.artistInvitation.findFirst({
+    where: {
+      email,
+      status: { not: 'ACCEPTED' }, // Check for non-accepted invitations (PENDING, EXPIRED, REVOKED)
+      expiresAt: { gt: new Date() } // Only check non-expired invitations
+    },
+    include: {
+      inviter: {
+        select: { email: true }
+      }
+    }
+  })
+
+    if (existingInvitation) {
+      // Return the existing invitation instead of creating a new one
+      const baseUrl = getBaseUrl()
+      const inviteLink = `${baseUrl}/signup?token=${existingInvitation.token}`
+      
+      return NextResponse.json({
+        success: true,
+        inviteLink,
+        email: existingInvitation.email,
+        expiresAt: existingInvitation.expiresAt.toISOString(),
+        message: 'Found existing invitation',
+        isExisting: true,
+        createdAt: existingInvitation.createdAt.toISOString(),
+        invitedBy: existingInvitation.inviter?.email || 'Unknown',
+        customMessage: existingInvitation.customMessage
+      })
     }
 
     // Ensure inviter exists in local DB for FK integrity
@@ -39,7 +72,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Create the invitation link
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const baseUrl = getBaseUrl()
     const inviteLink = `${baseUrl}/signup?token=${inviteToken}`
 
     return NextResponse.json({

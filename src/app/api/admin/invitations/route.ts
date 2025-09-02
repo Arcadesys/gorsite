@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireSuperAdmin } from '@/lib/auth-helpers'
 import { prisma } from '@/lib/prisma'
+import { getBaseUrl } from '@/lib/base-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
     })
 
     // Transform the data to include calculated fields
+    const baseUrl = getBaseUrl()
     const transformedInvitations = invitations.map(invitation => ({
       id: invitation.id,
       email: invitation.email,
@@ -39,7 +41,7 @@ export async function GET(req: NextRequest) {
       invitedBy: invitation.invitedByUser?.email || 'Unknown',
       isExpired: new Date() > invitation.expiresAt,
       daysRemaining: Math.max(0, Math.ceil((invitation.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))),
-      inviteLink: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/signup?token=${invitation.token}`
+      inviteLink: `${baseUrl}/signup?token=${invitation.token}`
     }))
 
     return NextResponse.json({
