@@ -133,7 +133,29 @@ export async function POST(req: NextRequest) {
 
     // Check if email is already in use
     console.log('📧 Checking email availability:', email);
-    const admin = getSupabaseAdmin()
+    
+    // Check environment variables
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('❌ Missing Supabase environment variables:', {
+        hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      });
+      return NextResponse.json({ 
+        error: 'Server configuration error: Missing Supabase credentials' 
+      }, { status: 500 });
+    }
+    
+    let admin;
+    try {
+      admin = getSupabaseAdmin();
+      console.log('✅ Supabase admin client initialized');
+    } catch (adminError) {
+      console.error('❌ Failed to initialize Supabase admin:', adminError);
+      return NextResponse.json({ 
+        error: 'Server configuration error: Failed to initialize Supabase admin' 
+      }, { status: 500 });
+    }
+
     const { data: existingUser, error: emailCheckError } = await (admin as any).auth.admin.getUserByEmail(email)
     
     if (emailCheckError) {
