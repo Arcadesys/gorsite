@@ -61,9 +61,9 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
             <div className="flex space-x-4">
               {[
-                { icon: <FaTwitter size={24} />, url: 'https://x.com/KARMAKAIJU1', label: 'X (Twitter)' },
-                { icon: <SiBluesky size={22} />, url: 'https://bsky.app/profile/dayandnightmags.bsky.social', label: 'Bluesky' },
-                { icon: <FaInstagram size={24} />, url: 'https://instagram.com', label: 'Instagram' },
+                { icon: <FaTwitter size={24} />, url: 'https://x.com/ArcadesArtStudio', label: 'X (Twitter)' },
+                { icon: <SiBluesky size={22} />, url: 'https://bsky.app/profile/arcadesartstudio.bsky.social', label: 'Bluesky' },
+                { icon: <FaInstagram size={24} />, url: 'https://instagram.com/arcadesartstudio', label: 'Instagram' },
               ].map((social) => (
                 <a 
                   key={social.label}

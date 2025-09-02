@@ -27,6 +27,14 @@ describe('uploads api', () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_BUCKET', 'artworks')
   })
 
+  function pngFile(name = 'test.png') {
+    // 1x1 transparent PNG
+    const b64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/akW0S0AAAAASUVORK5CYII='
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+    const blob = new Blob([bytes], { type: 'image/png' })
+    return new File([blob], name, { type: 'image/png' })
+  }
+
   it('rejects unauthenticated', async () => {
     // Override auth to return no user
     const supa = await import('@/lib/supabase')
@@ -37,9 +45,7 @@ describe('uploads api', () => {
 
     // Create a proper FormData request even though auth will fail
     const fd = new FormData()
-    const blob = new Blob([new Uint8Array([137,80,78,71])], { type: 'image/png' })
-    const file = new File([blob], 'test.png', { type: 'image/png' })
-    fd.append('file', file)
+    fd.append('file', pngFile())
     const req = new Request('http://test/api/uploads', { method: 'POST', body: fd })
     
     const res: Response = await uploadHandler(req as any)
@@ -48,9 +54,7 @@ describe('uploads api', () => {
 
   it('uploads an image and returns public url', async () => {
     const fd = new FormData()
-    const blob = new Blob([new Uint8Array([137,80,78,71])], { type: 'image/png' })
-    const file = new File([blob], 'test.png', { type: 'image/png' })
-    fd.append('file', file)
+    fd.append('file', pngFile())
     const req = new Request('http://test/api/uploads', { method: 'POST', body: fd })
 
     const res: Response = await uploadHandler(req as any)

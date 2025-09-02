@@ -56,17 +56,24 @@ The email includes:
 
 ## Next Steps
 
-### To Enable Real Email Sending
+### ✅ Email Sending is Already Set Up!
 
-1. **Choose an email service** (SendGrid, Mailgun, etc.)
-2. **Add API keys** to your environment
-3. **Update the email function** in `/api/admin/invite-artist/route.ts`
+Your invitation system now has **full email functionality** using [Resend](https://resend.com):
 
-### Example with SendGrid:
+1. **Get a free Resend account** at [resend.com](https://resend.com) (100 emails/day free)
+2. **Get your API key** from the Resend dashboard
+3. **Add to your environment**: `RESEND_API_KEY=re_your_key_here`
+4. **That's it!** Emails will automatically send
+
+### Quick Setup (2 minutes):
 ```bash
-# Add to .env
-SENDGRID_API_KEY=your_api_key_here
+# Add to .env.local
+RESEND_API_KEY=re_your_api_key_here
 ```
+
+**Without an API key?** Emails will be logged to your console for testing.
+
+📖 **Full setup guide**: See `EMAIL_SETUP.md` for detailed instructions.
 
 ## Benefits of the New System
 

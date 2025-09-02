@@ -120,8 +120,8 @@ npm run setup:supabase
 
 ## Branding
 
-- Default studio name comes from `src/config/brand.ts` and is set to `DayAndNightProductions`.
-- To style the site around a big artist‑drawn hero, place your hero image at `public/branding/dayandnight-hero.png`. A placeholder lives at `public/placeholder-hero.svg`.
+- Default studio name comes from `src/config/brand.ts` and is set to `Arcades Art Studio`.
+- To style the site around a big artist‑drawn hero, place your hero image at `public/branding/arcades-hero.png`. A placeholder lives at `public/placeholder-hero.svg`.
 - The default accent color is keyed to the hero art (neon green/cyan). You can switch the accent in the UI or modify the default in `src/context/ThemeContext.tsx`.
 
 ## Deployment

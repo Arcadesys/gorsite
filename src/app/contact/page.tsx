@@ -71,7 +71,7 @@ const ContactPage = () => {
             Get in <span style={{ color: c400 }}>Touch</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            You can reach out at <span className="font-semibold" style={{ color: '#d1fae5' }}>DayAndNightProductions2002@gmail.com</span> for specific custom creations and collaboration.
+            You can reach out at <span className="font-semibold" style={{ color: '#d1fae5' }}>contact@arcadesartstudio.com</span> for specific custom creations and collaboration.
           </p>
         </div>
       </section>
@@ -91,8 +91,8 @@ const ContactPage = () => {
                     <div>
                       <h4 className="font-bold mb-1" style={{ color: colorMode === 'dark' ? '#fff' : '#111827' }}>Email</h4>
                       <p className="text-gray-400">Don&apos;t hesitate to reach out!</p>
-                      <a href="mailto:DayAndNightProductions2002@gmail.com" className="transition" style={{ color: c400 }}>
-                        DayAndNightProductions2002@gmail.com
+                      <a href="mailto:contact@arcadesartstudio.com" className="transition" style={{ color: c400 }}>
+                        contact@arcadesartstudio.com
                       </a>
                     </div>
                   </div>

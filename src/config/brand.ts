@@ -1,6 +1,6 @@
 export const BRAND = {
   // Default studio name keyed to the provided artwork
-  studioName: 'DayAndNightProductions',
+  studioName: 'Arcades Art Studio',
 
   // Hero imagery (placed under `public/branding/`)
   // If these look swapped, just flip the assignments below.

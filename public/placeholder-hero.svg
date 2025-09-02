@@ -12,7 +12,7 @@
     <circle cx="980" cy="900" r="420" fill="url(#g)"/>
   </g>
   <text x="50%" y="56%" text-anchor="middle" fill="#0ef0a0" font-family="Verdana, Geneva, Tahoma, sans-serif" font-size="64" font-weight="700" opacity="0.9">
-    Drop your hero image at public/branding/dayandnight-hero.png
+    Drop your hero image at public/branding/arcades-hero.png
   </text>
 </svg>
 

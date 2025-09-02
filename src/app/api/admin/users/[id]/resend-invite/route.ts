@@ -3,6 +3,7 @@ import { requireSuperAdmin, ensureLocalUser } from '@/lib/auth-helpers'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { prisma } from '@/lib/prisma'
 import { randomBytes } from 'crypto'
+import { sendEmail, generateInvitationEmailHTML, generateSuperuserCopyEmailHTML } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,55 +103,18 @@ async function sendArtistInvitationEmail({
   customMessage: string
   galleryName: string
 }) {
-  // For now, we'll log the email content
-  // In production, you'd integrate with your email service (SendGrid, Mailgun, etc.)
-  
-  const emailContent = `
-From: ${galleryName} <noreply@artpop.vercel.app>
-To: ${to}
-Subject: You're Invited to Join ${galleryName}
-
-Hello!
-
-You've been invited to create your artist profile on ${galleryName}!
-
-${customMessage ? `\nPersonal message:\n${customMessage}\n` : ''}
-
-Getting started is easy:
-1. Click the link below to accept your invitation
-2. Choose your unique artist URL (your "slug")
-3. Create a secure password
-4. Set up your first gallery page
-
-Ready to showcase your art? Click here:
-${inviteLink}
-
-This invitation will expire in 7 days.
-
-Welcome to ${galleryName}!
-
----
-${galleryName}
-Creating spaces for digital artists to thrive
-  `.trim()
-
-  console.log('EMAIL TO SEND:')
-  console.log(emailContent)
-  console.log('---')
-
-  // TODO: Replace with actual email service integration
-  // Example with SendGrid:
-  /*
-  const sgMail = require('@sendgrid/mail')
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-  
-  await sgMail.send({
-    to,
-    from: { email: 'noreply@artpop.vercel.app', name: galleryName },
-    subject: `You're Invited to Join ${galleryName}`,
-    html: generateHTMLEmailTemplate({ inviteLink, customMessage, galleryName })
+  const html = generateInvitationEmailHTML({
+    inviteLink,
+    customMessage,
+    galleryName,
+    isResend: true
   })
-  */
+
+  return await sendEmail({
+    to,
+    subject: `You're Invited to Join ${galleryName}`,
+    html
+  })
 }
 
 // Helper function to send a copy of the invitation to superuser for record keeping
@@ -167,45 +131,17 @@ async function sendSuperuserCopyEmail({
   galleryName: string
   superuserEmail: string
 }) {
-  const emailContent = `
-From: ${galleryName} <noreply@artpop.vercel.app>
-To: ${superuserEmail}
-Subject: [COPY] Artist Invitation Resent to ${originalRecipient}
-
-Hi there,
-
-This is a copy of the artist invitation that was just RESENT to ${originalRecipient} for your records.
-
-ORIGINAL INVITATION DETAILS:
-Recipient: ${originalRecipient}
-Gallery: ${galleryName}
-${customMessage ? `Personal message: ${customMessage}` : 'No personal message included'}
-
-INVITATION LINK:
-${inviteLink}
-
-This invitation will expire in 7 days.
-
----
-${galleryName}
-Admin Notification System
-  `.trim()
-
-  console.log('SUPERUSER COPY EMAIL (RESEND):')
-  console.log(emailContent)
-  console.log('---')
-
-  // TODO: Replace with actual email service integration when ready
-  // Example with SendGrid:
-  /*
-  const sgMail = require('@sendgrid/mail')
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-  
-  await sgMail.send({
-    to: superuserEmail,
-    from: { email: 'noreply@artpop.vercel.app', name: galleryName },
-    subject: `[COPY] Artist Invitation Resent to ${originalRecipient}`,
-    html: generateSuperuserCopyHTMLTemplate({ originalRecipient, inviteLink, customMessage, galleryName })
+  const html = generateSuperuserCopyEmailHTML({
+    originalRecipient,
+    inviteLink,
+    customMessage,
+    galleryName,
+    isResend: true
   })
-  */
+
+  return await sendEmail({
+    to: superuserEmail,
+    subject: `[COPY] Artist Invitation Resent to ${originalRecipient}`,
+    html
+  })
 }

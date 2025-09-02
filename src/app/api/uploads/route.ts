@@ -8,6 +8,13 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: NextRequest) {
   const res = new NextResponse();
   const supabase = getSupabaseServer(req, res);
+  
+  // Auth check first to avoid leaking validation differences
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) {
+    console.warn('[uploads] Unauthorized upload attempt', { error: userErr?.message });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const form = await req.formData();
   const file = form.get('file');
   if (!(file instanceof File)) {
@@ -47,13 +54,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.warn('[uploads] Image validation failed', { error: (error as Error).message });
     return NextResponse.json({ error: 'Invalid image file format' }, { status: 400 });
-  }
-
-  // Auth check: require user session
-  const { data: { user }, error: userErr } = await supabase.auth.getUser();
-  if (userErr || !user) {
-    console.warn('[uploads] Unauthorized upload attempt', { error: userErr?.message });
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const bucket = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'artworks';
