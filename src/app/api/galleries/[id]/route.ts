@@ -31,10 +31,19 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
   const body = await req.json();
   const data: any = {};
   if (typeof body.name === 'string') data.name = body.name;
+  if (typeof body.slug === 'string') data.slug = body.slug;
   if (typeof body.description === 'string' || body.description === null) data.description = body.description;
   if (typeof body.isPublic === 'boolean') data.isPublic = body.isPublic;
-  const updated = await prisma.gallery.update({ where: { id: g.id }, data });
-  return NextResponse.json(updated, { headers: res.headers });
+  
+  try {
+    const updated = await prisma.gallery.update({ where: { id: g.id }, data });
+    return NextResponse.json(updated, { headers: res.headers });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: 'A gallery with this slug already exists' }, { status: 400, headers: res.headers });
+    }
+    throw error;
+  }
 }
 
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {

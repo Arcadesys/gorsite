@@ -183,7 +183,7 @@ export default function GalleriesPage() {
                     </h3>
                     <div className="flex items-center gap-1 ml-2">
                       <Link
-                        href={`/dashboard/galleries/${gallery.id}`}
+                        href={`/dashboard/galleries/${gallery.id}/edit`}
                         className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
                         title="Edit gallery"
                       >
