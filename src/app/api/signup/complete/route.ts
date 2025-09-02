@@ -211,20 +211,11 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    const { data: existingUser, error: emailCheckError } = await (admin as any).auth.admin.getUserByEmail(email)
-    
-    if (emailCheckError) {
-      console.log('⚠️ Email check error (may be normal):', emailCheckError.message);
-    }
-    
-    if (existingUser?.user) {
-      console.log('❌ Email already exists:', email);
-      return NextResponse.json({ 
-        error: 'An account with this email already exists' 
-      }, { status: 400 })
-    }
+    // Note: We'll let Supabase handle duplicate email detection during user creation
+    // This is more reliable than trying to check beforehand
+    console.log(`📧 [${requestId}] Proceeding to user creation (duplicate emails will be caught by Supabase)`);
 
-    console.log(`✅ [${requestId}] Email is available`);
+    console.log(`✅ [${requestId}] Ready for user creation`);
 
     // Create the user in Supabase Auth
     console.log(`👤 [${requestId}] Creating Supabase user...`);
@@ -266,6 +257,22 @@ export async function POST(req: NextRequest) {
         fullAuthError: authError,
         requestId
       });
+      
+      // Check if this is a duplicate email error
+      const isDuplicateEmail = authError?.message?.toLowerCase().includes('user already registered') ||
+                              authError?.message?.toLowerCase().includes('email already exists') ||
+                              authError?.message?.toLowerCase().includes('already in use') ||
+                              authError?.code === 'user_already_exists';
+      
+      if (isDuplicateEmail) {
+        return NextResponse.json({ 
+          error: 'An account with this email already exists',
+          errorCode: 'EMAIL_ALREADY_EXISTS',
+          email,
+          requestId
+        }, { status: 400 });
+      }
+      
       return NextResponse.json({ 
         error: 'Failed to create user account: ' + (authError?.message || 'Unknown error'),
         errorCode: 'SUPABASE_USER_CREATION_FAILED',
