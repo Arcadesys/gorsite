@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaSignInAlt } from 'react-icons/fa';
@@ -10,9 +10,14 @@ import { useSite } from '@/context/SiteContext';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const { accentColor, colorMode } = useTheme();
   const site = useSite();
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -57,6 +62,37 @@ export default function Header() {
       ]
     : undefined;
 
+  // Prevent hydration mismatch by not rendering interactive content until client-side
+  if (!isClient) {
+    return (
+      <header className="bg-black sticky top-0 z-40 border-b border-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="font-bold text-xl text-green-400">
+              {site?.displayName || BRAND.studioName}
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <nav className="flex space-x-8">
+                {/* Static nav items for SSR */}
+                <span className="text-gray-300">Home</span>
+                <span className="text-gray-300">Galleries</span>
+                <span className="text-gray-300">Commissions</span>
+                <span className="text-gray-300">Contact</span>
+              </nav>
+              <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700">
+                <FaSignInAlt size={16} className="text-gray-300" />
+                <span className="font-medium text-gray-300">Login</span>
+              </div>
+            </div>
+            <button className="md:hidden text-gray-300">
+              <FaBars size={24} />
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header 
       className={`${colorMode === 'dark' ? 'bg-black' : 'bg-white shadow-sm'} sticky top-0 z-40`} 
@@ -97,32 +133,30 @@ export default function Header() {
               })}
             </nav>
             
-            {/* Login Button - Only show on home route */}
-            {isHomeRoute && (
-              <Link
-                href="/admin/login"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                  colorMode === 'dark' 
-                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
-                } border`}
-                style={{ 
-                  borderColor: getBorderColor(),
-                  '--hover-border-color': getTextColor()
-                } as React.CSSProperties}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = getTextColor();
-                  e.currentTarget.style.color = getHoverTextColor();
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = getBorderColor();
-                  e.currentTarget.style.color = '';
-                }}
-              >
-                <FaSignInAlt size={16} />
-                <span className="font-medium">Login</span>
-              </Link>
-            )}
+            {/* Login Button - Show on all pages */}
+            <Link
+              href="/admin/login"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                colorMode === 'dark' 
+                  ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
+              } border`}
+              style={{ 
+                borderColor: getBorderColor(),
+                '--hover-border-color': getTextColor()
+              } as React.CSSProperties}
+              onMouseOver={(e) => {
+                e.currentTarget.style.borderColor = getTextColor();
+                e.currentTarget.style.color = getHoverTextColor();
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.borderColor = getBorderColor();
+                e.currentTarget.style.color = '';
+              }}
+            >
+              <FaSignInAlt size={16} />
+              <span className="font-medium">Login</span>
+            </Link>
           </div>
           
           {/* Mobile Menu Button */}
@@ -162,30 +196,28 @@ export default function Header() {
               );
             })}
             
-            {/* Mobile Login Button - Only show on home route */}
-            {isHomeRoute && (
-              <Link
-                href="/admin/login"
-                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  colorMode === 'dark' 
-                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
-                } border mt-4`}
-                style={{ borderColor: getBorderColor() }}
-                onClick={() => setMobileMenuOpen(false)}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = getTextColor();
-                  e.currentTarget.style.color = getHoverTextColor();
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = getBorderColor();
-                  e.currentTarget.style.color = '';
-                }}
-              >
-                <FaSignInAlt size={16} />
-                <span className="font-medium">Login</span>
-              </Link>
-            )}
+            {/* Mobile Login Button - Show on all pages */}
+            <Link
+              href="/admin/login"
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                colorMode === 'dark' 
+                  ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
+              } border mt-4`}
+              style={{ borderColor: getBorderColor() }}
+              onClick={() => setMobileMenuOpen(false)}
+              onMouseOver={(e) => {
+                e.currentTarget.style.borderColor = getTextColor();
+                e.currentTarget.style.color = getHoverTextColor();
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.borderColor = getBorderColor();
+                e.currentTarget.style.color = '';
+              }}
+            >
+              <FaSignInAlt size={16} />
+              <span className="font-medium">Login</span>
+            </Link>
           </nav>
         </div>
       )}

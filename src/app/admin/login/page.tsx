@@ -23,7 +23,7 @@ export default function LoginPage() {
     setIsClient(true);
   }, []);
 
-  // Check for URL parameters with error messages
+  // Check for URL parameters with error messages and callback URL
   useEffect(() => {
     if (!isClient) return;
     
@@ -55,6 +55,14 @@ export default function LoginPage() {
     }
   }, [isClient]);
 
+  // Helper function to get redirect URL after successful login
+  const getRedirectUrl = () => {
+    if (!isClient) return '/dashboard';
+    const urlParams = new URLSearchParams(window.location.search);
+    const callbackUrl = urlParams.get('callbackUrl');
+    return callbackUrl ? decodeURIComponent(callbackUrl) : '/dashboard';
+  };
+
   // Get button background color based on mode
   const getButtonBgColor = () => {
     if (colorMode === 'dark') {
@@ -83,7 +91,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         // Bootstrap superadmin on first login if matching configured email
-        const superEmail = 'austen@artpop.vercel.app';
+        const superEmail = 'austen@thearcades.me';
         if (email.trim().toLowerCase() === superEmail) {
           try {
             const resp = await fetch('/api/admin/bootstrap-superadmin', {
@@ -95,8 +103,8 @@ export default function LoginPage() {
               // Try sign-in again
               const retry = await supabase.auth.signInWithPassword({ email, password });
               if (!retry.error) {
-                // Route to /dashboard
-                router.push('/dashboard');
+                // Route to callback URL or dashboard
+                router.push(getRedirectUrl());
                 return;
               }
             }
@@ -112,10 +120,10 @@ export default function LoginPage() {
             (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
             (user as any)?.user_metadata?.is_admin === true
           );
-          // Send to /dashboard; middleware will route superadmins to /admin/system
-          router.push('/dashboard');
+          // Send to callback URL or dashboard; middleware will route superadmins to /admin/system
+          router.push(getRedirectUrl());
         } catch {
-          router.push('/dashboard');
+          router.push(getRedirectUrl());
         }
       }
     } catch (err) {
