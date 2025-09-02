@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     const recentInvitations = await prisma.artistInvitation.findMany({
       where: { status: 'PENDING' },
       include: {
-        invitedByUser: {
+        inviter: {
           select: { email: true }
         }
       },
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
       recentActivity: recentInvitations.map(inv => ({
         id: inv.id,
         email: inv.email,
-        invitedBy: inv.invitedByUser?.email || 'Unknown',
+        invitedBy: inv.inviter?.email || 'Unknown',
         createdAt: inv.createdAt,
         expiresAt: inv.expiresAt,
         isExpired: new Date() > inv.expiresAt

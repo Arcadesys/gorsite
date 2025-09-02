@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
         status: 'PENDING'
       },
       include: {
-        invitedByUser: {
+        inviter: {
           select: {
             email: true
           }
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       createdAt: invitation.createdAt,
       expiresAt: invitation.expiresAt,
       customMessage: invitation.customMessage,
-      invitedBy: invitation.invitedByUser?.email || 'Unknown',
+      invitedBy: invitation.inviter?.email || 'Unknown',
       isExpired: new Date() > invitation.expiresAt,
       daysRemaining: Math.max(0, Math.ceil((invitation.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))),
       inviteLink: `${baseUrl}/signup?token=${invitation.token}`
