@@ -70,7 +70,7 @@ export default function AdminSystemPage() {
           </button>
           
           <button
-            onClick={() => router.push('/admin/login')}
+            onClick={() => router.push('/dashboard/users')}
             className="px-4 py-3 rounded border text-left transition-colors"
             style={{ borderColor: `var(--${accentColor}-400)`, color: `var(--${accentColor}-400)` }}
           >

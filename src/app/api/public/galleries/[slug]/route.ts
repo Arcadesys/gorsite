@@ -13,8 +13,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
   const items = await prisma.galleryItem.findMany({
     where: { galleryId: gallery.id },
     orderBy: [{ position: 'asc' }, { createdAt: 'desc' }],
-    select: { id: true, title: true, description: true, imageUrl: true, altText: true, tags: true, createdAt: true },
+    select: { id: true, title: true, description: true, imageUrl: true, altText: true, tags: true, createdAt: true, artistPortfolioSlug: true },
   });
-  return NextResponse.json({ gallery: { id: gallery.id, name: gallery.name, slug: gallery.slug, description: gallery.description }, items });
+  // Fetch the owning artist's portfolio slug for CTA links
+  let ownerPortfolioSlug: string | null = null;
+  try {
+    const ownerPortfolio = await prisma.portfolio.findFirst({ where: { userId: gallery.userId }, select: { slug: true } });
+    ownerPortfolioSlug = ownerPortfolio?.slug || null;
+  } catch {}
+  return NextResponse.json({ gallery: { id: gallery.id, name: gallery.name, slug: gallery.slug, description: gallery.description }, items, ownerPortfolioSlug });
 }
-

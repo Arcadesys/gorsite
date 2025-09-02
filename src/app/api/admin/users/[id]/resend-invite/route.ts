@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireSuperAdmin } from '@/lib/auth-helpers'
+import { requireSuperAdmin, ensureLocalUser } from '@/lib/auth-helpers'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { prisma } from '@/lib/prisma'
+import { randomBytes } from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,21 +37,36 @@ export async function POST(
       }, { status: 400 })
     }
 
-    const redirectTo = process.env.NEXT_PUBLIC_BASE_URL 
-      ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback` 
-      : 'http://localhost:3000/auth/callback'
+    // Ensure inviter exists in local DB for FK integrity
+    await ensureLocalUser(result.user as any)
 
-    // Resend the invitation email
-    const { error: inviteError } = await (admin as any).auth.admin.inviteUserByEmail(user.email, {
-      data: user.user_metadata || {},
-      app_metadata: user.app_metadata || {},
-      redirectTo,
+    // Generate a secure invitation token
+    const inviteToken = randomBytes(32).toString('hex')
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+
+    // Store the invitation in the database
+    const invitation = await prisma.artistInvitation.create({
+      data: {
+        email: user.email.toLowerCase(),
+        token: inviteToken,
+        expiresAt,
+        invitedBy: result.user.id,
+        customMessage: 'This is a resent invitation to join our gallery.',
+        status: 'PENDING'
+      }
     })
 
-    if (inviteError) {
-      console.error('Resend invite error:', inviteError)
-      return NextResponse.json({ error: inviteError.message }, { status: 500 })
-    }
+    // Create the invitation link
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const inviteLink = `${baseUrl}/signup?token=${inviteToken}`
+
+    // Send the custom branded email instead of using Supabase's default
+    await sendArtistInvitationEmail({
+      to: user.email,
+      inviteLink,
+      customMessage: 'This is a resent invitation to join our gallery.',
+      galleryName: "The Arcade Art Gallery"
+    })
 
     return NextResponse.json({ 
       ok: true, 
@@ -61,4 +78,67 @@ export async function POST(
       error: error.message || 'Failed to resend invitation' 
     }, { status: 500 })
   }
+}
+
+// Helper function to send custom branded email
+async function sendArtistInvitationEmail({
+  to,
+  inviteLink,
+  customMessage,
+  galleryName
+}: {
+  to: string
+  inviteLink: string
+  customMessage: string
+  galleryName: string
+}) {
+  // For now, we'll log the email content
+  // In production, you'd integrate with your email service (SendGrid, Mailgun, etc.)
+  
+  const emailContent = `
+From: ${galleryName} <noreply@artpop.vercel.app>
+To: ${to}
+Subject: You're Invited to Join ${galleryName}
+
+Hello!
+
+You've been invited to create your artist profile on ${galleryName}!
+
+${customMessage ? `\nPersonal message:\n${customMessage}\n` : ''}
+
+Getting started is easy:
+1. Click the link below to accept your invitation
+2. Choose your unique artist URL (your "slug")
+3. Create a secure password
+4. Set up your first gallery page
+
+Ready to showcase your art? Click here:
+${inviteLink}
+
+This invitation will expire in 7 days.
+
+Welcome to ${galleryName}!
+
+---
+${galleryName}
+Creating spaces for digital artists to thrive
+  `.trim()
+
+  console.log('EMAIL TO SEND:')
+  console.log(emailContent)
+  console.log('---')
+
+  // TODO: Replace with actual email service integration
+  // Example with SendGrid:
+  /*
+  const sgMail = require('@sendgrid/mail')
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+  
+  await sgMail.send({
+    to,
+    from: { email: 'noreply@artpop.vercel.app', name: galleryName },
+    subject: `You're Invited to Join ${galleryName}`,
+    html: generateHTMLEmailTemplate({ inviteLink, customMessage, galleryName })
+  })
+  */
 }
