@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "setup:supabase": "node scripts/setup-supabase.js",
+    "setup:vercel": "node scripts/setup-vercel-env.js",
+    "deploy": "node scripts/deploy-vercel.js",
     "db:generate": "prisma generate",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",

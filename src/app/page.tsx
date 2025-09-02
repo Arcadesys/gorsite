@@ -17,17 +17,27 @@ type PortfolioCard = {
 };
 
 async function getActivePortfolios(): Promise<PortfolioCard[]> {
-  return prisma.portfolio.findMany({
-    where: { user: { status: 'ACTIVE' } },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      slug: true,
-      displayName: true,
-      description: true,
-      heroImageDark: true,
-      heroImageLight: true,
-    },
-  });
+  try {
+    return await prisma.portfolio.findMany({
+      where: { user: { status: 'ACTIVE' } },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        slug: true,
+        displayName: true,
+        description: true,
+        heroImageDark: true,
+        heroImageLight: true,
+      },
+    });
+  } catch (error: any) {
+    // Handle database connection issues during build
+    if (error?.message?.includes('Environment variable not found: DATABASE_URL') || 
+        error?.code === 'P1001') {
+      console.warn('Database not available during build, returning empty portfolios');
+      return [];
+    }
+    throw error;
+  }
 }
 
 export default async function Home() {

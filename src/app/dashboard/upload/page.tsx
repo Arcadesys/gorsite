@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 import ArtistUpload from '@/components/ArtistUpload';
@@ -16,7 +16,7 @@ interface UserPortfolio {
   displayName: string;
 }
 
-export default function UploadPage() {
+function UploadPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [galleries, setGalleries] = useState<Gallery[]>([]);
@@ -55,7 +55,7 @@ export default function UploadPage() {
     };
 
     fetchData();
-  }, []);
+  }, [searchParams]);
 
   if (loading) {
     return (
@@ -78,5 +78,22 @@ export default function UploadPage() {
         preSelectedGallery={preSelectedGallery}
       />
     </DashboardLayout>
+  );
+}
+
+export default function UploadPage() {
+  return (
+    <Suspense fallback={
+      <DashboardLayout userRole="ARTIST">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    }>
+      <UploadPageContent />
+    </Suspense>
   );
 }
