@@ -153,21 +153,28 @@ function SignupForm() {
     setLoading(true);
     setError('');
 
+    console.log('🚀 Starting signup submission...');
+
     // Use the shared password validation
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
+      console.log('❌ Password validation failed:', passwordError);
       setError(passwordError);
       setLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
+      console.log('❌ Passwords do not match');
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
+    console.log('✅ Client-side validation passed');
+
     try {
+      console.log('📤 Sending signup request...');
       const res = await fetch('/api/signup/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -180,12 +187,22 @@ function SignupForm() {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to create account');
+      console.log('📥 Response status:', res.status);
+      
+      let data;
+      try {
+        data = await res.json();
+        console.log('📋 Response data:', data);
+      } catch (parseError) {
+        console.error('❌ Failed to parse response JSON:', parseError);
+        throw new Error('Invalid response from server');
       }
 
+      if (!res.ok) {
+        throw new Error(data.error || `Server error: ${res.status}`);
+      }
+
+      console.log('🎉 Signup successful!');
       setSuccess(true);
       
       // Redirect after showing success message
@@ -193,7 +210,8 @@ function SignupForm() {
         router.push('/studio/onboarding');
       }, 2000);
     } catch (err: any) {
-      setError(err.message);
+      console.error('❌ Signup error:', err);
+      setError(err.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
