@@ -32,51 +32,106 @@ export const dynamic = 'force-dynamic'
 
 // POST /api/signup/complete - Complete the artist signup process
 export async function POST(req: NextRequest) {
-  console.log('🔧 Signup completion request received');
+  const requestId = Math.random().toString(36).substring(7);
+  const startTime = Date.now();
+  
+  console.log(`🔧 [${requestId}] Signup completion request received at ${new Date().toISOString()}`);
+  console.log(`🔧 [${requestId}] Request URL:`, req.url);
+  console.log(`🔧 [${requestId}] Environment check:`, {
+    hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasSupabaseServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    nodeEnv: process.env.NODE_ENV,
+    vercelEnv: process.env.VERCEL_ENV
+  });
   
   let requestData;
   try {
-    requestData = await req.json();
-    console.log('📋 Request data keys:', Object.keys(requestData));
+    const rawBody = await req.text();
+    console.log(`📋 [${requestId}] Raw request body length:`, rawBody.length);
+    console.log(`📋 [${requestId}] Raw request body preview:`, rawBody.substring(0, 100) + '...');
+    
+    requestData = JSON.parse(rawBody);
+    console.log(`📋 [${requestId}] Request data structure:`, {
+      hasToken: !!requestData.token,
+      tokenLength: requestData.token?.length || 0,
+      hasEmail: !!requestData.email,
+      email: requestData.email,
+      hasSlug: !!requestData.slug,
+      slug: requestData.slug,
+      hasDisplayName: !!requestData.displayName,
+      displayName: requestData.displayName,
+      hasPassword: !!requestData.password,
+      passwordLength: requestData.password?.length || 0
+    });
   } catch (jsonError) {
-    console.error('❌ JSON parsing error:', jsonError);
+    console.error(`❌ [${requestId}] JSON parsing failed:`, {
+      error: jsonError instanceof Error ? jsonError.message : String(jsonError),
+      requestId
+    });
     return NextResponse.json({ 
-      error: 'Invalid request format' 
+      error: 'Invalid request format',
+      errorCode: 'INVALID_JSON',
+      requestId
     }, { status: 400 });
   }
 
   const { token, email, slug, displayName, password } = requestData;
 
   if (!token || !email || !slug || !displayName || !password) {
-    console.log('❌ Missing required fields:', { 
-      hasToken: !!token, 
+    const missingFields = {
+      hasToken: !!token,
       hasEmail: !!email, 
-      hasSlug: !!slug, 
-      hasDisplayName: !!displayName, 
-      hasPassword: !!password 
-    });
+      hasSlug: !!slug,
+      hasDisplayName: !!displayName,
+      hasPassword: !!password
+    };
+    console.log(`❌ [${requestId}] Missing required fields:`, missingFields);
     return NextResponse.json({ 
-      error: 'Missing required fields' 
+      error: 'Missing required fields',
+      errorCode: 'MISSING_FIELDS',
+      missingFields,
+      requestId
     }, { status: 400 });
   }
 
   // Use the shared password validation
   let passwordError;
   try {
+    console.log(`🔐 [${requestId}] Validating password (length: ${password.length})`);
     passwordError = validatePassword(password);
     if (passwordError) {
-      console.log('❌ Password validation failed:', passwordError);
+      console.log(`❌ [${requestId}] Password validation failed:`, {
+        error: passwordError,
+        passwordLength: password.length,
+        hasUppercase: /[A-Z]/.test(password),
+        hasLowercase: /[a-z]/.test(password),
+        hasNumber: /\d/.test(password)
+      });
       return NextResponse.json({ 
-        error: passwordError 
+        error: passwordError,
+        errorCode: 'INVALID_PASSWORD',
+        passwordAnalysis: {
+          length: password.length,
+          hasUppercase: /[A-Z]/.test(password),
+          hasLowercase: /[a-z]/.test(password),
+          hasNumber: /\d/.test(password)
+        },
+        requestId
       }, { status: 400 });
     }
-    console.log('✅ Password validation passed');
+    console.log(`✅ [${requestId}] Password validation passed`);
   } catch (validationError) {
-    console.error('❌ Password validation function error:', validationError);
+    console.error(`❌ [${requestId}] Password validation function error:`, {
+      error: validationError instanceof Error ? validationError.message : String(validationError),
+      requestId
+    });
     // Fallback validation
     if (password.length < 8) {
       return NextResponse.json({ 
-        error: 'Password must be at least 8 characters' 
+        error: 'Password must be at least 8 characters',
+        errorCode: 'PASSWORD_TOO_SHORT',
+        passwordLength: password.length,
+        requestId
       }, { status: 400 });
     }
   }
@@ -169,11 +224,12 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    console.log('✅ Email is available');
+    console.log(`✅ [${requestId}] Email is available`);
 
     // Create the user in Supabase Auth
-    console.log('👤 Creating Supabase user...');
-    const { data: authData, error: authError } = await (admin as any).auth.admin.createUser({
+    console.log(`👤 [${requestId}] Creating Supabase user...`);
+    
+    const userCreatePayload = {
       email: email,
       password: password,
       email_confirm: true,
@@ -185,18 +241,56 @@ export async function POST(req: NextRequest) {
       app_metadata: { 
         roles: ['artist'] 
       }
-    })
+    };
+    
+    console.log(`👤 [${requestId}] User creation payload:`, {
+      email: userCreatePayload.email,
+      hasPassword: !!userCreatePayload.password,
+      passwordLength: userCreatePayload.password.length,
+      email_confirm: userCreatePayload.email_confirm,
+      user_metadata: userCreatePayload.user_metadata,
+      app_metadata: userCreatePayload.app_metadata
+    });
+    
+    const { data: authData, error: authError } = await (admin as any).auth.admin.createUser(userCreatePayload);
 
     if (authError || !authData?.user) {
-      console.error('❌ Supabase user creation error:', authError)
+      console.error(`❌ [${requestId}] Supabase user creation error:`, {
+        error: authError?.message || 'Unknown error',
+        status: authError?.status,
+        code: authError?.code,
+        details: authError?.details,
+        hint: authError?.hint,
+        hasData: !!authData,
+        hasUser: !!authData?.user,
+        fullAuthError: authError,
+        requestId
+      });
       return NextResponse.json({ 
-        error: 'Failed to create user account: ' + (authError?.message || 'Unknown error')
-      }, { status: 500 })
+        error: 'Failed to create user account: ' + (authError?.message || 'Unknown error'),
+        errorCode: 'SUPABASE_USER_CREATION_FAILED',
+        supabaseError: {
+          message: authError?.message,
+          status: authError?.status,
+          code: authError?.code,
+          details: authError?.details,
+          hint: authError?.hint
+        },
+        requestId
+      }, { status: 500 });
     }
 
-    console.log('✅ Supabase user created:', authData.user.id);
+    console.log(`✅ [${requestId}] Supabase user created:`, {
+      userId: authData.user.id,
+      email: authData.user.email,
+      emailConfirmed: authData.user.email_confirmed_at,
+      role: authData.user.role,
+      createdAt: authData.user.created_at,
+      userMetadata: authData.user.user_metadata,
+      appMetadata: authData.user.app_metadata
+    });
 
-    const userId = authData.user.id
+    const userId = authData.user.id;
 
     // Create local user record
     console.log('🏠 Creating local user record...');
@@ -256,19 +350,33 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    console.log('🎉 Signup completed successfully!');
+    const completionTime = Date.now() - startTime;
+    console.log(`🎉 [${requestId}] Signup completed successfully in ${completionTime}ms!`);
+    
     return NextResponse.json({
       success: true,
       portfolioId: portfolio.id,
       slug,
       userId,
-      message: 'Account created successfully!'
-    })
+      message: 'Account created successfully!',
+      requestId,
+      processingTime: completionTime
+    });
 
   } catch (error: any) {
-    console.error('Signup completion error:', error)
+    const errorTime = Date.now() - startTime;
+    console.error(`❌ [${requestId}] Signup completion error after ${errorTime}ms:`, {
+      error: error.message || String(error),
+      stack: error.stack,
+      name: error.name,
+      requestId
+    });
     return NextResponse.json({ 
-      error: 'Failed to complete signup' 
-    }, { status: 500 })
+      error: 'Failed to complete signup',
+      errorCode: 'SIGNUP_COMPLETION_FAILED',
+      errorDetails: error.message || String(error),
+      requestId,
+      processingTime: errorTime
+    }, { status: 500 });
   }
 }
