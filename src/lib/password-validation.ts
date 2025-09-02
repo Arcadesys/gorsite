@@ -65,7 +65,7 @@ export function checkPasswordStrength(password: string): {
   }
 
   return {
-    score: Math.min(score, 100),
+    score: Math.min(score, 110), // Allow bonus points to exceed 100
     feedback,
     isValid: score >= 100
   };
