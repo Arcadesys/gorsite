@@ -42,6 +42,7 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [galleryId, setGalleryId] = useState<string>('');
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const getParams = async () => {
@@ -220,7 +221,7 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
                 className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow group"
               >
                 {/* Image */}
-                <div className="relative aspect-square">
+                <div className="relative aspect-square cursor-pointer" onClick={() => setSelectedImageUrl(item.imageUrl)}>
                   <img
                     src={item.imageUrl}
                     alt={item.altText || item.title}
@@ -231,14 +232,30 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
                   <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => router.push(`/dashboard/artworks/${item.id}/edit`)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedImageUrl(item.imageUrl);
+                        }}
+                        className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition"
+                        title="View full image"
+                      >
+                        <FaEye size={16} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/artworks/${item.id}/edit`);
+                        }}
                         className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition"
                         title="Edit artwork"
                       >
                         <FaEdit size={16} />
                       </button>
                       <button
-                        onClick={() => deleteItem(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteItem(item.id);
+                        }}
                         className="p-2 bg-white rounded-full text-red-600 hover:bg-red-50 transition"
                         title="Delete artwork"
                       >
@@ -314,6 +331,27 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
           </div>
         )}
       </div>
+
+      {/* Full Image Modal */}
+      {selectedImageUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[9999] p-4" onClick={() => setSelectedImageUrl(null)}>
+          <div className="relative max-w-full max-h-full">
+            <button
+              onClick={() => setSelectedImageUrl(null)}
+              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition z-10"
+              title="Close"
+            >
+              ✕
+            </button>
+            <img
+              src={selectedImageUrl}
+              alt="Full size image"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

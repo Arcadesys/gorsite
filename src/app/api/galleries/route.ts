@@ -20,6 +20,26 @@ export async function GET(req: NextRequest) {
   const galleries = await prisma.gallery.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
+    include: {
+      _count: {
+        select: {
+          items: true,
+        },
+      },
+      items: {
+        take: 4, // Get first 4 items for preview
+        orderBy: [{ position: 'asc' }, { createdAt: 'desc' }],
+        select: {
+          id: true,
+          title: true,
+          imageUrl: true,
+          artistName: true,
+          artistPortfolioSlug: true,
+          artistExternalUrl: true,
+          isOriginalWork: true,
+        },
+      },
+    },
   });
   return NextResponse.json(galleries);
 }

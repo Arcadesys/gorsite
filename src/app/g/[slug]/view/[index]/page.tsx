@@ -81,7 +81,7 @@ export default function GalleryViewerPage() {
   const next = () => canNext && navigateTo(clampedIndex + 1);
 
   return (
-    <div className="fixed inset-0 bg-black text-white flex flex-col">
+    <div className="fixed inset-0 bg-black text-white flex flex-col z-50">
       {/* Top Bar */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-3 bg-gradient-to-b from-black/80 to-transparent">
         <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export default function GalleryViewerPage() {
         />
 
         {/* Image or loading */}
-        <div className="relative w-full h-full flex items-center justify-center p-6 md:p-10">
+        <div className="relative w-full h-full flex items-center justify-center">
           {loading ? (
             <div className="text-gray-400">Loading…</div>
           ) : item ? (
@@ -128,7 +128,7 @@ export default function GalleryViewerPage() {
                 alt={item.altText || item.title}
                 fill
                 sizes="100vw"
-                className="object-contain select-none"
+                className="!object-contain select-none !rounded-none"
                 priority
               />
             </div>
@@ -159,7 +159,7 @@ export default function GalleryViewerPage() {
 
       {/* CTA Modal */}
       {showCTA && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center">
+        <div className="fixed inset-0 z-60 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/70" onClick={() => setShowCTA(false)} />
           <div className="relative z-10 max-w-lg w-full mx-4 rounded-lg shadow-xl" style={{ backgroundColor: "#0b0b0b" }}>
             <div className="p-5 border-b border-white/10 flex items-center justify-between">
@@ -208,4 +208,3 @@ export default function GalleryViewerPage() {
     </div>
   );
 }
-

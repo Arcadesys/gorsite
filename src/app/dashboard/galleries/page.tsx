@@ -208,7 +208,7 @@ export default function GalleriesPage() {
                   <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                     <div className="flex items-center">
                       <FaImages className="mr-1" />
-                      <span>{gallery._count?.items || 0} artworks</span>
+                      <span>{gallery._count?.items ?? gallery.items?.length ?? 0} artworks</span>
                     </div>
                     <span>{formatDate(gallery.createdAt)}</span>
                   </div>

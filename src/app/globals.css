@@ -138,7 +138,6 @@ body {
 /* Global image styles */
 img {
   border-radius: 8px; /* Rounded corners */
-  object-fit: cover; /* Ensure images scale nicely */
   transition: transform 0.3s ease; /* Smooth transform animations */
 }
 
