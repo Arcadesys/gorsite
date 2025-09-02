@@ -5,6 +5,8 @@ import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import InviteLinkGenerator from '@/components/InviteLinkGenerator';
+import OutstandingInvites from '@/components/OutstandingInvites';
+import SystemOverview from '@/components/SystemOverview';
 
 export default function AdminSystemPage() {
   const { accentColor, colorMode } = useTheme();
@@ -89,6 +91,16 @@ export default function AdminSystemPage() {
             <div className="text-sm opacity-75">Create instant invite links for artists</div>
           </button>
         </div>
+      </div>
+
+      {/* System Overview */}
+      <div className={`p-6 rounded-lg border ${colorMode === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <SystemOverview accentColor={accentColor} colorMode={colorMode} />
+      </div>
+
+      {/* Outstanding Invitations */}
+      <div className={`p-6 rounded-lg border ${colorMode === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <OutstandingInvites accentColor={accentColor} colorMode={colorMode} />
       </div>
 
       <div className={`p-6 rounded-lg border ${colorMode === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
