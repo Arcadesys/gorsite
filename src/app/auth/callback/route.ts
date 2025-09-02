@@ -99,7 +99,12 @@ export async function GET(request: NextRequest) {
         (user as any)?.user_metadata?.is_admin === true
       )
       const metaDone = Boolean((user as any)?.user_metadata?.onboarding?.done)
-      const dest = '/dashboard'
+      
+      // Route superadmin to /admin instead of /dashboard so middleware can redirect to /admin/system
+      const superEmail = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toLowerCase();
+      const isSuperAdmin = isAdmin && (String((user as any)?.email || '').toLowerCase() === superEmail);
+      const dest = isSuperAdmin ? '/admin' : '/dashboard'
+      
       return NextResponse.redirect(new URL(dest, requestUrl.origin))
     } catch (error) {
       console.error('Auth callback exception:', error)

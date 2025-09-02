@@ -63,9 +63,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(target, request.url));
     }
 
-    // Block other admin routes if they redirect to dashboard - let them go to dashboard instead
+    // Block other admin routes for non-superadmins - let them go to dashboard instead
+    // But allow superadmins to access all admin routes
     if (pathname.startsWith('/admin/') && pathname !== '/admin/system' && pathname !== '/admin/login') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      if (!isSuperAdmin) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
     }
 
     // Continue with the response that captured any cookie updates

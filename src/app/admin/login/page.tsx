@@ -120,8 +120,17 @@ export default function LoginPage() {
             (typeof (user as any)?.user_metadata?.role === 'string' && (user as any).user_metadata.role.toLowerCase() === 'admin') ||
             (user as any)?.user_metadata?.is_admin === true
           );
-          // Send to callback URL or dashboard; middleware will route superadmins to /admin/system
-          router.push(getRedirectUrl());
+          
+          // Route superadmin to /admin so middleware can redirect to /admin/system
+          const superEmail = 'austen@thearcades.me';
+          const isSuperAdmin = isAdmin && (String((user as any)?.email || '').toLowerCase() === superEmail.toLowerCase());
+          
+          if (isSuperAdmin) {
+            router.push('/admin');
+          } else {
+            // Send to callback URL or dashboard; middleware will route superadmins to /admin/system
+            router.push(getRedirectUrl());
+          }
         } catch {
           router.push(getRedirectUrl());
         }
