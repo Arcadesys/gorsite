@@ -18,8 +18,15 @@ const nextConfig = {
   // Next.js 15 uses the App Router by default; remove deprecated flag
   images: {
     formats: ['image/avif', 'image/webp'],
-    // Add domains if you need to load images from external sources
-    // domains: ['your-image-source.com'],
+    // Add remote patterns for external image sources
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'afwnvyvoehjfvnoywkav.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
   },
 };
 
