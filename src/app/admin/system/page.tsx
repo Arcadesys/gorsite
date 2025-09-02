@@ -22,7 +22,7 @@ export default function AdminSystemPage() {
       }
       
       // Check if user is superadmin
-      const superEmail = 'austen@artpop.vercel.app';
+      const superEmail = 'austen@thearcades.me';
       const isSuperAdmin = user.email?.toLowerCase() === superEmail.toLowerCase();
       
       if (!isSuperAdmin) {
