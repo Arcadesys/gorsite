@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { prisma } from '@/lib/prisma';
 import { SiteProvider } from '@/context/SiteContext';
 import ApplySiteTheme from '@/components/ApplySiteTheme';
+import Footer from '@/components/Footer';
 
 export default async function ArtistLayout({
   children,
@@ -43,7 +44,10 @@ export default async function ArtistLayout({
   return (
     <SiteProvider value={value}>
       <ApplySiteTheme />
-      {children}
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </div>
     </SiteProvider>
   );
 }
