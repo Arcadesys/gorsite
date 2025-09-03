@@ -3,6 +3,7 @@ import { requireSuperAdmin } from '@/lib/auth-helpers'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { prisma } from '@/lib/prisma'
 import { getBaseUrl } from '@/lib/base-url'
+import { sendEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,29 +93,27 @@ export async function POST(
       // User might not exist in local DB, that's OK
     })
 
-    // In a real system, you'd send an email here
-    // For now, we'll return the password in the response (only for superadmin)
     const emailContent = `
-Your password has been reset by an administrator.
-
-New temporary password: ${newPassword}
-
-Please log in and change your password immediately.
-
-Login URL: ${getBaseUrl()}/admin/login
-
-For security reasons, you will be required to change this password on your next login.
+<p>Your password has been reset by an administrator.</p>
+<p><strong>New temporary password:</strong> ${newPassword}</p>
+<p>Please log in and change your password immediately.</p>
+<p><a href="${getBaseUrl()}/admin/login">Login</a></p>
+<p>For security reasons, you will be required to change this password on your next login.</p>
     `.trim()
 
-    // TODO: Implement actual email sending here
-    // await sendEmail(user.email, 'Password Reset', emailContent)
+    // Send email with temporary password
+    await sendEmail({
+      to: user.email,
+      subject: 'Password Reset',
+      html: emailContent,
+      logPrefix: 'PASSWORD RESET EMAIL:'
+    })
 
-    return NextResponse.json({ 
-      ok: true, 
+    return NextResponse.json({
+      ok: true,
       message: `Password reset for ${user.email}`,
       // NOTE: In production, remove this and only send via email
-      temporaryPassword: newPassword,
-      emailContent: emailContent
+      temporaryPassword: newPassword
     })
   } catch (error: any) {
     console.error('Password reset error:', error)
