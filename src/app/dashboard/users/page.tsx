@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { getSupabaseBrowser } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { FaUsers, FaPlus, FaEdit, FaTrash, FaBan, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { FaUsers, FaPlus, FaEdit, FaTrash, FaBan, FaCheck, FaExclamationTriangle, FaLock } from 'react-icons/fa';
 import CopyInviteLink from '@/components/CopyInviteLink';
 
 interface User {
@@ -112,11 +112,23 @@ export default function UserManagementPage() {
   };
 
   const handleUserAction = async (userId: string, action: string, role?: string) => {
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
+    if (action !== 'reset_password' && !confirm(`Are you sure you want to ${action} this user?`)) {
       return;
     }
 
     try {
+      if (action === 'reset_password') {
+        const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+          method: 'POST',
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to reset password');
+        }
+        setSuccess(`Password reset. Temporary password: ${data.temporaryPassword}`);
+        return;
+      }
+
       const body: any = { action };
       if (role) body.role = role;
 
@@ -247,6 +259,14 @@ export default function UserManagementPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     {user.can_manage && (
                       <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleUserAction(user.id, 'reset_password')}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Reset Password"
+                        >
+                          <FaLock />
+                        </button>
+
                         {!user.is_deactivated ? (
                           <button
                             onClick={() => handleUserAction(user.id, 'deactivate')}
@@ -264,7 +284,7 @@ export default function UserManagementPage() {
                             <FaCheck />
                           </button>
                         )}
-                        
+
                         <select
                           value={getRoleLabel(user).toLowerCase()}
                           onChange={(e) => handleUserAction(user.id, 'update_role', e.target.value)}
@@ -274,7 +294,7 @@ export default function UserManagementPage() {
                           <option value="artist">Artist</option>
                           <option value="admin">Admin</option>
                         </select>
-                        
+
                         <button
                           onClick={() => handleUserAction(user.id, 'delete')}
                           className="text-red-600 hover:text-red-900"
@@ -284,7 +304,7 @@ export default function UserManagementPage() {
                         </button>
 
                         {!user.email_confirmed_at && (
-                          <CopyInviteLink 
+                          <CopyInviteLink
                             email={user.email}
                             className="ml-2"
                           />
