@@ -11,6 +11,12 @@ interface AnalyticsData {
   totalArtworks: number;
   viewsThisMonth: number;
   likesThisMonth: number;
+  totalCommissionTypes: number;
+  activeCommissionTypes: number;
+  totalLinks: number;
+  publicLinks: number;
+  engagementRate: string;
+  avgViewsPerArtwork: number;
   topGalleries: Array<{
     id: string;
     name: string;
@@ -23,6 +29,7 @@ interface AnalyticsData {
     views: number;
     likes: number;
     imageUrl: string;
+    galleryName?: string;
   }>;
   monthlyStats: Array<{
     month: string;
@@ -42,42 +49,19 @@ export default function AnalyticsPage() {
   }, [timeRange]);
 
   const fetchAnalytics = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`/api/analytics?range=${timeRange}`);
       if (response.ok) {
         const data = await response.json();
         setAnalytics(data);
       } else {
-        // Mock data for now
-        setAnalytics({
-          totalViews: 1247,
-          totalLikes: 89,
-          totalGalleries: 5,
-          totalArtworks: 23,
-          viewsThisMonth: 234,
-          likesThisMonth: 12,
-          topGalleries: [
-            { id: '1', name: 'Fantasy Characters', views: 450, likes: 32 },
-            { id: '2', name: 'Digital Paintings', views: 389, likes: 28 },
-            { id: '3', name: 'Sketches', views: 256, likes: 18 },
-          ],
-          topArtworks: [
-            { id: '1', title: 'Dragon Warrior', views: 123, likes: 15, imageUrl: 'https://via.placeholder.com/150' },
-            { id: '2', title: 'Mystic Forest', views: 98, likes: 12, imageUrl: 'https://via.placeholder.com/150' },
-            { id: '3', title: 'Character Study', views: 87, likes: 10, imageUrl: 'https://via.placeholder.com/150' },
-          ],
-          monthlyStats: [
-            { month: 'Jan', views: 89, likes: 7 },
-            { month: 'Feb', views: 156, likes: 12 },
-            { month: 'Mar', views: 234, likes: 18 },
-            { month: 'Apr', views: 312, likes: 25 },
-            { month: 'May', views: 289, likes: 21 },
-            { month: 'Jun', views: 167, likes: 14 },
-          ],
-        });
+        console.error('Failed to fetch analytics:', response.statusText);
+        setAnalytics(null);
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
@@ -90,6 +74,30 @@ export default function AnalyticsPage() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600 dark:text-gray-400">Loading analytics...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <DashboardLayout userRole={userRole}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <FaChartBar className="text-6xl text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Analytics Unavailable
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Unable to load analytics data. Please try again later.
+            </p>
+            <button
+              onClick={fetchAnalytics}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </DashboardLayout>
@@ -130,14 +138,44 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center">
-                  <FaEye className="text-2xl text-blue-600 mr-3" />
+                  <FaImages className="text-2xl text-blue-600 mr-3" />
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {analytics.totalGalleries}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Galleries</p>
+                    <p className="text-xs text-gray-500">
+                      {analytics.totalArtworks} artworks
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center">
+                  <FaImages className="text-2xl text-green-600 mr-3" />
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {analytics.totalArtworks}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Artworks</p>
+                    <p className="text-xs text-gray-500">
+                      {analytics.avgViewsPerArtwork} avg views each
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center">
+                  <FaEye className="text-2xl text-purple-600 mr-3" />
                   <div>
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                       {analytics.totalViews.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Views</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Views</p>
                     <p className="text-xs text-green-600">
-                      +{analytics.viewsThisMonth} this month
+                      +{analytics.viewsThisMonth} this {timeRange}
                     </p>
                   </div>
                 </div>
@@ -150,39 +188,58 @@ export default function AnalyticsPage() {
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                       {analytics.totalLikes}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Likes</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Likes</p>
                     <p className="text-xs text-green-600">
-                      +{analytics.likesThisMonth} this month
+                      {analytics.engagementRate}% engagement rate
                     </p>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center">
-                  <FaImages className="text-2xl text-purple-600 mr-3" />
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {analytics.totalArtworks}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Artworks</p>
-                    <p className="text-xs text-gray-500">
-                      in {analytics.totalGalleries} galleries
-                    </p>
-                  </div>
+            </div>
+
+            {/* Secondary Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {analytics.activeCommissionTypes}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Active Prices</p>
+                  <p className="text-xs text-gray-500">
+                    of {analytics.totalCommissionTypes} total
+                  </p>
                 </div>
               </div>
               
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center">
-                  <FaArrowUp className="text-2xl text-green-600 mr-3" />
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {Math.round((analytics.viewsThisMonth / analytics.totalViews) * 100)}%
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Engagement</p>
-                    <p className="text-xs text-gray-500">this month</p>
-                  </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {analytics.publicLinks}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Public Links</p>
+                  <p className="text-xs text-gray-500">
+                    of {analytics.totalLinks} total
+                  </p>
+                </div>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {analytics.likesThisMonth}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Recent Likes</p>
+                  <p className="text-xs text-gray-500">this {timeRange}</p>
+                </div>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {Math.round((analytics.viewsThisMonth / analytics.totalViews) * 100)}%
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Recent Activity</p>
+                  <p className="text-xs text-gray-500">of total views</p>
                 </div>
               </div>
             </div>
@@ -290,6 +347,11 @@ export default function AnalyticsPage() {
                           <p className="font-medium text-gray-900 dark:text-gray-100">
                             {artwork.title}
                           </p>
+                          {artwork.galleryName && (
+                            <p className="text-xs text-gray-500 mb-1">
+                              from {artwork.galleryName}
+                            </p>
+                          )}
                           <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                             <span className="flex items-center">
                               <FaEye className="mr-1" />
@@ -316,11 +378,13 @@ export default function AnalyticsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Most Engaging Content
+                    {analytics.topGalleries.length > 0 ? 'Most Popular Gallery' : 'Portfolio Status'}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Your "{analytics.topGalleries[0]?.name}" gallery has the highest engagement rate. 
-                    Consider creating more content in this style.
+                    {analytics.topGalleries.length > 0 
+                      ? `Your "${analytics.topGalleries[0].name}" gallery has the most engagement with ${analytics.topGalleries[0].views} views. Consider creating more content in this style.`
+                      : `You have ${analytics.totalGalleries} galleries with ${analytics.totalArtworks} artworks. ${analytics.totalArtworks < 10 ? 'Consider adding more artworks to increase visibility.' : 'Great portfolio size!'}`
+                    }
                   </p>
                 </div>
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
@@ -328,10 +392,29 @@ export default function AnalyticsPage() {
                     Growth Opportunity
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    You've gained {analytics.viewsThisMonth} views this month. 
-                    Keep uploading regularly to maintain momentum.
+                    {analytics.activeCommissionTypes === 0 
+                      ? 'Consider setting up commission pricing to start accepting client work.'
+                      : analytics.publicLinks === 0
+                      ? 'Add some social media links to increase your online presence.'
+                      : `You've gained ${analytics.viewsThisMonth} views this ${timeRange}. ${analytics.engagementRate >= '5.0' ? 'Excellent engagement rate!' : 'Keep uploading regularly to maintain momentum.'}`
+                    }
                   </p>
                 </div>
+                {analytics.totalArtworks > 5 && (
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg md:col-span-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Portfolio Performance
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Your artworks average {analytics.avgViewsPerArtwork} views each. 
+                      {analytics.topArtworks.length > 0 && ` Your top performing piece "${analytics.topArtworks[0].title}" has ${analytics.topArtworks[0].views} views.`}
+                      {analytics.engagementRate < '3.0' 
+                        ? ' Consider improving titles and descriptions to boost engagement.'
+                        : ' Great engagement! Keep creating quality content.'
+                      }
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </>
