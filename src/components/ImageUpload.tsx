@@ -4,8 +4,8 @@ import React, { useState, useRef } from 'react';
 import { FaUpload, FaTrash, FaSpinner } from 'react-icons/fa';
 
 interface ImageUploadProps {
-  type: 'profile' | 'banner';
-  currentImageUrl?: string;
+  type: 'profile' | 'banner' | 'commission' | 'logo' | 'favicon';
+  currentImageUrl?: string | null;
   onImageChange: (imageUrl: string | null) => void;
   className?: string;
   disabled?: boolean;

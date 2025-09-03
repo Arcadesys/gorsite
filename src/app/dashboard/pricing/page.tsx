@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useMemo, useState } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
+import ImageUpload from '@/components/ImageUpload'
 
 type Portfolio = { id: string, slug: string }
 type Price = { id: string, title: string, description: string | null, price: number, imageUrl: string | null, position: number | null, active: boolean }
@@ -12,7 +13,7 @@ export default function DashboardPricingPage() {
   const [prices, setPrices] = useState<Price[]>([])
   const [error, setError] = useState<string | null>(null)
 
-  const [form, setForm] = useState({ title: '', description: '', price: '', imageUrl: '' })
+  const [form, setForm] = useState({ title: '', description: '', price: '', imageUrl: '' as string | null })
   const slug = portfolio?.slug
 
   const load = async () => {
@@ -45,7 +46,7 @@ export default function DashboardPricingPage() {
     const res = await fetch(`/api/portfolios/${slug}/prices`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     const json = await res.json()
     if (!res.ok) { alert(json.error || 'Failed to add'); return }
-    setForm({ title: '', description: '', price: '', imageUrl: '' })
+    setForm({ title: '', description: '', price: '', imageUrl: null })
     await load()
   }
 
@@ -87,9 +88,14 @@ export default function DashboardPricingPage() {
                 <textarea className="w-full px-3 py-2 rounded border bg-transparent" rows={3} value={form.description} onChange={e => setForm(s => ({ ...s, description: e.target.value }))} />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm mb-1">Example Image URL</label>
-                <input className="w-full px-3 py-2 rounded border bg-transparent" value={form.imageUrl} onChange={e => setForm(s => ({ ...s, imageUrl: e.target.value }))} placeholder="https://…" />
-                <p className="text-xs text-gray-500 mt-1">Optional. If set, it's attached to your hidden 'commissions' gallery.</p>
+                <label className="block text-sm mb-1">Example Image</label>
+                <ImageUpload
+                  type="commission"
+                  currentImageUrl={form.imageUrl}
+                  onImageChange={(url) => setForm(s => ({ ...s, imageUrl: url }))}
+                  className="h-32"
+                />
+                <p className="text-xs text-gray-500 mt-1">Optional. Upload an example image for this pricing tier.</p>
               </div>
               <div className="md:col-span-2">
                 <button className="px-4 py-2 rounded bg-emerald-600 text-white">Add</button>
@@ -102,15 +108,21 @@ export default function DashboardPricingPage() {
               ) : (
                 prices.map((p) => (
                   <div key={p.id} className="p-4 border rounded">
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-8 gap-3 items-center">
                       <div className="md:col-span-2">
                         <input className="w-full px-3 py-2 rounded border bg-transparent" defaultValue={p.title} onBlur={(e) => updatePrice(p.id, { title: e.target.value })} />
                       </div>
                       <div>
                         <input type="number" step="0.01" className="w-full px-3 py-2 rounded border bg-transparent" defaultValue={p.price} onBlur={(e) => updatePrice(p.id, { price: Number(e.target.value) })} />
                       </div>
-                      <div>
-                        <input className="w-full px-3 py-2 rounded border bg-transparent" placeholder="Image URL" defaultValue={p.imageUrl || ''} onBlur={(e) => updatePrice(p.id, { imageUrl: e.target.value || null as any })} />
+                      <div className="md:col-span-2">
+                        <div className="text-xs text-gray-500 mb-1">Example Image</div>
+                        <ImageUpload
+                          type="commission"
+                          currentImageUrl={p.imageUrl}
+                          onImageChange={(url) => updatePrice(p.id, { imageUrl: url })}
+                          className="h-20"
+                        />
                       </div>
                       <div>
                         <label className="text-sm mr-2">Active</label>
@@ -119,7 +131,7 @@ export default function DashboardPricingPage() {
                       <div className="text-right">
                         <button onClick={() => removePrice(p.id)} className="px-3 py-2 rounded border border-red-600 text-red-600">Delete</button>
                       </div>
-                      <div className="md:col-span-6">
+                      <div className="md:col-span-8">
                         <textarea className="w-full px-3 py-2 rounded border bg-transparent" placeholder="Description" defaultValue={p.description || ''} onBlur={(e) => updatePrice(p.id, { description: e.target.value || null as any })} />
                       </div>
                     </div>

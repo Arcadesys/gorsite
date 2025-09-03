@@ -1,7 +1,7 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+"use client"
+import React, { useEffect, useState } from 'react'
+import DashboardLayout from '@/components/DashboardLayout'
+import ImageUpload from '@/components/ImageUpload'
 import { FaUser, FaEdit, FaSave, FaKey, FaEnvelope, FaBell, FaShieldAlt } from 'react-icons/fa';
 
 interface UserProfile {
@@ -291,28 +291,16 @@ export default function ProfilePage() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Avatar URL
+                  Avatar
                 </label>
-                <input
-                  type="url"
-                  value={profileForm.avatar}
-                  onChange={(e) => setProfileForm({ ...profileForm, avatar: e.target.value })}
+                <ImageUpload
+                  type="profile"
+                  currentImageUrl={profileForm.avatar}
+                  onImageChange={(url) => setProfileForm({ ...profileForm, avatar: url || '' })}
                   disabled={!editingProfile}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
-                  placeholder="https://example.com/avatar.jpg"
+                  className="h-32"
                 />
               </div>
-
-              {profileForm.avatar && (
-                <div className="md:col-span-2">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Preview</p>
-                  <img
-                    src={profileForm.avatar}
-                    alt="Avatar preview"
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                </div>
-              )}
             </div>
           </div>
 

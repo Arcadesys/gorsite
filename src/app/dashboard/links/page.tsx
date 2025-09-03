@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
+import ImageUpload from '@/components/ImageUpload'
 import { FaPlus, FaTrash, FaSave, FaGlobe, FaImage } from 'react-icons/fa'
 
 type LinkItem = {
@@ -107,12 +108,15 @@ export default function DashboardLinksPage() {
               value={newLink.url}
               onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
             />
-            <input
-              className="px-3 py-2 rounded border bg-transparent"
-              placeholder="Image URL (optional)"
-              value={newLink.imageUrl}
-              onChange={(e) => setNewLink({ ...newLink, imageUrl: e.target.value })}
-            />
+            <div>
+              <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">Link Thumbnail (Optional)</label>
+              <ImageUpload
+                type="commission"
+                currentImageUrl={newLink.imageUrl}
+                onImageChange={(url) => setNewLink({ ...newLink, imageUrl: url || '' })}
+                className="h-20"
+              />
+            </div>
             <button
               onClick={createLink}
               disabled={creating || !newLink.title || !newLink.url}
@@ -150,11 +154,12 @@ export default function DashboardLinksPage() {
                     />
                   </div>
                   <div className="md:col-span-3">
-                    <label className="text-xs text-gray-500">Image URL</label>
-                    <input
-                      className="w-full px-3 py-2 rounded border bg-transparent"
-                      defaultValue={l.imageUrl || ''}
-                      onBlur={(e) => e.target.value !== (l.imageUrl || '') && saveLink(l.id, { imageUrl: e.target.value || null })}
+                    <label className="text-xs text-gray-500">Thumbnail Image</label>
+                    <ImageUpload
+                      type="commission"
+                      currentImageUrl={l.imageUrl}
+                      onImageChange={(url) => saveLink(l.id, { imageUrl: url })}
+                      className="h-16"
                     />
                   </div>
                   <div className="md:col-span-1">

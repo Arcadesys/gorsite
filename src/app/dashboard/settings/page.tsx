@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
+import ImageUpload from '@/components/ImageUpload';
 import { FaCog, FaSave, FaGlobe, FaEnvelope, FaShieldAlt, FaImage, FaPalette, FaUsers } from 'react-icons/fa';
 
 interface SiteSettings {
@@ -323,27 +324,25 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Logo URL
+                        Site Logo
                       </label>
-                      <input
-                        type="url"
-                        value={settings.logoUrl || ''}
-                        onChange={(e) => handleInputChange('logoUrl', e.target.value)}
-                        placeholder="https://example.com/logo.png"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      <ImageUpload
+                        type="logo"
+                        currentImageUrl={settings.logoUrl}
+                        onImageChange={(url) => handleInputChange('logoUrl', url)}
+                        className="h-32"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Favicon URL
+                        Favicon
                       </label>
-                      <input
-                        type="url"
-                        value={settings.faviconUrl || ''}
-                        onChange={(e) => handleInputChange('faviconUrl', e.target.value)}
-                        placeholder="https://example.com/favicon.ico"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      <ImageUpload
+                        type="favicon"
+                        currentImageUrl={settings.faviconUrl}
+                        onImageChange={(url) => handleInputChange('faviconUrl', url)}
+                        className="h-16"
                       />
                     </div>
 
