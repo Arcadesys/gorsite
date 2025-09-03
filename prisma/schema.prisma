@@ -205,6 +205,9 @@ model Portfolio {
   // Optional featured item to represent the artist's main gallery
   featuredItemId String? @unique
   featuredItem   GalleryItem? @relation("PortfolioFeaturedItem", fields: [featuredItemId], references: [id], onDelete: SetNull)
+
+  // Artist links page entries
+  links           Link[]
 }
 
 model CommissionPrice {
@@ -264,4 +267,18 @@ enum CommissionPriority {
   NORMAL
   HIGH
   URGENT
+}
+
+model Link {
+  id          String   @id @default(cuid())
+  portfolioId String
+  title       String
+  url         String
+  imageUrl    String?
+  position    Int?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 }

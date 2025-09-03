@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import ThemeSettings from "@/components/ThemeSettings";
 import { BRAND } from "@/config/brand";
 import { AuthProvider } from "@/context/AuthContext";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,7 +32,7 @@ export default function RootLayout({
               <div className="flex flex-col min-h-screen dark:bg-black dark:text-white light:bg-gray-50 light:text-gray-900">
                 <Header />
                 <main className="flex-grow">{children}</main>
-                <Footer />
+                <ConditionalFooter />
                 <ThemeSettings />
               </div>
             </ThemeProvider>

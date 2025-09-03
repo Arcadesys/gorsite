@@ -16,6 +16,7 @@ import {
   FaChartBar,
   FaUpload
 } from 'react-icons/fa';
+import { FaLink as FaLinkIcon } from 'react-icons/fa';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -44,6 +45,7 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
       { name: 'Upload Art', href: '/dashboard/upload', icon: <FaUpload size={20} />, roles: ['ARTIST'] },
       { name: 'Commissions', href: '/dashboard/commissions', icon: <FaClipboardList size={20} />, roles: ['ARTIST'] },
       { name: 'Pricing', href: '/dashboard/pricing', icon: <FaDollarSign size={20} />, roles: ['ARTIST'] },
+      { name: 'Links Page', href: '/dashboard/links', icon: <FaLinkIcon /> as any, roles: ['ARTIST'] },
       { name: 'Analytics', href: '/dashboard/analytics', icon: <FaChartBar size={20} />, roles: ['ARTIST'] },
     ];
 

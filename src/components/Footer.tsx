@@ -1,15 +1,79 @@
 'use client';
 
 import Link from 'next/link';
-import { FaTwitter, FaInstagram, FaEnvelope } from 'react-icons/fa';
+import { FaTwitter, FaInstagram, FaEnvelope, FaExternalLinkAlt } from 'react-icons/fa';
 import { SiBluesky } from 'react-icons/si';
 import { useTheme } from '@/context/ThemeContext';
 import { BRAND } from '@/config/brand';
 import { useSite } from '@/context/SiteContext';
+import { useState, useEffect } from 'react';
 
 export default function Footer() {
   const { accentColor, colorMode } = useTheme();
   const site = useSite();
+  const [artistLinks, setArtistLinks] = useState<Array<{id: string, title: string, url: string}>>([]);
+
+  // Fetch artist links if we're on an artist site
+  useEffect(() => {
+    if (site?.slug) {
+      fetch(`/api/artist/${site.slug}/links`)
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          throw new Error('Failed to fetch');
+        })
+        .then(data => {
+          if (data.links) {
+            setArtistLinks(data.links);
+          }
+        })
+        .catch(() => {
+          // Fail silently, use defaults
+          setArtistLinks([]);
+        });
+    }
+  }, [site?.slug]);
+
+  // Helper function to determine social media platform from URL
+  const getSocialMediaIcon = (url: string) => {
+    const urlLower = url.toLowerCase();
+    if (urlLower.includes('twitter.com') || urlLower.includes('x.com')) {
+      return { icon: <FaTwitter size={24} />, label: 'X (Twitter)' };
+    }
+    if (urlLower.includes('instagram.com')) {
+      return { icon: <FaInstagram size={24} />, label: 'Instagram' };
+    }
+    if (urlLower.includes('bsky.app') || urlLower.includes('bluesky')) {
+      return { icon: <SiBluesky size={22} />, label: 'Bluesky' };
+    }
+    return { icon: <FaExternalLinkAlt size={20} />, label: 'External Link' };
+  };
+
+  // Get social media links from artist links or fallback to defaults
+  const getSocialLinks = () => {
+    if (site && artistLinks.length > 0) {
+      // Filter artist links for known social media platforms
+      const socialLinks = artistLinks.filter(link => {
+        const url = link.url.toLowerCase();
+        return url.includes('twitter.com') || url.includes('x.com') ||
+               url.includes('instagram.com') || url.includes('bsky.app') ||
+               url.includes('bluesky');
+      });
+      
+      return socialLinks.map(link => ({
+        ...getSocialMediaIcon(link.url),
+        url: link.url
+      }));
+    }
+    
+    // Fallback to default Arcades Art Studio links
+    return [
+      { icon: <FaTwitter size={24} />, url: 'https://x.com/ArcadesArtStudio', label: 'X (Twitter)' },
+      { icon: <SiBluesky size={22} />, url: 'https://bsky.app/profile/arcadesartstudio.bsky.social', label: 'Bluesky' },
+      { icon: <FaInstagram size={24} />, url: 'https://instagram.com/arcadesartstudio', label: 'Instagram' },
+    ];
+  };
 
   // Get border color based on mode
   const getBorderColor = () => {
@@ -54,19 +118,15 @@ export default function Footer() {
               {site?.displayName || BRAND.studioName}
             </Link>
             <p className={`${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
-              Digital Artist & Illustrator
+              {site?.description || "Digital Artist & Illustrator"}
             </p>
           </div>
           
           <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
             <div className="flex space-x-4">
-              {[
-                { icon: <FaTwitter size={24} />, url: 'https://x.com/ArcadesArtStudio', label: 'X (Twitter)' },
-                { icon: <SiBluesky size={22} />, url: 'https://bsky.app/profile/arcadesartstudio.bsky.social', label: 'Bluesky' },
-                { icon: <FaInstagram size={24} />, url: 'https://instagram.com/arcadesartstudio', label: 'Instagram' },
-              ].map((social) => (
+              {getSocialLinks().map((social, index) => (
                 <a 
-                  key={social.label}
+                  key={`${social.label}-${index}`}
                   href={social.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -81,14 +141,14 @@ export default function Footer() {
             </div>
             
             <Link 
-              href="/contact" 
+              href={site ? `/${site.slug}/commissions` : "/contact"}
               className="flex items-center gap-2 transition"
               style={{ color: getTextColor() }}
               onMouseOver={(e) => (e.currentTarget.style.color = getHoverTextColor())}
               onMouseOut={(e) => (e.currentTarget.style.color = getTextColor())}
             >
               <FaEnvelope />
-              <span>Contact Me</span>
+              <span>{site ? "Commission Me" : "Contact Me"}</span>
             </Link>
           </div>
         </div>
