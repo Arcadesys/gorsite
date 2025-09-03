@@ -211,9 +211,34 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    // Note: We'll let Supabase handle duplicate email detection during user creation
-    // This is more reliable than trying to check beforehand
-    console.log(`📧 [${requestId}] Proceeding to user creation (duplicate emails will be caught by Supabase)`);
+    // Check if email is already in use in Supabase
+    console.log(`📧 [${requestId}] Checking if user already exists...`);
+    try {
+      const { data: existingUser, error: getUserError } = await (admin as any).auth.admin.getUserByEmail(email);
+      if (getUserError && !getUserError.message?.includes('User not found')) {
+        console.error(`❌ [${requestId}] Error checking existing user:`, getUserError);
+        return NextResponse.json({ 
+          error: 'Failed to verify email availability' 
+        }, { status: 500 });
+      }
+      
+      if (existingUser?.user) {
+        console.log(`❌ [${requestId}] User already exists:`, existingUser.user.email);
+        return NextResponse.json({ 
+          error: 'An account with this email already exists',
+          errorCode: 'EMAIL_ALREADY_EXISTS',
+          email,
+          requestId
+        }, { status: 400 });
+      }
+    } catch (checkError) {
+      console.error(`❌ [${requestId}] Unexpected error checking user:`, checkError);
+      return NextResponse.json({ 
+        error: 'Failed to verify email availability' 
+      }, { status: 500 });
+    }
+
+    console.log(`✅ [${requestId}] Email is available, proceeding to user creation`);
 
     console.log(`✅ [${requestId}] Ready for user creation`);
 

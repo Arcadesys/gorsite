@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+interface Artist {
+  slug: string;
+  displayName: string;
+}
 
 interface ArtistAttributionProps {
   artistName?: string;
@@ -17,6 +22,35 @@ export default function ArtistAttribution({
   onChange,
   showPortfolioLookup = true
 }: ArtistAttributionProps) {
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch artists when component mounts
+  useEffect(() => {
+    const fetchArtists = async () => {
+      if (!showPortfolioLookup) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch('/api/artists');
+        if (!response.ok) {
+          throw new Error('Failed to fetch artists');
+        }
+        const data = await response.json();
+        setArtists(data.artists || []);
+      } catch (err) {
+        console.error('Error fetching artists:', err);
+        setError('Failed to load artists');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtists();
+  }, [showPortfolioLookup]);
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -61,16 +95,27 @@ export default function ArtistAttribution({
           <label htmlFor="artistPortfolioSlug" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Artist's Portfolio (if they're on this platform)
           </label>
-          <input
-            type="text"
-            id="artistPortfolioSlug"
-            value={artistPortfolioSlug}
-            onChange={(e) => onChange('artistPortfolioSlug', e.target.value)}
-            placeholder="portfolio-slug"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+          {loading ? (
+            <div className="mt-1 p-2 text-sm text-gray-500">Loading artists...</div>
+          ) : error ? (
+            <div className="mt-1 p-2 text-sm text-red-500">{error}</div>
+          ) : (
+            <select
+              id="artistPortfolioSlug"
+              value={artistPortfolioSlug}
+              onChange={(e) => onChange('artistPortfolioSlug', e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="">Select an artist (optional)</option>
+              {artists.map((artist) => (
+                <option key={artist.slug} value={artist.slug}>
+                  {artist.displayName} (@{artist.slug})
+                </option>
+              ))}
+            </select>
+          )}
           <p className="mt-1 text-sm text-gray-500">
-            Enter the portfolio slug if the artist has a profile on this platform
+            Select the artist's portfolio if they have a profile on this platform
           </p>
         </div>
       )}
