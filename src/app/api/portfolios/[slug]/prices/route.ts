@@ -22,11 +22,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   const res = new NextResponse()
   const supabase = getSupabaseServer(req as any, res as any)
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !isAdmin(user)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { slug } = await params;
   const portfolio = await prisma.portfolio.findUnique({ where: { slug } })
   if (!portfolio) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (!isAdmin(user) && user.id !== portfolio.userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json().catch(() => ({}))
   const { title, description, price, imageUrl, position, active = true } = body

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
-export default async function ArtistCommissionsPage({ params }: { params: Promise<{ artist: string }> }) {
+export default async function ArtistCommissionsPage({ params, searchParams }: { params: Promise<{ artist: string }>, searchParams?: { submitted?: string } }) {
   const { artist } = await params;
   const portfolio = await prisma.portfolio.findUnique({ where: { slug: artist } })
   if (!portfolio) return notFound()
@@ -20,6 +20,13 @@ export default async function ArtistCommissionsPage({ params }: { params: Promis
         </div>
       </section>
       <section className="py-12">
+        {searchParams?.submitted ? (
+          <div className="container mx-auto px-4 mb-6">
+            <div className="p-4 rounded border border-emerald-700 bg-emerald-900/30 text-emerald-200">
+              Thank you! Your commission request has been submitted.
+            </div>
+          </div>
+        ) : null}
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {tiers.length === 0 ? (
             <div className="col-span-full text-center text-gray-500">No price points yet.</div>
@@ -39,4 +46,3 @@ export default async function ArtistCommissionsPage({ params }: { params: Promis
     </div>
   )
 }
-

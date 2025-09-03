@@ -67,8 +67,8 @@ export async function PATCH(req: NextRequest) {
   const data: any = {}
   
   // Handle all updateable fields including slug
-  for (const k of ['slug','displayName','description','about','accentColor','colorMode','logoUrl','heroImageLight','heroImageDark','heroImageMobile'] as const) {
-    if (typeof (body as any)[k] === 'string' || (body as any)[k] === null) {
+  for (const k of ['slug','displayName','description','about','accentColor','colorMode','logoUrl','heroImageLight','heroImageDark','heroImageMobile','bio','location','website','profileImageUrl','bannerImageUrl','isPublic'] as const) {
+    if (typeof (body as any)[k] === 'string' || (body as any)[k] === null || typeof (body as any)[k] === 'boolean') {
       if (k === 'slug') {
         // Validate slug format
         const slug = (body as any)[k]
@@ -92,6 +92,14 @@ export async function PATCH(req: NextRequest) {
         }
       }
       (data as any)[k] = (body as any)[k]
+    }
+  }
+  
+  // Handle socialLinks JSON field
+  if (Object.prototype.hasOwnProperty.call(body, 'socialLinks')) {
+    const socialLinks = (body as any).socialLinks
+    if (socialLinks === null || (typeof socialLinks === 'object' && socialLinks)) {
+      data.socialLinks = socialLinks
     }
   }
   
