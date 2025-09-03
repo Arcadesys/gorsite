@@ -51,6 +51,7 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
 
     const adminNav = [
       { name: 'All Artists', href: '/dashboard/artists', icon: <FaPalette size={20} />, roles: ['ADMIN', 'SUPERADMIN'] },
+      { name: 'All Galleries', href: '/dashboard/admin/galleries', icon: <FaImages size={20} />, roles: ['SUPERADMIN'] },
       { name: 'User Management', href: '/dashboard/users', icon: <FaUsers size={20} />, roles: ['SUPERADMIN'] },
       { name: 'Site Settings', href: '/dashboard/settings', icon: <FaCog size={20} />, roles: ['ADMIN', 'SUPERADMIN'] },
     ];
