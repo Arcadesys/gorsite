@@ -43,10 +43,6 @@ export default function AdminGalleriesPage() {
   const [galleries, setGalleries] = useState<AdminGallery[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchGalleries();
-  }, [fetchGalleries]);
-
   const fetchGalleries = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/galleries');
@@ -63,6 +59,10 @@ export default function AdminGalleriesPage() {
       setLoading(false);
     }
   }, [router]);
+
+  useEffect(() => {
+    fetchGalleries();
+  }, [fetchGalleries]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

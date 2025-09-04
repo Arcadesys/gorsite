@@ -90,6 +90,15 @@ export default function AdminSystemPage() {
             <div className="font-semibold">Generate Invite Link</div>
             <div className="text-sm opacity-75">Create instant invite links for artists</div>
           </button>
+
+          <button
+            onClick={() => router.push('/dashboard/admin/uploads')}
+            className="px-4 py-3 rounded border text-left transition-colors"
+            style={{ borderColor: `var(--${accentColor}-400)`, color: `var(--${accentColor}-400)` }}
+          >
+            <div className="font-semibold">All Uploads</div>
+            <div className="text-sm opacity-75">View all artwork uploads in the system</div>
+          </button>
         </div>
       </div>
 
