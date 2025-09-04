@@ -276,7 +276,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-end">
             <div className="text-sm">
               <Link
-                href="/auth/forgot-password"
+                href="/auth/forgot-password-custom"
                 className="font-medium hover:underline"
                 style={{ color: `var(--${accentColor}-500)` }}
               >
