@@ -23,7 +23,7 @@ interface Artist {
 }
 
 export default function ArtistsPage() {
-  const [userRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ADMIN');
+  const [userRole, setUserRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ADMIN');
   const [artists, setArtists] = useState<Artist[]>([]);
   const [filteredArtists, setFilteredArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,68 +41,25 @@ export default function ArtistsPage() {
 
   const fetchArtists = async () => {
     try {
+      // Get user role first
+      const userResponse = await fetch('/api/user');
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setUserRole(userData.user.role);
+      }
+
+      // Get artists data
       const response = await fetch('/api/admin/artists');
       if (response.ok) {
         const data = await response.json();
         setArtists(data.artists || []);
       } else {
-        // Mock data for now
-        const mockArtists = [
-          {
-            id: '1',
-            email: 'artist1@example.com',
-            displayName: 'Digital Dreams',
-            portfolioSlug: 'digital-dreams',
-            isPublic: true,
-            createdAt: '2024-01-15T10:30:00Z',
-            lastActiveAt: '2024-12-01T15:45:00Z',
-            stats: {
-              totalGalleries: 5,
-              totalArtworks: 23,
-              totalViews: 1247,
-              totalLikes: 89,
-            },
-            profileImage: 'https://via.placeholder.com/150',
-            bio: 'Creating digital art and fantasy illustrations',
-          },
-          {
-            id: '2',
-            email: 'artist2@example.com',
-            displayName: 'Pixel Master',
-            portfolioSlug: 'pixel-master',
-            isPublic: true,
-            createdAt: '2024-02-20T14:20:00Z',
-            lastActiveAt: '2024-11-28T09:30:00Z',
-            stats: {
-              totalGalleries: 3,
-              totalArtworks: 45,
-              totalViews: 2156,
-              totalLikes: 156,
-            },
-            profileImage: 'https://via.placeholder.com/150',
-            bio: 'Pixel art specialist and game asset creator',
-          },
-          {
-            id: '3',
-            email: 'artist3@example.com',
-            displayName: 'Sketch Studio',
-            portfolioSlug: '',
-            isPublic: false,
-            createdAt: '2024-03-10T08:15:00Z',
-            lastActiveAt: '2024-11-25T12:00:00Z',
-            stats: {
-              totalGalleries: 2,
-              totalArtworks: 12,
-              totalViews: 456,
-              totalLikes: 34,
-            },
-            bio: 'Traditional sketches and concept art',
-          },
-        ];
-        setArtists(mockArtists);
+        console.error('Failed to fetch artists:', response.statusText);
+        setArtists([]);
       }
     } catch (error) {
       console.error('Failed to fetch artists:', error);
+      setArtists([]);
     } finally {
       setLoading(false);
     }

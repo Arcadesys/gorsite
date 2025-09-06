@@ -26,7 +26,7 @@ interface RecentArtwork {
 }
 
 export default function DashboardHome() {
-  const [userRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ARTIST'); // TODO: Get from auth
+  const [userRole, setUserRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ARTIST');
   const [stats, setStats] = useState<DashboardStats>({
     totalGalleries: 0,
     totalArtworks: 0,
@@ -39,30 +39,31 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // TODO: Implement these API endpoints
-        // const statsResponse = await fetch('/api/dashboard/stats');
-        // const artworksResponse = await fetch('/api/dashboard/recent-artworks');
-        
-        // Mock data for now
-        setStats({
-          totalGalleries: 5,
-          totalArtworks: 23,
-          totalViews: 1247,
-          totalLikes: 89,
-        });
-        
-        setRecentArtworks([
-          {
-            id: '1',
-            title: 'Dragon Warrior',
-            imageUrl: 'https://via.placeholder.com/200x200',
-            galleryName: 'Fantasy Characters',
-            createdAt: '2025-01-15T10:30:00Z',
-            artistName: 'Test Artist',
-            isOriginalWork: true,
-          },
-          // Add more mock data as needed
-        ]);
+        // Get user info and role
+        const userResponse = await fetch('/api/user');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUserRole(userData.user.role);
+        }
+
+        // Get dashboard stats
+        const statsResponse = await fetch('/api/dashboard/stats');
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats({
+            totalGalleries: statsData.totalGalleries,
+            totalArtworks: statsData.totalArtworks,
+            totalViews: statsData.totalViews,
+            totalLikes: statsData.totalLikes,
+          });
+        }
+
+        // Get recent artworks
+        const artworksResponse = await fetch('/api/dashboard/recent-artworks?limit=6');
+        if (artworksResponse.ok) {
+          const artworksData = await artworksResponse.json();
+          setRecentArtworks(artworksData.artworks || []);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       } finally {

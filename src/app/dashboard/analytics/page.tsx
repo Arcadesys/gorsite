@@ -39,7 +39,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
-  const [userRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ARTIST');
+  const [userRole, setUserRole] = useState<'ARTIST' | 'ADMIN' | 'SUPERADMIN'>('ARTIST');
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('month'); // week, month, year
@@ -51,6 +51,14 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
+      // Get user role first
+      const userResponse = await fetch('/api/user');
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setUserRole(userData.user.role);
+      }
+
+      // Get analytics data
       const response = await fetch(`/api/analytics?range=${timeRange}`);
       if (response.ok) {
         const data = await response.json();

@@ -12,10 +12,12 @@ export default function Footer() {
   const { accentColor, colorMode } = useTheme();
   const site = useSite();
   const [artistLinks, setArtistLinks] = useState<Array<{id: string, title: string, url: string}>>([]);
+  const [portfolioColors, setPortfolioColors] = useState<{primaryColor?: string, secondaryColor?: string, footerText?: string} | null>(null);
 
-  // Fetch artist links if we're on an artist site
+  // Fetch artist links and portfolio customization if we're on an artist site
   useEffect(() => {
     if (site?.slug) {
+      // Fetch artist links
       fetch(`/api/artist/${site.slug}/links`)
         .then(res => {
           if (res.ok) {
@@ -31,6 +33,28 @@ export default function Footer() {
         .catch(() => {
           // Fail silently, use defaults
           setArtistLinks([]);
+        });
+
+      // Fetch portfolio customization
+      fetch(`/api/artist/${site.slug}/portfolio`)
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          throw new Error('Failed to fetch portfolio');
+        })
+        .then(data => {
+          if (data.portfolio) {
+            setPortfolioColors({
+              primaryColor: data.portfolio.primaryColor,
+              secondaryColor: data.portfolio.secondaryColor,
+              footerText: data.portfolio.footerText
+            });
+          }
+        })
+        .catch(() => {
+          // Fail silently, use theme colors
+          setPortfolioColors(null);
         });
     }
   }, [site?.slug]);
@@ -75,8 +99,32 @@ export default function Footer() {
     ];
   };
 
-  // Get border color based on mode
+  // Get primary color - portfolio custom color takes precedence over theme
+  const getPrimaryColor = () => {
+    if (portfolioColors?.primaryColor) {
+      return portfolioColors.primaryColor;
+    }
+    // Fallback to theme system color
+    if (colorMode === 'dark') {
+      return `var(--${accentColor}-400)`;
+    } else {
+      return `var(--${accentColor}-600)`;
+    }
+  };
+
+  // Get border color - portfolio or theme based
   const getBorderColor = () => {
+    if (portfolioColors?.primaryColor) {
+      // Use a muted version of the primary color for borders
+      const hex = portfolioColors.primaryColor;
+      // Convert hex to RGB and make it semi-transparent
+      const rgb = hex.match(/\w\w/g)?.map(x => parseInt(x, 16));
+      if (rgb) {
+        return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+      }
+    }
+    
+    // Fallback to theme color
     if (colorMode === 'dark') {
       return `var(--${accentColor}-800)`;
     } else {
@@ -86,15 +134,17 @@ export default function Footer() {
 
   // Get text color based on mode
   const getTextColor = () => {
-    if (colorMode === 'dark') {
-      return `var(--${accentColor}-400)`;
-    } else {
-      return `var(--${accentColor}-600)`;
-    }
+    return getPrimaryColor();
   };
 
   // Get hover text color based on mode
   const getHoverTextColor = () => {
+    if (portfolioColors?.primaryColor) {
+      // For portfolio colors, use the primary color with slight opacity change
+      return portfolioColors.primaryColor;
+    }
+    
+    // Fallback to theme color
     if (colorMode === 'dark') {
       return `var(--${accentColor}-300)`;
     } else {
@@ -154,7 +204,29 @@ export default function Footer() {
         </div>
         
         <div className={`border-t ${colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200'} mt-8 pt-8 text-center ${colorMode === 'dark' ? 'text-gray-500' : 'text-gray-400'} text-sm`}>
-          <p>&copy; {new Date().getFullYear()} {site?.displayName || BRAND.studioName}. All rights reserved.</p>
+          {/* Use custom footer text if available */}
+          {portfolioColors?.footerText ? (
+            <p>{portfolioColors.footerText}</p>
+          ) : (
+            <p>&copy; {new Date().getFullYear()} {site?.displayName || BRAND.studioName}. All rights reserved.</p>
+          )}
+          
+          {/* Show color indicators if portfolio has custom colors */}
+          {portfolioColors?.primaryColor && portfolioColors?.secondaryColor && (
+            <div className="flex justify-center items-center space-x-4 mt-4">
+              <div 
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: portfolioColors.primaryColor }}
+                title="Primary Color"
+              ></div>
+              <div 
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: portfolioColors.secondaryColor }}
+                title="Secondary Color"
+              ></div>
+            </div>
+          )}
+          
           <div className="mt-2 flex justify-center space-x-4">
             <Link 
               href="/terms" 
