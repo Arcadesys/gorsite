@@ -53,6 +53,17 @@ export default function ArtistUpload({ galleries, userPortfolio, preSelectedGall
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Client-side validation for fast feedback
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        event.currentTarget.value = '';
+        return;
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        alert('File too large. Max 20MB.');
+        event.currentTarget.value = '';
+        return;
+      }
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -80,6 +91,16 @@ export default function ArtistUpload({ galleries, userPortfolio, preSelectedGall
       return;
     }
 
+    // Re-validate size/type just in case
+    if (!selectedFile.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    if (selectedFile.size > 20 * 1024 * 1024) {
+      alert('File too large. Max 20MB.');
+      return;
+    }
+
     setIsUploading(true);
     
     try {
@@ -93,9 +114,15 @@ export default function ArtistUpload({ galleries, userPortfolio, preSelectedGall
       });
       
       if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
+        let errMsg = 'Upload failed';
+        try {
+          const j = await uploadResponse.json();
+          errMsg = j?.error || errMsg;
+          if (j?.requestId) errMsg += ` (Ref: ${j.requestId})`;
+        } catch {}
+        throw new Error(errMsg);
       }
-      
+
       const uploadResult = await uploadResponse.json();
       
       // Create gallery item with attribution

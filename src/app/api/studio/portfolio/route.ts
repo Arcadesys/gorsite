@@ -64,11 +64,13 @@ export async function PATCH(req: NextRequest) {
   if (!portfolio) return NextResponse.json({ error: 'No portfolio' }, { status: 404 })
   
   const body = await req.json().catch(() => ({}))
+  console.log('📨 PATCH request body:', body)
   const data: any = {}
   
   // Handle all updateable fields including slug
   for (const k of ['slug','displayName','description','about','accentColor','colorMode','logoUrl','heroImageLight','heroImageDark','heroImageMobile','bio','location','website','profileImageUrl','bannerImageUrl','isPublic'] as const) {
     if (typeof (body as any)[k] === 'string' || (body as any)[k] === null || typeof (body as any)[k] === 'boolean') {
+      console.log(`🔄 Processing field: ${k} = ${(body as any)[k]}`);
       if (k === 'slug') {
         // Validate slug format
         const slug = (body as any)[k]
@@ -94,6 +96,20 @@ export async function PATCH(req: NextRequest) {
       (data as any)[k] = (body as any)[k]
     }
   }
+  
+  // Sync bannerImageUrl to hero fields for public display
+  if ('bannerImageUrl' in body) {
+    const bannerUrl = (body as any).bannerImageUrl;
+    console.log('Syncing banner image:', bannerUrl);
+    data.bannerImageUrl = bannerUrl;
+    // Copy banner to hero fields so public portfolio displays it
+    data.heroImageLight = bannerUrl;
+    data.heroImageDark = bannerUrl;
+    data.heroImageMobile = bannerUrl;
+    console.log('Banner sync data:', { bannerImageUrl: bannerUrl, heroImageLight: bannerUrl });
+  }
+  
+  console.log('Portfolio update data:', data);
   
   // Handle socialLinks JSON field
   if (Object.prototype.hasOwnProperty.call(body, 'socialLinks')) {
@@ -122,6 +138,13 @@ export async function PATCH(req: NextRequest) {
     }
   }
   
+  console.log('📊 Final portfolio update data:', data);
   const updated = await prisma.portfolio.update({ where: { id: portfolio.id }, data })
+  console.log('📊 Updated portfolio from DB:', { 
+    id: updated.id, 
+    profileImageUrl: updated.profileImageUrl, 
+    bannerImageUrl: updated.bannerImageUrl,
+    heroImageLight: updated.heroImageLight 
+  });
   return NextResponse.json({ portfolio: updated })
 }

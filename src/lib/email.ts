@@ -52,6 +52,40 @@ export async function sendEmail({ to, subject, html, from, logPrefix = 'EMAIL TO
   }
 }
 
+export async function sendUploadFailureAlert(params: {
+  route: string
+  reason: string
+  userEmail?: string | null
+  userId?: string | null
+  fileName?: string
+  mime?: string
+  size?: number
+  status?: number
+  reqId?: string
+}) {
+  const to = (process.env.SUPERADMIN_EMAIL || 'austen@thearcades.me').toString()
+  const subject = `Upload failed on ${params.route} (${params.status || 'error'})${params.reqId ? ` [${params.reqId}]` : ''}`
+  const html = `
+    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto; line-height:1.5">
+      <h2>🚨 Upload Failure</h2>
+      ${params.reqId ? `<p><strong>Request ID:</strong> ${params.reqId}</p>` : ''}
+      <p><strong>Route:</strong> ${params.route}</p>
+      <p><strong>Reason:</strong> ${params.reason}</p>
+      <p><strong>Status:</strong> ${params.status || 'N/A'}</p>
+      <p><strong>User:</strong> ${params.userEmail || 'unknown'} (${params.userId || 'n/a'})</p>
+      ${params.fileName ? `<p><strong>File:</strong> ${params.fileName}</p>` : ''}
+      ${params.mime ? `<p><strong>MIME:</strong> ${params.mime}</p>` : ''}
+      ${typeof params.size === 'number' ? `<p><strong>Size:</strong> ${params.size} bytes</p>` : ''}
+      <p style="color:#6b7280">This is an automated alert from the upload API.</p>
+    </div>
+  `
+  try {
+    await sendEmail({ to, subject, html, logPrefix: '[UPLOAD FAILURE ALERT]' })
+  } catch (e) {
+    console.error('Failed to send upload failure alert email', e)
+  }
+}
+
 export function generateInvitationEmailHTML({
   inviteLink,
   customMessage,

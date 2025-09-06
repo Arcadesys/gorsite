@@ -38,23 +38,29 @@ export default function ImageUpload({
     }
 
     setUploading(true);
+    console.log('Starting upload...', { type, fileName: file.name, size: file.size });
 
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', type);
 
+      console.log('Sending upload request to /api/uploads/profile');
       const response = await fetch('/api/uploads/profile', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Upload response status:', response.status);
+      
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        console.error('Upload failed:', error);
+        throw new Error(error.error || `Upload failed (${response.status})`);
       }
 
       const data = await response.json();
+      console.log('Upload successful:', data);
       onImageChange(data.publicUrl);
     } catch (error) {
       console.error('Upload error:', error);

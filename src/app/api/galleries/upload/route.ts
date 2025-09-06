@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServer } from '@/lib/supabase'
 import { prisma } from '@/lib/prisma'
 import { ensureLocalUser, requireUser } from '@/lib/auth-helpers'
+import { sendUploadFailureAlert } from '@/lib/email'
+import { createRouteLogger } from '@/lib/logger'
 
 function slugify(input: string) {
   return String(input || '')
@@ -15,6 +17,7 @@ function slugify(input: string) {
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
+  const logger = createRouteLogger('/api/galleries/upload')
   // Auth
   const authRes = await requireUser(req)
   if (authRes instanceof NextResponse) return authRes
@@ -25,17 +28,23 @@ export async function POST(req: NextRequest) {
   const form = await req.formData()
   const file = form.get('file')
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: 'Missing file' }, { status: 400, headers: res.headers })
+    logger.warn('Missing file in form-data', { userEmail: user.email, userId: user.id })
+    await sendUploadFailureAlert({ route: '/api/galleries/upload', reason: 'Missing file in form-data', userEmail: user.email, userId: user.id, status: 400, reqId: logger.reqId })
+    return NextResponse.json({ error: 'Missing file', requestId: logger.reqId }, { status: 400, headers: res.headers })
   }
 
   // Basic image validation
   const mime = (file as any).type || ''
   if (!mime.startsWith('image/')) {
-    return NextResponse.json({ error: 'Only image uploads are allowed' }, { status: 400, headers: res.headers })
+    logger.warn('Rejected non-image file', { mime, userId: user.id })
+    await sendUploadFailureAlert({ route: '/api/galleries/upload', reason: 'Non-image MIME', userEmail: user.email, userId: user.id, mime, status: 400, reqId: logger.reqId })
+    return NextResponse.json({ error: 'Only image uploads are allowed', requestId: logger.reqId }, { status: 400, headers: res.headers })
   }
   const size = (file as any).size || 0
   if (size > 20 * 1024 * 1024) {
-    return NextResponse.json({ error: 'File too large (max 20MB)' }, { status: 413, headers: res.headers })
+    logger.warn('Rejected oversized file', { size, userId: user.id })
+    await sendUploadFailureAlert({ route: '/api/galleries/upload', reason: 'File too large', userEmail: user.email, userId: user.id, size, status: 413, reqId: logger.reqId })
+    return NextResponse.json({ error: 'File too large (max 20MB)', requestId: logger.reqId }, { status: 413, headers: res.headers })
   }
 
   const titleRaw = form.get('title')?.toString()?.trim()
@@ -87,15 +96,31 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  // Upload file to Supabase storage
+  // Upload file to Supabase storage (convert HEIC/HEIF to JPEG when possible)
   const supabase = getSupabaseServer(req, res)
   const bucket = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'artworks'
-  const ext = (file.name.split('.').pop() || 'png').toLowerCase()
-  const key = `users/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+  const origExt = (file.name.split('.').pop() || 'png').toLowerCase()
+  const fileMime = (file as any).type || ''
+  const isHeicLike = /heic|heif/.test(fileMime) || /heic|heif/.test(origExt)
+  let uploadBuffer = Buffer.from(await (file as File).arrayBuffer())
+  let uploadExt = origExt
+  let contentType = fileMime || 'application/octet-stream'
+  if (isHeicLike) {
+    try {
+      uploadBuffer = await (await import('sharp')).default(uploadBuffer).jpeg({ quality: 90 }).toBuffer()
+      uploadExt = 'jpg'
+      contentType = 'image/jpeg'
+    } catch (err) {
+      console.warn('[galleries/upload] HEIC->JPEG conversion failed; storing original format', { error: (err as Error).message })
+    }
+  }
+  const key = `users/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`
 
-  const { data, error } = await supabase.storage.from(bucket).upload(key, file, { cacheControl: '3600', upsert: false })
+  const { data, error } = await supabase.storage.from(bucket).upload(key, uploadBuffer, { cacheControl: '3600', upsert: false, contentType })
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500, headers: res.headers })
+    logger.error('Storage upload error', { error })
+    await sendUploadFailureAlert({ route: '/api/galleries/upload', reason: error.message, userEmail: user.email, userId: user.id, fileName: (file as any).name, mime: contentType, size, status: 500, reqId: logger.reqId })
+    return NextResponse.json({ error: error.message, requestId: logger.reqId }, { status: 500, headers: res.headers })
   }
   const { data: pub } = supabase.storage.from(bucket).getPublicUrl(data.path)
 
@@ -111,6 +136,6 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  return NextResponse.json({ gallery, item }, { status: 201, headers: res.headers })
+  logger.info('Upload complete', { path: data!.path, publicUrl: pub.publicUrl, userId: user.id })
+  return NextResponse.json({ gallery, item, requestId: logger.reqId }, { status: 201, headers: res.headers })
 }
-

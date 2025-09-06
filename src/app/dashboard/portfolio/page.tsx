@@ -28,20 +28,33 @@ export default function PortfolioPage() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<Portfolio>>({});
+  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchPortfolio();
   }, []);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+    };
+  }, [saveTimeout]);
+
   const fetchPortfolio = async () => {
+    console.log('Fetching portfolio data...');
     try {
       const response = await fetch('/api/studio/portfolio');
       if (response.ok) {
         const data = await response.json();
+        console.log('Portfolio fetched:', data.portfolio);
         setPortfolio(data.portfolio);
         setFormData(data.portfolio || {});
+      } else {
+        console.error('Failed to fetch portfolio, status:', response.status);
       }
     } catch (error) {
       console.error('Failed to fetch portfolio:', error);
@@ -50,22 +63,32 @@ export default function PortfolioPage() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (dataToSave?: Partial<Portfolio>) => {
     setSaving(true);
+    const saveData = dataToSave || formData;
+    console.log('Saving portfolio...', saveData);
+    console.log('🔍 Form data keys:', Object.keys(saveData));
+    console.log('🔍 profileImageUrl in saveData:', saveData.profileImageUrl);
+    console.log('🔍 bannerImageUrl in saveData:', saveData.bannerImageUrl);
     try {
       const response = await fetch('/api/studio/portfolio', {
         method: portfolio ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(saveData),
       });
+
+      console.log('Save response status:', response.status);
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Portfolio saved successfully:', data.portfolio);
+        console.log('🔍 Returned profileImageUrl:', data.portfolio.profileImageUrl);
         setPortfolio(data.portfolio);
         setFormData(data.portfolio);
-        setEditing(false);
       } else {
-        alert('Failed to save portfolio');
+        const error = await response.json();
+        console.error('Failed to save portfolio:', error);
+        alert(`Failed to save: ${error.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to save portfolio:', error);
@@ -75,15 +98,56 @@ export default function PortfolioPage() {
     }
   };
 
+  const debouncedSave = () => {
+    // Clear existing timeout
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    
+    // Set new timeout
+    const newTimeout = setTimeout(() => {
+      console.log('Debounced save triggered');
+      handleSave();
+      setSaveTimeout(null);
+    }, 1000); // Auto-save after 1 second of no changes
+    
+    setSaveTimeout(newTimeout);
+  };
+
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    console.log('Input changed:', field, value);
+    
+    // Update formData with the new value
+    const newFormData = { ...formData, [field]: value };
+    console.log('🔍 Updated formData:', { 
+      profileImageUrl: newFormData.profileImageUrl, 
+      bannerImageUrl: newFormData.bannerImageUrl 
+    });
+    setFormData(newFormData);
+    
+    // For image uploads, save immediately with the new data
+    if (field === 'profileImageUrl' || field === 'bannerImageUrl') {
+      console.log('Image upload detected, saving immediately with new data');
+      // Clear any pending timeout
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        setSaveTimeout(null);
+      }
+      // Save immediately for images with the updated data
+      setTimeout(() => handleSave(newFormData), 100);
+    } else {
+      // For text fields, use debounced save
+      debouncedSave();
+    }
   };
 
   const handleSocialChange = (platform: string, value: string) => {
+    console.log('Social link changed:', platform, value);
     setFormData(prev => ({
       ...prev,
       socialLinks: { ...prev.socialLinks, [platform]: value }
     }));
+    debouncedSave();
   };
 
   if (loading) {
@@ -128,35 +192,11 @@ export default function PortfolioPage() {
               </a>
             )}
             
-            {editing ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setEditing(false);
-                    setFormData(portfolio || {});
-                  }}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
-                  disabled={saving}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition inline-flex items-center"
-                  disabled={saving}
-                >
-                  <FaSave className="mr-2" />
-                  {saving ? 'Saving...' : 'Save'}
-                </button>
+            {saving && (
+              <div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg inline-flex items-center">
+                <FaSave className="mr-2 animate-pulse" />
+                Auto-saving...
               </div>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition inline-flex items-center"
-              >
-                <FaEdit className="mr-2" />
-                Edit Portfolio
-              </button>
             )}
           </div>
         </div>
@@ -181,8 +221,7 @@ export default function PortfolioPage() {
                   type="text"
                   value={formData.slug || ''}
                   onChange={(e) => handleInputChange('slug', e.target.value)}
-                  disabled={!editing}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   placeholder="your-artist-name"
                 />
               </div>
@@ -199,8 +238,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={formData.displayName || ''}
                 onChange={(e) => handleInputChange('displayName', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="Your Artist Name"
               />
             </div>
@@ -213,8 +251,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={formData.location || ''}
                 onChange={(e) => handleInputChange('location', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="City, Country"
               />
             </div>
@@ -227,8 +264,7 @@ export default function PortfolioPage() {
                 type="url"
                 value={formData.website || ''}
                 onChange={(e) => handleInputChange('website', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="https://your-website.com"
               />
             </div>
@@ -240,9 +276,8 @@ export default function PortfolioPage() {
               <textarea
                 value={formData.bio || ''}
                 onChange={(e) => handleInputChange('bio', e.target.value)}
-                disabled={!editing}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="Tell people about your art and yourself..."
               />
             </div>
@@ -262,7 +297,6 @@ export default function PortfolioPage() {
                 type="profile"
                 currentImageUrl={formData.profileImageUrl}
                 onImageChange={(url) => handleInputChange('profileImageUrl', url)}
-                disabled={!editing}
               />
             </div>
 
@@ -274,7 +308,6 @@ export default function PortfolioPage() {
                 type="banner"
                 currentImageUrl={formData.bannerImageUrl}
                 onImageChange={(url) => handleInputChange('bannerImageUrl', url)}
-                disabled={!editing}
               />
             </div>
 
@@ -293,8 +326,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={formData.socialLinks?.twitter || ''}
                 onChange={(e) => handleSocialChange('twitter', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="@username"
               />
             </div>
@@ -307,8 +339,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={formData.socialLinks?.instagram || ''}
                 onChange={(e) => handleSocialChange('instagram', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="@username"
               />
             </div>
@@ -321,8 +352,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={formData.socialLinks?.artstation || ''}
                 onChange={(e) => handleSocialChange('artstation', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="username"
               />
             </div>
@@ -335,8 +365,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={formData.socialLinks?.deviantart || ''}
                 onChange={(e) => handleSocialChange('deviantart', e.target.value)}
-                disabled={!editing}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="username"
               />
             </div>
@@ -349,8 +378,7 @@ export default function PortfolioPage() {
                   id="isPublic"
                   checked={formData.isPublic || false}
                   onChange={(e) => handleInputChange('isPublic', e.target.checked)}
-                  disabled={!editing}
-                  className="mr-3 h-4 w-4 text-blue-600 disabled:opacity-50"
+                  className="mr-3 h-4 w-4 text-blue-600"
                 />
                 <label htmlFor="isPublic" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                   <FaGlobe className="mr-2" />

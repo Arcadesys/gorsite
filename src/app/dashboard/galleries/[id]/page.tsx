@@ -226,6 +226,13 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
+              href={`/dashboard/upload?gallery=${galleryId}&mode=bulk`}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition inline-flex items-center justify-center"
+            >
+              <FaUpload className="mr-2" />
+              Bulk Upload
+            </Link>
+            <Link
               href={`/dashboard/upload?gallery=${galleryId}`}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition inline-flex items-center justify-center"
             >
@@ -384,13 +391,22 @@ export default function GalleryDetailPage({ params }: GalleryDetailPageProps) {
             <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
               Start building your collection by adding your first artwork to this gallery.
             </p>
-            <Link
-              href={`/dashboard/upload?gallery=${galleryId}`}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition inline-flex items-center"
-            >
-              <FaUpload className="mr-2" />
-              Add First Artwork
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href={`/dashboard/upload?gallery=${galleryId}`}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition inline-flex items-center justify-center"
+              >
+                <FaUpload className="mr-2" />
+                Add Single Artwork
+              </Link>
+              <Link
+                href={`/dashboard/upload?gallery=${galleryId}&mode=bulk`}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition inline-flex items-center justify-center"
+              >
+                <FaUpload className="mr-2" />
+                Bulk Upload
+              </Link>
+            </div>
           </div>
         )}
       </div>

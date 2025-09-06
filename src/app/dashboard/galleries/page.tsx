@@ -111,6 +111,13 @@ export default function GalleriesPage() {
           </div>
           <div className="mt-4 sm:mt-0 flex gap-3">
             <Link
+              href="/dashboard/upload?mode=bulk"
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition inline-flex items-center"
+            >
+              <FaUpload className="mr-2" />
+              Bulk Upload
+            </Link>
+            <Link
               href="/dashboard/upload"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition inline-flex items-center"
             >
