@@ -41,6 +41,7 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
 
     const artistNav = [
       { name: 'Portfolio', href: '/dashboard/portfolio', icon: <FaUser size={20} />, roles: ['ARTIST'] },
+      { name: 'Customization', href: '/dashboard/customization', icon: <FaPalette size={20} />, roles: ['ARTIST'] },
       { name: 'Galleries', href: '/dashboard/galleries', icon: <FaImages size={20} />, roles: ['ARTIST'] },
       { name: 'Upload Art', href: '/dashboard/upload', icon: <FaUpload size={20} />, roles: ['ARTIST'] },
       { name: 'Commissions', href: '/dashboard/commissions', icon: <FaClipboardList size={20} />, roles: ['ARTIST'] },

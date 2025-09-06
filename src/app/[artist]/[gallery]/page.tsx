@@ -6,11 +6,24 @@ import PlaceholderArt from '@/components/PlaceholderArt'
 
 export default async function ArtistGalleryPage({ params }: { params: Promise<{ artist: string, gallery: string }> }) {
   const { artist, gallery: gallerySlug } = await params;
-  const portfolio = await prisma.portfolio.findUnique({ where: { slug: artist } })
+  const portfolio = await prisma.portfolio.findUnique({ 
+    where: { slug: artist },
+    select: {
+      id: true,
+      userId: true,
+      slug: true,
+      displayName: true,
+      primaryColor: true,
+      secondaryColor: true,
+    }
+  }) as any;
   if (!portfolio) return notFound()
   const gallery = await prisma.gallery.findUnique({ where: { userId_slug: { userId: portfolio.userId, slug: gallerySlug } } })
   if (!gallery || !gallery.isPublic) return notFound()
   const items = await prisma.galleryItem.findMany({ where: { galleryId: gallery.id }, orderBy: [{ position: 'asc' }, { createdAt: 'desc' }] })
+
+  // Use user's custom colors or defaults
+  const primaryColor = portfolio.primaryColor || '#10b981';
 
   return (
     <div className="min-h-screen">
@@ -38,7 +51,12 @@ export default async function ArtistGalleryPage({ params }: { params: Promise<{ 
                   )}
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-emerald-400 mb-2">{item.title}</h3>
+                  <h3 
+                    className="text-xl font-bold mb-2 group-hover:opacity-80 transition-opacity"
+                    style={{ color: primaryColor }}
+                  >
+                    {item.title}
+                  </h3>
                   {item.description ? <p className="text-gray-400 mb-2">{item.description}</p> : null}
                 </div>
               </Link>

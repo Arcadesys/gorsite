@@ -215,6 +215,11 @@ model Portfolio {
 
   // Artist links page entries
   links           Link[]
+
+  // Customization fields
+  primaryColor    String            @default("#10b981")
+  secondaryColor  String            @default("#059669")
+  footerText      String?
 }
 
 model CommissionPrice {
