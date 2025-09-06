@@ -5,6 +5,7 @@ import Link from 'next/link';
 import DashboardLayout from '@/components/DashboardLayout';
 import ArtistCredit from '@/components/ArtistCredit';
 import { FaImages, FaUpload, FaEye, FaHeart, FaPlus } from 'react-icons/fa';
+import Tour from '@/components/Tour';
 
 interface DashboardStats {
   totalGalleries: number;
@@ -35,6 +36,15 @@ export default function DashboardHome() {
   });
   const [recentArtworks, setRecentArtworks] = useState<RecentArtwork[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    // Auto-suggest tour for artists who haven't completed it yet
+    const seen = localStorage.getItem('artistTourCompleted');
+    if (!seen) {
+      // Do not auto-open to avoid surprise; show banner instead
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -95,9 +105,94 @@ export default function DashboardHome() {
     );
   }
 
+  const tourSteps = userRole === 'ARTIST' ? [
+    {
+      id: 'nav-galleries',
+      target: '[data-tour-id="nav-galleries"]',
+      title: 'Galleries',
+      content: 'Create and organize collections of your artwork. Start here to structure your portfolio.',
+      placement: 'right' as const,
+    },
+    {
+      id: 'qa-upload',
+      target: '[data-tour-id="qa-upload"]',
+      title: 'Upload Artwork',
+      content: 'Add new pieces to your portfolio. You can upload and later assign them to galleries.',
+      placement: 'bottom' as const,
+    },
+    {
+      id: 'qa-new-gallery',
+      target: '[data-tour-id="qa-new-gallery"]',
+      title: 'Create a Gallery',
+      content: 'Quickly create a new gallery to group related works.',
+      placement: 'bottom' as const,
+    },
+    {
+      id: 'nav-customization',
+      target: '[data-tour-id="nav-customization"]',
+      title: 'Customize Your Page',
+      content: 'Adjust colors, layout, and presentation to match your style.',
+      placement: 'right' as const,
+    },
+    {
+      id: 'nav-links',
+      target: '[data-tour-id="nav-links"]',
+      title: 'Links Page',
+      content: 'Add social links or external pages to share alongside your art.',
+      placement: 'right' as const,
+    },
+    {
+      id: 'nav-pricing',
+      target: '[data-tour-id="nav-pricing"]',
+      title: 'Pricing',
+      content: 'Set prices or rate cards for commissions or prints, if enabled.',
+      placement: 'right' as const,
+    },
+    {
+      id: 'nav-commissions',
+      target: '[data-tour-id="nav-commissions"]',
+      title: 'Commissions',
+      content: 'Manage commission requests and details from interested clients.',
+      placement: 'right' as const,
+    },
+    {
+      id: 'nav-profile',
+      target: '[data-tour-id="nav-profile"]',
+      title: 'Profile',
+      content: 'Update your artist info and portfolio slug so fans can find you.',
+      placement: 'right' as const,
+    },
+  ] : [];
+
   return (
     <DashboardLayout userRole={userRole}>
       <div className="p-6">
+        {userRole === 'ARTIST' && (
+          <div className="mb-6">
+            <div className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950 p-4 flex items-center justify-between">
+              <div className="text-sm text-blue-900 dark:text-blue-200">
+                New here? Take a 60-second tour to learn how to set up galleries and customize your page.
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowTour(true)}
+                  className="px-3 py-1.5 rounded bg-blue-600 text-white text-sm hover:bg-blue-700"
+                  data-tour-id="banner-start-tour"
+                >
+                  Start tour
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.setItem('artistTourCompleted', '1');
+                  }}
+                  className="text-xs text-blue-800/80 dark:text-blue-200/80 hover:underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -120,6 +215,7 @@ export default function DashboardHome() {
             <Link
               href="/dashboard/upload"
               className="p-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition group"
+              data-tour-id="qa-upload"
             >
               <FaUpload className="text-2xl mb-3 group-hover:scale-110 transition-transform" />
               <h3 className="font-semibold mb-1">Upload Artwork</h3>
@@ -138,6 +234,7 @@ export default function DashboardHome() {
             <Link
               href="/dashboard/galleries/new"
               className="p-6 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition group"
+              data-tour-id="qa-new-gallery"
             >
               <FaPlus className="text-2xl mb-3 group-hover:scale-110 transition-transform" />
               <h3 className="font-semibold mb-1">New Gallery</h3>
@@ -269,6 +366,16 @@ export default function DashboardHome() {
           )}
         </div>
       </div>
+      {userRole === 'ARTIST' && (
+        <Tour
+          steps={tourSteps}
+          open={showTour}
+          onClose={() => {
+            setShowTour(false);
+            try { localStorage.setItem('artistTourCompleted', '1'); } catch {}
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }

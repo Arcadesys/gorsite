@@ -64,6 +64,14 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
 
   const navigation = getNavigation();
 
+  const getDataTourId = (href: string) => {
+    // Normalize like /dashboard -> nav-dashboard, /dashboard/galleries -> nav-galleries
+    const parts = href.split('/').filter(Boolean);
+    if (parts.length === 1) return 'nav-dashboard';
+    if (parts[0] === 'dashboard' && parts[1]) return `nav-${parts[1]}`;
+    return `nav-${parts.join('-')}`;
+  };
+
   const getDashboardTitle = () => {
     switch (userRole) {
       case 'ARTIST': return 'Artist Studio';
@@ -100,6 +108,7 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
                       ? `text-white`
                       : `${colorMode === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`
                   }`}
+                  data-tour-id={getDataTourId(item.href)}
                   style={{
                     backgroundColor: isActive ? `var(--${accentColor}-600)` : '',
                   }}
@@ -119,6 +128,7 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
                   ? 'text-white'
                   : `${colorMode === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`
               }`}
+              data-tour-id="nav-profile"
               style={{
                 backgroundColor: pathname === '/dashboard/profile' ? `var(--${accentColor}-600)` : '',
               }}
