@@ -3,8 +3,25 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
+import ArtistBadge from '@/components/ArtistBadge';
 
-type Gallery = { id: string; name: string; slug: string; description?: string | null; createdAt: string };
+type Gallery = { 
+  id: string; 
+  name: string; 
+  slug: string; 
+  description?: string | null; 
+  createdAt: string;
+  user: {
+    id: string;
+    name?: string | null;
+    image?: string | null;
+    portfolios?: {
+      slug: string;
+      displayName: string;
+      profileImageUrl?: string | null;
+    }[];
+  };
+};
 
 export default function GalleriesIndex() {
   const { accentColor, colorMode } = useTheme();
@@ -38,6 +55,11 @@ export default function GalleriesIndex() {
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-2" style={{ color: `var(--${accentColor === 'green' ? 'emerald' : accentColor}-400)` }}>{g.name}</h3>
                   <p className={colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700'}>{g.description || 'A curated collection of works.'}</p>
+                  
+                  {/* Artist Badge */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <ArtistBadge user={g.user} size="sm" />
+                  </div>
                 </div>
               </Link>
             ))
